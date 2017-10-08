@@ -317,7 +317,7 @@ object ScalatestBuild extends Build {
       .settings(sharedSettings: _*)
       .settings(
         projectTitle := "Common test classes used by scalactic.native and scalatest.native",
-        libraryDependencies += scalacheckDependency("optional").value,
+        libraryDependencies += "org.scalacheck" %%% "scalacheck" % nativeScalacheckVersion % "optional",
         sourceGenerators in Compile += {
           Def.task{
             GenCommonTestNative.genMain((sourceManaged in Compile).value / "scala" / "org" / "scalatest", version.value, scalaVersion.value)
