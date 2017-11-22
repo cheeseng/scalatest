@@ -78,13 +78,13 @@ object ScalatestBuild extends Build {
     }
 
   def getJavaHome(scalaMajorVersion: String): Option[File] = {
-    scalaMajorVersion match {
+    /*scalaMajorVersion match {
       case "2.10" | "2.11" =>  // force to use Java 6
         if (!System.getProperty("java.version").startsWith("1.6"))
           throw new IllegalStateException("Please use JDK 6 to build for Scala 2.10 and 2.11.")
 
       case _ =>
-    }
+    }*/
 
     val javaHome = new File(System.getProperty("java.home"))
     val javaHomeBin = new File(javaHome, "bin")
@@ -244,7 +244,7 @@ object ScalatestBuild extends Build {
       "commons-io" % "commons-io" % "1.3.2" % "test",
       "org.eclipse.jetty" % "jetty-server" % "8.1.18.v20150929" % "test",
       "org.eclipse.jetty" % "jetty-webapp" % "8.1.18.v20150929" % "test",
-      "io.circe" %% "circe-parser" % "0.7.1" % "test"
+      "io.spray" %%  "spray-json" % "1.3.4" % "test"
     )
 
   def scalatestJSLibraryDependencies =
@@ -551,6 +551,7 @@ object ScalatestBuild extends Build {
           "-W", "120", "60")),
       logBuffered in Test := false,
       libraryDependencies += scalacheckDependency("test"),
+      libraryDependencies ++= crossBuildTestLibraryDependencies(scalaVersion.value),
       publishArtifact := false,
       publish := {},
       publishLocal := {},
@@ -631,6 +632,7 @@ object ScalatestBuild extends Build {
      sourceGenerators in Compile += {
        Def.task{
          GenGen.genMain((sourceManaged in Compile).value / "org" / "scalatest" / "prop", version.value, scalaVersion.value) ++
+         GenScalaCheckGen.genMain((sourceManaged in Compile).value / "org" / "scalatest" / "prop", version.value, scalaVersion.value) ++
          GenTable.genMain((sourceManaged in Compile).value / "org" / "scalatest", version.value, scalaVersion.value) ++
          GenMatchers.genMain((sourceManaged in Compile).value / "org" / "scalatest", version.value, scalaVersion.value) ++
          GenFactories.genMain((sourceManaged in Compile).value / "org" / "scalatest" / "matchers", version.value, scalaVersion.value) ++
@@ -695,6 +697,7 @@ object ScalatestBuild extends Build {
       libraryDependencies ++= crossBuildLibraryDependencies.value,
       libraryDependencies ++= scalatestLibraryDependencies,
       libraryDependencies ++= scalatestTestLibraryDependencies(scalaVersion.value),
+      libraryDependencies ++= crossBuildTestLibraryDependencies(scalaVersion.value),
       testOptions in Test := scalatestTestOptions,
       logBuffered in Test := false,
       //fork in Test := true,
@@ -743,6 +746,7 @@ object ScalatestBuild extends Build {
       sourceGenerators in Compile += {
         Def.task{
           GenGen.genMain((sourceManaged in Compile).value / "org" / "scalatest" / "prop", version.value, scalaVersion.value) ++
+          GenScalaCheckGen.genMain((sourceManaged in Compile).value / "org" / "scalatest" / "prop", version.value, scalaVersion.value) ++
           GenTable.genMainForScalaJS((sourceManaged in Compile).value / "org" / "scalatest", version.value, scalaVersion.value) ++
           GenMatchers.genMainForScalaJS((sourceManaged in Compile).value / "org" / "scalatest", version.value, scalaVersion.value) ++
           GenFactories.genMainJS((sourceManaged in Compile).value / "org" / "scalatest" / "matchers", version.value, scalaVersion.value)
@@ -794,7 +798,7 @@ object ScalatestBuild extends Build {
       organization := "org.scalatest",
       libraryDependencies ++= crossBuildLibraryDependencies.value,
       libraryDependencies += "org.scalacheck" %%% "scalacheck" % scalacheckVersion % "test",
-      libraryDependencies += "io.circe" %%% "circe-parser" % "0.7.1" % "test",
+      libraryDependencies += "io.spray" %%  "spray-json" % "1.3.4" % "optional",
       //jsDependencies += RuntimeDOM % "test",
       scalaJSOptimizerOptions ~= { _.withDisableOptimizer(true) },
       //jsEnv := NodeJSEnv(executable = "node").value,
@@ -1145,7 +1149,8 @@ object ScalatestBuild extends Build {
       "org.testng" % "testng" % testngVersion % "optional",
       "org.jmock" % "jmock-legacy" % jmockVersion % "optional",
       "org.pegdown" % "pegdown" % pegdownVersion % "optional",
-      "io.circe" %% "circe-parser" % "0.7.1" % "test"
+      "io.spray" %%  "spray-json" % "1.3.4" % "optional"
+
     )
 
   def gentestsSharedSettings: Seq[Setting[_]] = Seq(
@@ -1288,6 +1293,14 @@ object ScalatestBuild extends Build {
           GenGen.genTest((sourceManaged in Test).value / "org" / "scalatest" / "prop", version.value, scalaVersion.value)
         }.taskValue
       }
+    ).dependsOn(scalatest, commonTest, scalacticMacro % "compile-internal, test-internal")
+
+  lazy val genScalaCheckGenTests = Project("genScalaCheckGenTests", file("gentests/GenScalaCheckGen"))
+    .settings(gentestsSharedSettings: _*)
+    .settings(
+      genGenTask,
+      sourceGenerators in Test <+=
+        (baseDirectory, sourceManaged in Test, version, scalaVersion) map genFiles("genscalacheckgen", "GenScalaCheckGen.scala")(GenScalaCheckGen.genTest)
     ).dependsOn(scalatest, commonTest, scalacticMacro % "compile-internal, test-internal")
 
   lazy val genTablesTests = Project("genTablesTests", file("gentests/GenTables"))
@@ -1550,6 +1563,16 @@ object ScalatestBuild extends Build {
     }
   }
 
+  val genScalaCheckGen = TaskKey[Unit]("genscalacheckgen", "Generate ScalaCheck driven Property Checks")
+  val genScalaCheckGenTask = genScalaCheckGen <<= (sourceManaged in Compile, sourceManaged in Test, name, version, scalaVersion) map { (mainTargetDir: File, testTargetDir: File, projName: String, theVersion: String, theScalaVersion: String) =>
+    projName match {
+      case "scalatest" =>
+        GenGen.genMain(new File(mainTargetDir, "scala/genscalacheckgen"), theVersion, theScalaVersion)
+      case "gentests" =>
+        GenGen.genTest(new File(testTargetDir, "scala/genscalacheckgen"), theVersion, theScalaVersion)
+    }
+  }
+
   val genTables = TaskKey[Unit]("gentables", "Generate Tables")
   val genTablesTask = genTables := {
     val mainTargetDir = (sourceManaged in Compile).value
@@ -1694,6 +1717,7 @@ object ScalatestBuild extends Build {
     val theScalaVersion = scalaVersion.value
 
     GenGen.genMain(new File(mainTargetDir, "scala/gengen"), theVersion, theScalaVersion)
+    GenScalaCheckGen.genMain(new File(mainTargetDir, "scala/genscalacheckgen"), theVersion, theScalaVersion)
     GenTable.genMain(new File(mainTargetDir, "scala/gentables"), theVersion, theScalaVersion)
     GenMatchers.genMain(new File(mainTargetDir, "scala/genmatchers"), theVersion, theScalaVersion)
     GenFactories.genMain(new File(mainTargetDir, "scala/genfactories"), theVersion, theScalaVersion)
