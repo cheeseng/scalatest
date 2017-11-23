@@ -47,7 +47,7 @@ class EveryShouldContainAllElementsOfSpec extends FunSpec {
 
   //ADDITIONAL//
 
-  describe("an Every") {
+  /*describe("an Every") {
 
     val fumList: Every[String] = Every("fex", "fum", "foe", "fie", "fee")
     val toList: Every[String] = Every("too", "you", "to", "birthday", "happy")
@@ -250,7 +250,7 @@ class EveryShouldContainAllElementsOfSpec extends FunSpec {
         toList shouldNot (contain allElementsOf Seq("fee", "fie", "foe", "fie", "fum"))
       }
     }
-  }
+  }*/
 
   describe("an every of Everys") {
 
@@ -262,12 +262,14 @@ class EveryShouldContainAllElementsOfSpec extends FunSpec {
     describe("when used with contain allElementsOf Seq(..)") {
 
       it("should do nothing if valid, else throw a TFE with an appropriate error message") {
-        all (list1s) should contain allElementsOf Seq(1, 2, 3)
-        atLeast (2, lists) should contain allElementsOf Seq(1, 2, 3)
-        atMost (2, lists) should contain allElementsOf Seq(1, 2, 3)
+        //all (list1s) should contain allElementsOf Seq(1, 2, 3)
+        //atLeast (2, lists) should contain allElementsOf Seq(1, 2, 3)
+        //atMost (2, lists) should contain allElementsOf Seq(1, 2, 3)
         no (lists) should contain allElementsOf Seq(3, 4, 5)
 
-        val e1 = intercept[TestFailedException] {
+        //Let's try https://github.com/scala-native/scala-native/issues/1032
+
+        /*val e1 = intercept[TestFailedException] {
           all (lists) should contain allElementsOf Seq(1, 2, 3)
         }
         e1.failedCodeFileName.get should be ("EveryShouldContainAllElementsOfSpec.scala")
@@ -275,10 +277,10 @@ class EveryShouldContainAllElementsOfSpec extends FunSpec {
         e1.failedCodeLineNumber.get should be (offendingLine)
         e1.message should be (Some("'all' inspection failed, because: \n" +
           "  at index 2, " + decorateToStringValue(prettifier, Many(8, 4, 3, 2)) + " did not contain all elements of " + decorateToStringValue(prettifier, List(1, 2, 3)) + " (EveryShouldContainAllElementsOfSpec.scala:" + offendingLine + ") \n" +
-          "in " + decorateToStringValue(prettifier, lists)))
+          "in " + decorateToStringValue(prettifier, lists)))*/
       }
 
-      it("should use the implicit Equality in scope") {
+      /*it("should use the implicit Equality in scope") {
         all (hiLists) should contain allElementsOf Seq("he", "hi")
         intercept[TestFailedException] {
           all (hiLists) should contain allElementsOf Seq("ho", "hi")
@@ -302,10 +304,10 @@ class EveryShouldContainAllElementsOfSpec extends FunSpec {
       }
       it("should allow RHS to contain duplicated value") {
         all (list1s) should contain allElementsOf Seq(1, 2, 2, 3)
-      }
+      }*/
     }
 
-    describe("when used with (contain allElementsOf Seq(..))") {
+    /*describe("when used with (contain allElementsOf Seq(..))") {
 
       it("should do nothing if valid, else throw a TFE with an appropriate error message") {
         all (list1s) should (contain allElementsOf Seq(1, 2, 3))
@@ -493,6 +495,6 @@ class EveryShouldContainAllElementsOfSpec extends FunSpec {
       it("should allow RHS to contain duplicated value") {
         all (toLists) shouldNot (contain allElementsOf Seq("fee", "fie", "foe", "fie", "fum"))
       }
-    }
+    }*/
   }
 }

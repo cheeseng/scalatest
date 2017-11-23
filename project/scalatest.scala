@@ -77,14 +77,17 @@ object ScalatestBuild extends Build {
       case _ => Credentials(Path.userHome / ".ivy2" / ".credentials")
     }
 
-  def getJavaHome(scalaMajorVersion: String): Option[File] = {
-    scalaMajorVersion match {
-      case "2.10" | "2.11" =>  // force to use Java 6
-        if (!System.getProperty("java.version").startsWith("1.6"))
-          throw new IllegalStateException("Please use JDK 6 to build for Scala 2.10 and 2.11.")
+  def getJavaHome(projectName: String, scalaMajorVersion: String): Option[File] = {
+    /*println("###projectName: " + projectName)
+    if (!projectName.contains("Native")) {
+      scalaMajorVersion match {
+        case "2.10" | "2.11" =>  // force to use Java 6
+          if (!System.getProperty("java.version").startsWith("1.6"))
+            throw new IllegalStateException("Please use JDK 6 to build for Scala 2.10 and 2.11.")
 
-      case _ =>
-    }
+        case _ =>
+      }
+    }*/
 
     val javaHome = new File(System.getProperty("java.home"))
     val javaHomeBin = new File(javaHome, "bin")
@@ -105,7 +108,7 @@ object ScalatestBuild extends Build {
   }
 
   def sharedSettings: Seq[Setting[_]] = Seq(
-    javaHome := getJavaHome(scalaBinaryVersion.value),
+    javaHome := getJavaHome(name.value, scalaBinaryVersion.value),
     scalaVersion := buildScalaVersion,
     crossScalaVersions := Seq(buildScalaVersion, "2.10.6", "2.12.0"),
     version := releaseVersion,
@@ -1149,7 +1152,7 @@ object ScalatestBuild extends Build {
     )
 
   def gentestsSharedSettings: Seq[Setting[_]] = Seq(
-    javaHome := getJavaHome(scalaBinaryVersion.value),
+    javaHome := getJavaHome(name.value, scalaBinaryVersion.value),
     scalaVersion := buildScalaVersion,
     scalacOptions ++= Seq("-feature"),
     resolvers += "Sonatype Public" at "https://oss.sonatype.org/content/groups/public",

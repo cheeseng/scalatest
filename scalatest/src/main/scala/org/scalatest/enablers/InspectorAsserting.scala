@@ -674,6 +674,7 @@ object InspectorAsserting extends UnitInspectorAsserting /*ExpectationInspectorA
 
   @tailrec
   private[scalatest] final def runFor[T, ASSERTION](itr: Iterator[T], xsIsMap: Boolean, index:Int, result: ForResult[T], fun: T => ASSERTION, stopFun: ForResult[_] => Boolean): ForResult[T] = {
+    //println("###runFor")
     if (itr.hasNext) {
       val head = itr.next
       val newResult =
@@ -689,6 +690,8 @@ object InspectorAsserting extends UnitInspectorAsserting /*ExpectationInspectorA
               case _ => index.toString
             }
             result.copy(messageAcc = result.messageAcc :+ createMessage(messageKey, e, xsIsMap), failedElements = result.failedElements :+ (index, head, e))
+          case other: Throwable =>
+            throw other
         }
       if (stopFun(newResult))
         newResult
