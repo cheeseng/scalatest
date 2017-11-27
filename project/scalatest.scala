@@ -829,7 +829,7 @@ object ScalatestBuild extends Build {
       initialCommands in console := """|import org.scalatest._
                                        |import org.scalactic._
                                        |import Matchers._""".stripMargin,
-      libraryDependencies += "org.scala-native" %%% "test-interface" % "0.3.3",
+      libraryDependencies += "org.scala-native" %%% "test-interface" % "0.4.0-SNAPSHOT",
       libraryDependencies += "org.scalacheck" %%% "scalacheck" % nativeScalacheckVersion % "optional",
       //jsDependencies += RuntimeDOM % "test",
       sourceGenerators in Compile += {
@@ -1085,7 +1085,7 @@ object ScalatestBuild extends Build {
         organization := "org.scalatest",
         moduleName := "scalatest-app",
         libraryDependencies ++= nativeCrossBuildLibraryDependencies.value,
-        libraryDependencies += "org.scala-native" %%% "test-interface" % "0.3.3",
+        libraryDependencies += "org.scala-native" %%% "test-interface" % "0.4.0-SNAPSHOT",
         // include the scalactic classes and resources in the jar
         mappings in (Compile, packageBin) ++= mappings.in(scalacticNative, Compile, packageBin).value,
         // include the scalactic sources in the source jar
