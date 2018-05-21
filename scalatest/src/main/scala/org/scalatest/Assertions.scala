@@ -17,6 +17,7 @@ package org.scalatest
 
 import org.scalactic._
 import Requirements._
+
 import scala.reflect.ClassTag
 import Assertions.NormalResult
 import Assertions.areEqualComparingArraysStructurally
@@ -24,6 +25,9 @@ import exceptions.StackDepthException
 import exceptions.StackDepthException.toExceptionFunction
 import exceptions.TestFailedException
 import exceptions.TestPendingException
+
+import scala.tools.nsc.GenericRunnerSettings
+import scala.tools.nsc.interpreter.IMain
 
 /**
  * Trait that contains ScalaTest's basic assertion methods.
@@ -742,7 +746,34 @@ trait Assertions extends TripleEquals  {
    *
    * @param code the snippet of code that should not type check
    */
-  def assertDoesNotCompile(code: String)(implicit pos: source.Position): Assertion = macro CompileMacro.assertDoesNotCompileImpl
+  def assertDoesNotCompile(code: String)(implicit pos: source.Position): Assertion = {
+    val interpreter = {
+      val out = System.out
+      val flusher = new java.io.PrintWriter(out)
+      val settings = new GenericRunnerSettings( println _ )
+      //settings.usejavacp.value = true
+      /*settings.classpath.value = "/home/cheeseng/.ivy2/cache/org.scala-lang/scala-compiler/jars/scala-compiler-2.12.4.jar:/home/cheeseng/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.12.4.jar:/home/cheeseng/.ivy2/cache/org.scala-lang/scala-reflect/jars/scala-reflect-2.12.4.jar:/home/cheeseng/.ivy2/cache/org.scala-lang.modules/scala-xml_2.12/bundles/scala-xml_2.12-1.0.4.jar:/home/cheeseng/.ivy2/cache/org.scala-lang.modules/scala-parser-combinators_2.12/bundles/scala-parser-combinators_2.12-1.0.4.jar"*/
+      val classpath = {
+        java.lang.Thread.currentThread.getContextClassLoader match {
+          case cl: java.net.URLClassLoader => cl.getURLs.toList map {_.toString}
+          case x =>
+            // try one level up before giving up
+            x.getParent match {
+              case cl: java.net.URLClassLoader => cl.getURLs.toList map {_.toString}
+              case x => fail("classloader is not URLClassLoader: " + x.getClass)
+            }
+        }
+      }
+      settings.classpath.value = classpath.mkString(java.io.File.pathSeparator)
+      new IMain(settings, flusher)
+    }
+    val result = interpreter.interpret(code)
+    
+    if (result == scala.tools.nsc.interpreter.IR.Success) 
+      throw new exceptions.TestFailedException((_: StackDepthException) => Some(Resources.expectedCompileErrorButGotNone(code)), None, pos)
+    else 
+      Succeeded
+  }//macro CompileMacro.assertDoesNotCompileImpl
 
   /**
    * Asserts that a given string snippet of code passes both the Scala parser and type checker.

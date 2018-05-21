@@ -6277,19 +6277,25 @@ class AssertionsSpec extends FunSpec {
       }
 
       it("should throw TestFailedException with correct message and stack depth when the code compiles with implicit view in scope") {
-        import scala.collection.JavaConverters._
-
-        val arrayList: java.util.ArrayList[String] = new java.util.ArrayList[String]()
-
-        arrayList.add("Foo")
-        arrayList.add("Bar")
+        val code = 
+          "import scala.collection.JavaConverters._\n" +
+            "val arrayList: java.util.ArrayList[String] = new java.util.ArrayList[String]()\n" + 
+            "arrayList.add(\"Foo\")\n" + 
+            "arrayList.add(\"Bar\")\n" + 
+            "arrayList.asScala"
 
         val e = intercept[TestFailedException] {
-          assertDoesNotCompile("arrayList.asScala".stripMargin)
+          assertDoesNotCompile(code)
         }
-        assert(e.message == Some(Resources.expectedCompileErrorButGotNone("arrayList.asScala")))
+        assert(e.message == Some(Resources.expectedCompileErrorButGotNone(code)))
         assert(e.failedCodeFileName === (Some(fileName)))
         assert(e.failedCodeLineNumber === (Some(thisLineNumber - 4)))
+      }
+
+      it("should not throw TestFailedException when code compiles with invalid override") {
+        assertDoesNotCompile("""trait X { def x: Int }
+                               |object Y extends X { def x: Boolean = true }
+                               |""".stripMargin)
       }
 
     }
@@ -6341,22 +6347,22 @@ class AssertionsSpec extends FunSpec {
       }
 
       it("should throw TestFailedException with correct message and stack depth when the code compiles with implicit view in scope") {
-        import scala.collection.JavaConverters._
+        
 
-        val arrayList: java.util.ArrayList[String] = new java.util.ArrayList[String]()
-
-        arrayList.add("Foo")
-        arrayList.add("Bar")
+        val code = 
+          """import scala.collection.JavaConverters._
+            |
+            |val arrayList: java.util.ArrayList[String] = new java.util.ArrayList[String]()
+            |
+            |arrayList.add("Foo")
+            |arrayList.add("Bar")""".stripMargin
 
         val e = intercept[TestFailedException] {
-          assertDoesNotCompile(
-            """
-              |arrayList.asScala
-              |""".stripMargin)
+          assertDoesNotCompile(code)
         }
-        assert(e.message == Some(Resources.expectedCompileErrorButGotNone(Prettifier.lineSeparator + "arrayList.asScala" + Prettifier.lineSeparator)))
+        assert(e.message == Some(Resources.expectedCompileErrorButGotNone(code)))
         assert(e.failedCodeFileName === (Some(fileName)))
-        assert(e.failedCodeLineNumber === (Some(thisLineNumber - 7)))
+        assert(e.failedCodeLineNumber === (Some(thisLineNumber - 4)))
       }
     }
   }

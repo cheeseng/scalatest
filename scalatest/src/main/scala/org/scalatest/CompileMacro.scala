@@ -16,11 +16,14 @@
 package org.scalatest
 
 import org.scalactic._
-import org.scalatest.words.{TypeCheckWord, CompileWord}
-import scala.reflect.macros.{ Context, TypecheckException, ParseException }
+import org.scalatest.words.{CompileWord, TypeCheckWord}
+
+import scala.reflect.macros.{Context, ParseException, TypecheckException}
 import org.scalatest.exceptions.StackDepthException
 import org.scalatest.exceptions.StackDepthExceptionHelper
+
 import scala.language.experimental.macros
+import scala.tools.nsc.interpreter.IMain
 
 private[scalatest] object CompileMacro {
 
@@ -182,6 +185,7 @@ private[scalatest] object CompileMacro {
 
   // parse and type check a code snippet, generate code to throw TestFailedException when both parse and type check succeeded
   def assertDoesNotCompileImpl(c: Context)(code: c.Expr[String])(pos: c.Expr[source.Position]): c.Expr[Assertion] = {
+
     import c.universe._
 
     // extract code snippet
