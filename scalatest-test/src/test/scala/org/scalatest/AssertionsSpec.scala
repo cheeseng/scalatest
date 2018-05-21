@@ -6277,19 +6277,29 @@ class AssertionsSpec extends FunSpec {
       }
 
       it("should throw TestFailedException with correct message and stack depth when the code compiles with implicit view in scope") {
-        val code = 
-          "import scala.collection.JavaConverters._\n" +
-            "val arrayList: java.util.ArrayList[String] = new java.util.ArrayList[String]()\n" + 
-            "arrayList.add(\"Foo\")\n" + 
-            "arrayList.add(\"Bar\")\n" + 
-            "arrayList.asScala"
-
         val e = intercept[TestFailedException] {
-          assertDoesNotCompile(code)
+          assertDoesNotCompile(
+            "import scala.collection.JavaConverters._\n" +
+              "val arrayList: java.util.ArrayList[String] = new java.util.ArrayList[String]()\n" +
+              "arrayList.add(\"Foo\")\n" +
+              "arrayList.add(\"Bar\")\n" +
+              "arrayList.asScala"
+          )
         }
-        assert(e.message == Some(Resources.expectedCompileErrorButGotNone(code)))
+        assert(
+          e.message ==
+            Some(
+              Resources.expectedCompileErrorButGotNone(
+                "import scala.collection.JavaConverters._\n" +
+                  "val arrayList: java.util.ArrayList[String] = new java.util.ArrayList[String]()\n" +
+                  "arrayList.add(\"Foo\")\n" +
+                  "arrayList.add(\"Bar\")\n" +
+                  "arrayList.asScala"
+              )
+            )
+        )
         assert(e.failedCodeFileName === (Some(fileName)))
-        assert(e.failedCodeLineNumber === (Some(thisLineNumber - 4)))
+        assert(e.failedCodeLineNumber === (Some(thisLineNumber - 21)))
       }
 
       it("should not throw TestFailedException when code compiles with invalid override") {
@@ -6347,22 +6357,28 @@ class AssertionsSpec extends FunSpec {
       }
 
       it("should throw TestFailedException with correct message and stack depth when the code compiles with implicit view in scope") {
-        
-
-        val code = 
-          """import scala.collection.JavaConverters._
-            |
-            |val arrayList: java.util.ArrayList[String] = new java.util.ArrayList[String]()
-            |
-            |arrayList.add("Foo")
-            |arrayList.add("Bar")""".stripMargin
-
         val e = intercept[TestFailedException] {
-          assertDoesNotCompile(code)
+          assertDoesNotCompile("""import scala.collection.JavaConverters._
+                                 |
+                                 |val arrayList: java.util.ArrayList[String] = new java.util.ArrayList[String]()
+                                 |
+                                 |arrayList.add("Foo")
+                                 |arrayList.add("Bar")""".stripMargin)
         }
-        assert(e.message == Some(Resources.expectedCompileErrorButGotNone(code)))
+        assert(e.message ==
+          Some(
+            Resources.expectedCompileErrorButGotNone(
+              """import scala.collection.JavaConverters._
+                |
+                |val arrayList: java.util.ArrayList[String] = new java.util.ArrayList[String]()
+                |
+                |arrayList.add("Foo")
+                |arrayList.add("Bar")""".stripMargin
+            )
+          )
+        )
         assert(e.failedCodeFileName === (Some(fileName)))
-        assert(e.failedCodeLineNumber === (Some(thisLineNumber - 4)))
+        assert(e.failedCodeLineNumber === (Some(thisLineNumber - 20)))
       }
     }
   }

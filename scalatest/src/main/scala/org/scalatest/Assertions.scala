@@ -743,13 +743,13 @@ trait Assertions extends TripleEquals  {
    *
    * @param code the snippet of code that should not type check
    */
-  def assertDoesNotCompile(code: String)(implicit pos: source.Position): Assertion = {
+  def assertDoesNotCompile(code: String)(implicit pos: source.Position): Assertion = /*{
     val compiler = new Compiler
     if (compiler.compile(code))
       throw new exceptions.TestFailedException((_: StackDepthException) => Some(Resources.expectedCompileErrorButGotNone(code)), None, pos)
     else 
       Succeeded
-  }//macro CompileMacro.assertDoesNotCompileImpl
+  }*/macro CompileMacro.assertDoesNotCompileImpl
 
   /**
    * Asserts that a given string snippet of code passes both the Scala parser and type checker.

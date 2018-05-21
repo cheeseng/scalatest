@@ -26,9 +26,10 @@ class Compiler {
       val flusher = new java.io.PrintWriter(out)
       val settings = new GenericRunnerSettings( println _ )
       //settings.usejavacp.value = true
-      /*settings.classpath.value = "/home/cheeseng/.ivy2/cache/org.scala-lang/scala-compiler/jars/scala-compiler-2.12.4.jar:/home/cheeseng/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.12.4.jar:/home/cheeseng/.ivy2/cache/org.scala-lang/scala-reflect/jars/scala-reflect-2.12.4.jar:/home/cheeseng/.ivy2/cache/org.scala-lang.modules/scala-xml_2.12/bundles/scala-xml_2.12-1.0.4.jar:/home/cheeseng/.ivy2/cache/org.scala-lang.modules/scala-parser-combinators_2.12/bundles/scala-parser-combinators_2.12-1.0.4.jar"*/
+      //settings.classpath.value = "/home/cheeseng/.ivy2/cache/org.scala-lang/scala-compiler/jars/scala-compiler-2.12.4.jar:/home/cheeseng/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.12.4.jar:/home/cheeseng/.ivy2/cache/org.scala-lang/scala-reflect/jars/scala-reflect-2.12.4.jar:/home/cheeseng/.ivy2/cache/org.scala-lang.modules/scala-xml_2.12/bundles/scala-xml_2.12-1.0.4.jar:/home/cheeseng/.ivy2/cache/org.scala-lang.modules/scala-parser-combinators_2.12/bundles/scala-parser-combinators_2.12-1.0.4.jar"
       val classpath = {
-        java.lang.Thread.currentThread.getContextClassLoader match {
+        //java.lang.Thread.currentThread.getContextClassLoader match {
+        getClass.getClassLoader match {
           case cl: java.net.URLClassLoader => cl.getURLs.toList map {_.toString}
           case x =>
             // try one level up before giving up
@@ -38,6 +39,7 @@ class Compiler {
             }
         }
       }
+      println("###classpath: " + classpath)
       settings.classpath.value = classpath.mkString(java.io.File.pathSeparator)
       new IMain(settings, flusher)
     }

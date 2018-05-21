@@ -191,7 +191,20 @@ private[scalatest] object CompileMacro {
     // extract code snippet
     val codeStr = getCodeStringFromCodeExpression(c)("assertDoesNotCompile", code)
 
-    try {
+    val compiler = new Compiler
+    if (compiler.compile(codeStr)) {
+      val messageExpr = c.literal(Resources.expectedCompileErrorButGotNone(codeStr))
+      reify {
+        throw new exceptions.TestFailedException((_: StackDepthException) => Some(messageExpr.splice), None, pos.splice)
+      }
+    }
+    else
+      reify {
+        // code snippet does not compile as expected, generate code to return Succeeded
+        Succeeded
+      }
+
+    /*try {
       val tree = c.parse("{ "+codeStr+" }")
       if (!containsAnyValNullStatement(c)(List(tree))) {
         c.typeCheck(tree, c.universe.WildcardType)  // parse and type check code snippet
@@ -220,7 +233,7 @@ private[scalatest] object CompileMacro {
       case t: Throwable =>
         t.printStackTrace()
         throw t
-    }
+    }*/
   }
 
   // parse and type check a code snippet, generate code to return Fact (Yes or No).
