@@ -1354,13 +1354,6 @@ sealed abstract class Every[+T] protected (underlying: Vector[T]) extends Partia
    */ 
   final def toStream: Stream[T] = underlying.toStream
 
-  /**
-   * Converts this <code>Every</code> to an unspecified Traversable.
-   *
-   * @return a <code>Traversable</code> containing all elements of this <code>Every</code>. 
-   */ 
-  final def toTraversable: Traversable[T] = underlying.toTraversable
-
   final def transpose[U](implicit ev: T <:< Every[U]): Every[Every[U]] = {
     val asVecs = underlying.map(ev)
     val vec = asVecs.transpose
