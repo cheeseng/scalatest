@@ -142,7 +142,7 @@ import scala.collection.mutable.ArrayBuffer
  *
  * @tparam T the type of elements contained in this <code>Every</code>
  */
-sealed abstract class Every[+T] protected (underlying: Vector[T]) extends PartialFunction[Int, T] with Product with Serializable {
+sealed abstract class Every[+T] protected (protected[scalactic] val underlying: Vector[T]) extends PartialFunction[Int, T] with Product with Serializable with EveryCompat[T] {
 
 /*
   private def this(firstElement: T, otherElements: T*) = this(Vector(firstElement) ++ otherElements)
@@ -1263,14 +1263,6 @@ sealed abstract class Every[+T] protected (underlying: Vector[T]) extends Partia
   final def sum[U >: T](implicit num: Numeric[U]): U = underlying.sum(num)
 
   import scala.language.higherKinds
-
-  /**
-   * Converts this <code>Every</code> into a collection of type <code>Col</code> by copying all elements.
-   *
-   * @tparam Col the collection type to build.
-   * @return a new collection containing all elements of this <code>Every</code>. 
-   */
-  final def to[Col[_]](implicit cbf: CanBuildFrom[Nothing, T, Col[T @uV]]): Col[T @uV] = underlying.to[Col](cbf)
 
   /**
    * Converts this <code>Every</code> to an array.
