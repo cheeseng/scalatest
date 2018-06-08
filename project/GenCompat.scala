@@ -25,7 +25,6 @@ object GenCompat {
   }
 
   def generateEveryCompat(targetDir: File, scalaVersion: String): File = {
-    println("###")
     val content =
       if (scalaVersion startsWith "2.13")
         """package org.scalactic
@@ -60,6 +59,13 @@ object GenCompat {
           |    * @return a new collection containing all elements of this <code>Every</code>.
           |    */
           |  final def to[Col[_]](implicit cbf: scala.collection.generic.CanBuildFrom[Nothing, T, Col[T @uV]]): Col[T @uV] = underlying.to[Col](cbf)
+          |
+          |  /**
+          |    * Converts this <code>Every</code> to an unspecified Traversable.
+          |    *
+          |    * @return a <code>Traversable</code> containing all elements of this <code>Every</code>.
+          |    */
+          |  final def toTraversable: Traversable[T] = underlying.toTraversable
           |}
         """.stripMargin
 
