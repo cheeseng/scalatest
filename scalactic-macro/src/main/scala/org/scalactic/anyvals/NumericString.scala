@@ -25,7 +25,6 @@ import scala.collection.SeqView
 import scala.collection.GenIterable
 import scala.collection.GenTraversableOnce
 import scala.collection.generic.CanBuildFrom
-import scala.collection.generic.FilterMonadic
 //import scala.collection.parallel.ParSeq
 import scala.util.matching.Regex
 import scala.language.higherKinds
@@ -2483,7 +2482,7 @@ final class NumericString private (val value: String) extends AnyVal {
    *             those elements of this `NumericString` which
    *             satisfy the predicate `p`.
    */
-  def withFilter(p: (Char) ⇒ Boolean): FilterMonadic[Char, String] =
+  def withFilter(p: (Char) ⇒ Boolean) =
     value.withFilter(p)
 
   /** Returns a collection of pairs formed from this `NumericString`
