@@ -1386,7 +1386,7 @@ sealed abstract class Every[+T] protected (protected[scalactic] val underlying: 
    * @param that the <code>GenSeq</code> to add.
    * @return a new <code>Every</code> that contains all elements of this <code>Every</code> followed by all elements of <code>that</code> <code>GenSeq</code>.
    */
-  final def union[U >: T](that: GenSeq[U])(implicit cbf: CanBuildFrom[Vector[T], U, Vector[U]]): Every[U] = fromNonEmptyVector(underlying.union(that)(cbf))
+  //final def union[U >: T](that: GenSeq[U])(implicit cbf: CanBuildFrom[Vector[T], U, Vector[U]]): Every[U] = fromNonEmptyVector(underlying.union(that)(cbf))
 
   /**
    * Converts this <code>Every</code> of pairs into two <code>Every</code>s of the first and second half of each pair. 

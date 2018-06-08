@@ -41,6 +41,10 @@ object GenCompat {
           |    */
           |  final def to[C1](factory: scala.collection.Factory[T, C1]): C1 = underlying.to(factory)
           |
+          |  final def union[U >: T](that: Seq[U]): Every[U] = {
+          |    val vec = underlying.union(that)
+          |    Every(vec.head, vec.tail: _*)
+          |  }
           |}
         """.stripMargin
       else
@@ -66,6 +70,11 @@ object GenCompat {
           |    * @return a <code>Traversable</code> containing all elements of this <code>Every</code>.
           |    */
           |  final def toTraversable: Traversable[T] = underlying.toTraversable
+          |
+          |  final def union[U >: T](that: scala.collection.GenSeq[U])(implicit cbf: scala.collection.generic.CanBuildFrom[Vector[T], U, Vector[U]]): Every[U] = {
+          |    val vec = underlying.union(that)(cbf)
+          |    Every(vec.head, vec.tail: _*)
+          |  }
           |}
         """.stripMargin
 
