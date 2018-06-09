@@ -55,6 +55,7 @@ object GenCompat {
           |  protected[scalactic] val underlying: Vector[T]
           |
           |  import scala.annotation.unchecked.{ uncheckedVariance => uV }
+          |  import scala.language.higherKinds
           |
           |  /**
           |    * Converts this <code>Every</code> into a collection of type <code>Col</code> by copying all elements.
