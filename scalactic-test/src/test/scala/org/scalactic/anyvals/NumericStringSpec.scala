@@ -54,6 +54,10 @@ class NumericStringSpec extends FunSpec with Matchers with GeneratorDrivenProper
 
   implicit val posIntArb: Arbitrary[PosInt] = Arbitrary(posIntGen)
 
+  val numCharGen: Gen[NumericChar] = Gen.numChar.map(c => NumericChar.ensuringValid(c))
+
+  implicit val numCharArb: Arbitrary[NumericChar] = Arbitrary(numCharGen)
+
   describe("A NumericString") {
 
     describe("should offer a from factory method that") {
@@ -1061,7 +1065,7 @@ class NumericStringSpec extends FunSpec with Matchers with GeneratorDrivenProper
 
       forAll { (numStr: NumericString) =>
         numStr.flatMap(fooIt) shouldEqual
-          numStr.value.flatMap(fooIt)
+          numStr.value.flatMap(fooIt).toVector
       }
     }
     it("should offer a fold method consistent with StringOps") {
@@ -1565,7 +1569,7 @@ class NumericStringSpec extends FunSpec with Matchers with GeneratorDrivenProper
 
       forAll { (numStr: NumericString) =>
         numStr.reverseMap(plus1) shouldEqual
-          numStr.value.reverseMap(plus1)
+          numStr.value.reverseMap(plus1).toVector
       }
     }
     it("should offer a scan method consistent with StringOps") {
@@ -1581,7 +1585,7 @@ class NumericStringSpec extends FunSpec with Matchers with GeneratorDrivenProper
 
       forAll { (numStr: NumericString) =>
         numStr.scanLeft('0')(sum) shouldEqual
-          numStr.value.scanLeft('0')(sum)
+          numStr.value.scanLeft('0')(sum).toVector
       }
     }
     it("should offer a scanRight method consistent with StringOps") {
@@ -1589,7 +1593,7 @@ class NumericStringSpec extends FunSpec with Matchers with GeneratorDrivenProper
 
       forAll { (numStr: NumericString) =>
         numStr.scanRight('0')(sum) shouldEqual
-          numStr.value.scanRight('0')(sum)
+          numStr.value.scanRight('0')(sum).toVector
       }
     }
     it("should offer a sameElements method consistent with StringOps") {
