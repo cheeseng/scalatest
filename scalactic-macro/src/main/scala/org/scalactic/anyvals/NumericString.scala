@@ -1035,7 +1035,7 @@ final class NumericString private (val value: String) extends AnyVal {
    *  @param  xs     the array to fill.
    */
   def copyToArray(xs: Array[Char]): Unit =
-    value.copyToArray(xs)
+    value.copyToArray(xs, 0)
 
   /** Copies the elements of this `NumericString` to an array.
    *  Fills the given array `xs` with values of this
