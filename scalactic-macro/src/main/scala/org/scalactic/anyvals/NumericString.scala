@@ -2462,14 +2462,14 @@ final class NumericString private (val value: String) extends AnyVal {
    *    `NumericString`, starting at index `from` and extending up
    *    to (but not including) index `until`.
    */
-  def view(from: Int, until: Int): SeqView[Char, String] =
-    value.view(from, until)
+  def view(from: Int, until: Int) =
+    value.view.view(from, until)
 
   /** Creates a non-strict view of this `NumericString`.
    *
    *  @return a non-strict view of this `NumericString`.
    */
-  def view: SeqView[Char, String] =
+  def view =
     value.view
 
   /** Creates a non-strict filter of this `NumericString`.
