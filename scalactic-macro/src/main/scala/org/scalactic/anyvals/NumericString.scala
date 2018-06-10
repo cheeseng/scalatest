@@ -858,44 +858,44 @@ final class NumericString private (val value: String) extends AnyVal {
     value.addString(b, start, sep, end)
 
   /**
-   * Aggregates the results of applying an operator to subsequent elements
-   * of this `NumericString`.
-   *
-   * This is a more general form of `fold` and `reduce`. It is
-   * similar to `foldLeft` in that it doesn't require the result
-   * to be a supertype of the element type.
-   *
-   * `aggregate` splits the elements of this `NumericString` into
-   * partitions and processes each partition by sequentially
-   * applying `seqop`, starting with `z` (like `foldLeft`). Those
-   * intermediate results are then combined by using `combop`
-   * (like `fold`). The implementation of this operation may
-   * operate on an arbitrary number of collection partitions
-   * (even 1), so `combop` may be invoked an arbitrary number of
-   * times (even 0).
-   *
-   * As an example, consider summing up the integer values the
-   * character elements.  The initial value for the sum is
-   * 0. First, `seqop` transforms each input character to an Int
-   * and adds it to the sum (of the partition). Then, `combop`
-   * just needs to sum up the intermediate results of the
-   * partitions:
-   *  {{{
-   *    NumericString("123").aggregate(0)({ (sum, ch) => sum + ch.toInt }, { (p1, p2) => p1 + p2 })
-   *  }}}
-   *
-   * @param B the type of accumulated results
-   * @param z the initial value for the accumulated result of the partition -
-   *          this will typically be the neutral element for the
-   *          `seqop` operator (e.g.  `Nil` for list
-   *          concatenation or `0` for summation) and may be
-   *          evaluated more than once
-   * @param seqop an operator used to accumulate results within a partition
-   * @param combop an associative operator used to combine results within a
-   *               partition
-   */
-  def aggregate[B](z: ⇒ B)(seqop: (B, Char) ⇒ B, combop: (B, B) ⇒ B): B =
-    value.aggregate[B](z)(seqop, combop)
+    * Aggregates the results of applying an operator to subsequent elements
+    * of this `NumericString`.
+    *
+    * This is a more general form of `fold` and `reduce`. It is
+    * similar to `foldLeft` in that it doesn't require the result
+    * to be a supertype of the element type.
+    *
+    * `aggregate` splits the elements of this `NumericString` into
+    * partitions and processes each partition by sequentially
+    * applying `seqop`, starting with `z` (like `foldLeft`). Those
+    * intermediate results are then combined by using `combop`
+    * (like `fold`). The implementation of this operation may
+    * operate on an arbitrary number of collection partitions
+    * (even 1), so `combop` may be invoked an arbitrary number of
+    * times (even 0).
+    *
+    * As an example, consider summing up the integer values the
+    * character elements.  The initial value for the sum is
+    * 0. First, `seqop` transforms each input character to an Int
+    * and adds it to the sum (of the partition). Then, `combop`
+    * just needs to sum up the intermediate results of the
+    * partitions:
+    *  {{{
+    *    NumericString("123").aggregate(0)({ (sum, ch) => sum + ch.toInt }, { (p1, p2) => p1 + p2 })
+    *  }}}
+    *
+    * @tparam B the type of accumulated results
+    * @param z the initial value for the accumulated result of the partition -
+    *          this will typically be the neutral element for the
+    *          `seqop` operator (e.g.  `Nil` for list
+    *          concatenation or `0` for summation) and may be
+    *          evaluated more than once
+    * @param seqop an operator used to accumulate results within a partition
+    * @param combop an associative operator used to combine results within a
+    *               partition
+    */
+  def aggregate[B](z: => B)(seqop: (B, Char) => B, combop: (B, B) => B): B =
+    value.foldLeft(z)(seqop)
 
   /**
    * Return character at index `index`.
@@ -1439,14 +1439,6 @@ final class NumericString private (val value: String) extends AnyVal {
   def isDefinedAt(idx: Int): Boolean =
     value.isDefinedAt(idx)
 
-  /** Tests whether this `NumericString` can be repeatedly traversed.  Always
-   *  true for `NumericString`.
-   *
-   *  @return   `true` if it is repeatedly traversable, `false` otherwise.
-   */
-  final def isTraversableAgain: Boolean =
-    value.isTraversableAgain
-
   /** Creates a new iterator over all elements contained in this
    * iterable object.
    *
@@ -1859,8 +1851,7 @@ final class NumericString private (val value: String) extends AnyVal {
   def replaceAllLiterally(literal: String, replacement: String): String =
     value.replaceAllLiterally(literal, replacement)
 
-  def repr: String =
-    value.repr
+  def repr: String = value
 
   /** Returns new string with elements in reversed order.
    *
@@ -2270,15 +2261,6 @@ final class NumericString private (val value: String) extends AnyVal {
   def takeWhile(p: (Char) ⇒ Boolean): String =
     value.takeWhile(p)
 
-  /** Converts this `NumericString` into another collection by
-   * copying all elements.
-   *
-   *  @tparam Col  The collection type to build.
-   *  @return a new collection containing all elements of this `NumericString`.
-   */
-  def to[Col[_]](implicit cbf: CanBuildFrom[Nothing, Char, Col[Char]]): Col[Char] =
-    value.to[Col]
-
   /** Converts this `NumericString` to an array.
    *
    *  @return    an array containing all elements of this `NumericString`.
@@ -2389,13 +2371,6 @@ final class NumericString private (val value: String) extends AnyVal {
    */
   def toStream: Stream[Char] =
     value.toStream
-
-  /** Converts this `NumericString` to an unspecified Traversable.
-   *
-   *  @return a Traversable containing all elements of this `NumericString`.
-   */
-  def toTraversable: collection.Traversable[Char] =
-    value.toTraversable
 
   /** Converts this `NumericString` to a Vector.
    *
@@ -2891,5 +2866,7 @@ object NumericString {
    */
   def rightOrElse[L](value: String)(f: String => L): Either[L, NumericString] =
     if (NumericStringMacro.isValid(value)) Right(NumericString.ensuringValid(value)) else Left(f(value))
+
+  implicit def convertToNumericStringExt(numStr: NumericString): NumericStringExt = new NumericStringExt(numStr)
 }
 

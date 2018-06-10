@@ -82,9 +82,56 @@ object GenCompat {
     generateFile(targetDir, "EveryCompat.scala", content)
   }
 
+  def generateNumericStringExt(targetDir: File, scalaVersion: String): File = {
+    val content =
+      if (scalaVersion startsWith "2.13")
+        """package org.scalactic.anyvals
+          |
+          |class NumericStringExt(numStr: NumericString) {
+          |
+          |  def to[C1](factory: scala.collection.Factory[Char, C1]): C1 = numStr.to(factory)
+          |
+          |}
+        """.stripMargin
+      else
+        """package org.scalactic.anyvals
+          |
+          |class NumericStringExt(numStr: NumericString) {
+          |
+          |  /** Converts this `NumericString` to an unspecified Traversable.
+          |    *
+          |    *  @return a Traversable containing all elements of this `NumericString`.
+          |    */
+          |  def toTraversable: collection.Traversable[Char] = numStr.value
+          |
+          |  /** Tests whether this `NumericString` can be repeatedly traversed.  Always
+          |   *  true for `NumericString`.
+          |   *
+          |   *  @return   `true` if it is repeatedly traversable, `false` otherwise.
+          |   */
+          |  final def isTraversableAgain: Boolean =
+          |    numStr.value.isTraversableAgain
+          |
+          |  import scala.language.higherKinds
+          |
+          |  /** Converts this `NumericString` into another collection by
+          |   * copying all elements.
+          |   *
+          |   *  @tparam Col  The collection type to build.
+          |   *  @return a new collection containing all elements of this `NumericString`.
+          |   */
+          |  def to[Col[_]](implicit cbf: scala.collection.generic.CanBuildFrom[Nothing, Char, Col[Char]]): Col[Char] = numStr.value.to[Col]
+          |
+          |}
+        """.stripMargin
+
+    generateFile(targetDir, "NumericStringExt.scala", content)
+  }
+
   def genMain(targetDir: File, version: String, scalaVersion: String): Seq[File] =
     Seq(
-      generateEveryCompat(new File(targetDir, "org/scalactic"), scalaVersion)
+      generateEveryCompat(new File(targetDir, "org/scalactic"), scalaVersion),
+      generateNumericStringExt(new File(targetDir, "org/scalactic/anyvals"), scalaVersion)
     )
 
 }
