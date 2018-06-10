@@ -63,12 +63,6 @@ object GenCompat {
           |   */
           |  final def toTraversable: Traversable[T] = underlying.toTraversable
           |
-          |  final def transpose[U](implicit ev: T <:< Every[U]): Every[Every[U]] = {
-          |    val asVecs = underlying.map(ev)
-          |    val vec = asVecs.transpose
-          |    fromNonEmptyVector(vec map fromNonEmptyVector)
-          |  }
-          |
           |  import scala.language.higherKinds
           |
           |  /**
@@ -95,7 +89,7 @@ object GenCompat {
           |   * @param that the <code>GenSeq</code> to add.
           |   * @return a new <code>Every</code> that contains all elements of this <code>Every</code> followed by all elements of <code>that</code> <code>GenSeq</code>.
           |   */
-          |  final def union[U >: T](that: GenSeq[U])(implicit cbf: CanBuildFrom[Vector[T], U, Vector[U]]): Every[U] = {
+          |  final def union[U >: T](that: scala.collection.GenSeq[U])(implicit cbf: scala.collection.generic.CanBuildFrom[Vector[T], U, Vector[U]]): Every[U] = {
           |    val vec = underlying.union(that)(cbf)
           |    Every(vec.head, vec.tail: _*)
           |  }

@@ -142,7 +142,7 @@ import scala.collection.mutable.ArrayBuffer
  *
  * @tparam T the type of elements contained in this <code>Every</code>
  */
-sealed abstract class Every[+T] protected (protected[scalactic] val underlying: Vector[T]) extends PartialFunction[Int, T] with Product with Serializable {
+sealed abstract class Every[+T] protected (protected[scalactic] val underlying: Vector[T]) extends PartialFunction[Int, T] with Product with Serializable with EveryCompat[T] {
 
 /*
   private def this(firstElement: T, otherElements: T*) = this(Vector(firstElement) ++ otherElements)
@@ -1345,6 +1345,12 @@ sealed abstract class Every[+T] protected (protected[scalactic] val underlying: 
    * @return a stream containing all elements of this <code>Every</code>. 
    */ 
   final def toStream: Stream[T] = underlying.toStream
+
+  final def transpose[U](implicit ev: T <:< Every[U]): Every[Every[U]] = {
+    val asVecs = underlying.map(ev)
+    val vec = asVecs.transpose
+    fromNonEmptyVector(vec map fromNonEmptyVector)
+  }
 
   /**
    * Produces a new <code>Every</code> that contains all elements of this <code>Every</code> and also all elements of a given <code>Every</code>.
