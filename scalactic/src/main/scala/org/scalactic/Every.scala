@@ -142,7 +142,7 @@ import scala.collection.mutable.ArrayBuffer
  *
  * @tparam T the type of elements contained in this <code>Every</code>
  */
-sealed abstract class Every[+T] protected (underlying: Vector[T]) extends PartialFunction[Int, T] with Product with Serializable {
+sealed abstract class Every[+T] protected (protected[scalactic] val underlying: Vector[T]) extends PartialFunction[Int, T] with Product with Serializable {
 
 /*
   private def this(firstElement: T, otherElements: T*) = this(Vector(firstElement) ++ otherElements)
@@ -1265,14 +1265,6 @@ sealed abstract class Every[+T] protected (underlying: Vector[T]) extends Partia
   import scala.language.higherKinds
 
   /**
-   * Converts this <code>Every</code> into a collection of type <code>Col</code> by copying all elements.
-   *
-   * @tparam Col the collection type to build.
-   * @return a new collection containing all elements of this <code>Every</code>. 
-   */
-  final def to[Col[_]](implicit cbf: CanBuildFrom[Nothing, T, Col[T @uV]]): Col[T @uV] = underlying.to[Col](cbf)
-
-  /**
    * Converts this <code>Every</code> to an array.
    *
    * @return an array containing all elements of this <code>Every</code>. A <code>ClassTag</code> must be available for the element type of this <code>Every</code>. 
@@ -1353,19 +1345,6 @@ sealed abstract class Every[+T] protected (underlying: Vector[T]) extends Partia
    * @return a stream containing all elements of this <code>Every</code>. 
    */ 
   final def toStream: Stream[T] = underlying.toStream
-
-  /**
-   * Converts this <code>Every</code> to an unspecified Traversable.
-   *
-   * @return a <code>Traversable</code> containing all elements of this <code>Every</code>. 
-   */ 
-  final def toTraversable: Traversable[T] = underlying.toTraversable
-
-  final def transpose[U](implicit ev: T <:< Every[U]): Every[Every[U]] = {
-    val asVecs = underlying.map(ev)
-    val vec = asVecs.transpose
-    fromNonEmptyVector(vec map fromNonEmptyVector)
-  }
 
   /**
    * Produces a new <code>Every</code> that contains all elements of this <code>Every</code> and also all elements of a given <code>Every</code>.

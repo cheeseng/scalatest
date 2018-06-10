@@ -360,7 +360,8 @@ object ScalatestBuild extends Build {
       sourceGenerators in Compile += {
         Def.task{
           GenVersions.genScalacticVersions((sourceManaged in Compile).value / "org" / "scalactic", version.value, scalaVersion.value) ++
-          ScalacticGenResourcesJVM.genFailureMessages((sourceManaged in Compile).value / "org" / "scalactic", version.value, scalaVersion.value)
+          ScalacticGenResourcesJVM.genFailureMessages((sourceManaged in Compile).value / "org" / "scalactic", version.value, scalaVersion.value) ++
+          GenCompat.genMain((sourceManaged in Compile).value, version.value, scalaVersion.value)
         }.taskValue
       },
       // include the macro classes and resources in the main jar
