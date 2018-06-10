@@ -28,7 +28,7 @@ object ScalatestBuild extends Build {
 
   val previousReleaseVersion = "3.0.4"
 
-  val scalacheckVersion = "1.13.5"
+  val scalacheckVersion = "1.14.1-local-SNAPSHOT"
   val easyMockVersion = "3.2"
   val jmockVersion = "2.8.3"
   val mockitoVersion = "1.10.19"
@@ -172,7 +172,7 @@ object ScalatestBuild extends Build {
       // if scala 2.11+ is used, add dependency on scala-xml module
       case Some((2, scalaMajor)) if scalaMajor >= 11 =>
         Seq(
-          "org.scala-lang.modules" %% "scala-xml" % "1.0.6",
+          "org.scala-lang.modules" %% "scala-xml" % "1.1.0",
           //"org.scala-lang.modules" %% "scala-parser-combinators" % "1.0.6",   This is needed only by SbtCommandParser, but we are not support it currently.
           scalacheckDependency("optional")
         )
@@ -764,7 +764,7 @@ object ScalatestBuild extends Build {
         "Bundle-Vendor" -> "Artima, Inc.",
         "Main-Class" -> "org.scalatest.tools.Runner"
       )
-    ).dependsOn(scalacticMacro % "compile-internal, test-internal", scalactic % "compile-internal", scalatest % "compile-internal").aggregate(scalacticMacro, scalactic, scalatest, commonTest, scalacticTest, scalatestTest)
+    ).dependsOn(scalacticMacro % "compile-internal, test-internal", scalactic % "compile-internal", scalatest % "compile-internal").aggregate(scalacticMacro, scalactic, scalatest/*, commonTest, scalacticTest, scalatestTest*/)
 
   lazy val scalatestAppJS = Project("scalatestAppJS", file("scalatest-app.js"))
     .settings(sharedSettings: _*)
