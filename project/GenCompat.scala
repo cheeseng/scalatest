@@ -41,6 +41,10 @@ object GenCompat {
           |    */
           |  final def to[C1](factory: scala.collection.Factory[T, C1]): C1 = underlying.to(factory)
           |
+          |  final def union[U >: T](that: Seq[U]): Every[U] = {
+          |    val vec = underlying.union(that)
+          |    Every(vec.head, vec.tail: _*)
+          |  }
           |}
         """.stripMargin
       else
@@ -74,6 +78,27 @@ object GenCompat {
           |    * @return a new collection containing all elements of this <code>Every</code>.
           |    */
           |  final def to[Col[_]](implicit cbf: scala.collection.generic.CanBuildFrom[Nothing, T, Col[T @uV]]): Col[T @uV] = underlying.to[Col](cbf)
+          |
+          |  /**
+          |   * Produces a new <code>Every</code> that contains all elements of this <code>Every</code> and also all elements of a given <code>GenSeq</code>.
+          |   *
+          |   * <p>
+          |   * <code>everyX</code> <code>union</code> <code>ys</code> is equivalent to <code>everyX</code> <code>++</code> <code>ys</code>.
+          |   * </p>
+          |   *
+          |   * <p>
+          |   * Another way to express this is that <code>everyX</code> <code>union</code> <code>ys</code> computes the order-presevring multi-set union
+          |   * of <code>everyX</code> and <code>ys</code>. This <code>union</code> method is hence a counter-part of <code>diff</code> and <code>intersect</code> that
+          |   * also work on multi-sets.
+          |   * </p>
+          |   *
+          |   * @param that the <code>GenSeq</code> to add.
+          |   * @return a new <code>Every</code> that contains all elements of this <code>Every</code> followed by all elements of <code>that</code> <code>GenSeq</code>.
+          |   */
+          |  final def union[U >: T](that: GenSeq[U])(implicit cbf: CanBuildFrom[Vector[T], U, Vector[U]]): Every[U] = {
+          |    val vec = underlying.union(that)(cbf)
+          |    Every(vec.head, vec.tail: _*)
+          |  }
           |}
         """.stripMargin
 

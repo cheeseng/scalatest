@@ -1365,24 +1365,6 @@ sealed abstract class Every[+T] protected (protected[scalactic] val underlying: 
   final def union[U >: T](that: Every[U]): Every[U] = fromNonEmptyVector(underlying union that.toVector)
 
   /**
-   * Produces a new <code>Every</code> that contains all elements of this <code>Every</code> and also all elements of a given <code>GenSeq</code>.
-   *
-   * <p>
-   * <code>everyX</code> <code>union</code> <code>ys</code> is equivalent to <code>everyX</code> <code>++</code> <code>ys</code>.
-   * </p>
-   *
-   * <p>
-   * Another way to express this is that <code>everyX</code> <code>union</code> <code>ys</code> computes the order-presevring multi-set union
-   * of <code>everyX</code> and <code>ys</code>. This <code>union</code> method is hence a counter-part of <code>diff</code> and <code>intersect</code> that
-   * also work on multi-sets.
-   * </p>
-   *
-   * @param that the <code>GenSeq</code> to add.
-   * @return a new <code>Every</code> that contains all elements of this <code>Every</code> followed by all elements of <code>that</code> <code>GenSeq</code>.
-   */
-  final def union[U >: T](that: GenSeq[U])(implicit cbf: CanBuildFrom[Vector[T], U, Vector[U]]): Every[U] = fromNonEmptyVector(underlying.union(that)(cbf))
-
-  /**
    * Converts this <code>Every</code> of pairs into two <code>Every</code>s of the first and second half of each pair. 
    *
    * @tparam L the type of the first half of the element pairs
