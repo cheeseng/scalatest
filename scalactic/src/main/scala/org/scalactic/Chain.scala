@@ -629,7 +629,7 @@ final class Chain[+T] private (val toList: List[T]) extends AnyVal {
    * That is, every key <code>k</code> is bound to a <code>Chain</code> of those elements <code>x</code> for which <code>f(x)</code> equals <code>k</code>.
    * </p>
    */
-  final def groupBy[K](f: T => K): Map[K, Chain[T]] = {
+  final def groupBy[K](f: T => K) = {
     val mapKToList = toList.groupBy(f)
     mapKToList.mapValues { list => new Chain(list) }
   }
