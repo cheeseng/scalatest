@@ -151,7 +151,7 @@ import scala.collection.mutable.ArrayBuffer
  *
  * @tparam T the type of elements contained in this <code>Chain</code>
  */
-final class Chain[+T] private (val toList: List[T]) extends AnyVal {
+final class Chain[+T] private (val toList: List[T]) extends /*AnyVal with */ChainCompat[T] {
 
   /**
    * Returns a new <code>Chain</code> containing the elements of this <code>Chain</code> followed by the elements of the passed <code>Chain</code>.
@@ -1413,14 +1413,6 @@ final class Chain[+T] private (val toList: List[T]) extends AnyVal {
   import scala.language.higherKinds
 
   /**
-   * Converts this <code>Chain</code> into a collection of type <code>Col</code> by copying all elements.
-   *
-   * @tparam Col the collection type to build.
-   * @return a new collection containing all elements of this <code>Chain</code>. 
-   */
-  final def to[Col[_]](implicit cbf: CanBuildFrom[Nothing, T, Col[T @uV]]): Col[T @uV] = toList.to[Col](cbf)
-
-  /**
    * Converts this <code>Chain</code> to an array.
    *
    * @return an array containing all elements of this <code>Chain</code>. A <code>ClassTag</code> must be available for the element type of this <code>Chain</code>. 
@@ -1510,13 +1502,6 @@ final class Chain[+T] private (val toList: List[T]) extends AnyVal {
    */
   override def toString: String = "Chain(" + toList.mkString(", ") + ")"
 
-  /**
-   * Converts this <code>Chain</code> to an unspecified Traversable.
-   *
-   * @return a <code>Traversable</code> containing all elements of this <code>Chain</code>. 
-   */ 
-  final def toTraversable: Traversable[T] = toList.toTraversable
-
   final def transpose[U](implicit ev: T <:< Chain[U]): Chain[Chain[U]] = {
     val asLists = toList.map(ev)
     val list = asLists.transpose
@@ -1558,24 +1543,6 @@ final class Chain[+T] private (val toList: List[T]) extends AnyVal {
    * @return a new <code>Chain</code> that contains all elements of this <code>Chain</code> followed by all elements of <code>that</code>.
    */
   final def union[U >: T](that: Chain[U]): Chain[U] = new Chain(toList union that.toList)
-
-  /**
-   * Produces a new <code>Chain</code> that contains all elements of this <code>Chain</code> and also all elements of a given <code>GenSeq</code>.
-   *
-   * <p>
-   * <code>chainX</code> <code>union</code> <code>ys</code> is equivalent to <code>chainX</code> <code>++</code> <code>ys</code>.
-   * </p>
-   *
-   * <p>
-   * Another way to express this is that <code>chainX</code> <code>union</code> <code>ys</code> computes the order-presevring multi-set union
-   * of <code>chainX</code> and <code>ys</code>. This <code>union</code> method is hence a counter-part of <code>diff</code> and <code>intersect</code> that
-   * also work on multi-sets.
-   * </p>
-   *
-   * @param that the <code>GenSeq</code> to add.
-   * @return a new <code>Chain</code> that contains all elements of this <code>Chain</code> followed by all elements of <code>that</code> <code>GenSeq</code>.
-   */
-  final def union[U >: T](that: GenSeq[U])(implicit cbf: CanBuildFrom[List[T], U, List[U]]): Chain[U] = new Chain(toList.union(that)(cbf))
 
   /**
    * Converts this <code>Chain</code> of pairs into two <code>Chain</code>s of the first and second half of each pair. 

@@ -89,7 +89,7 @@ object GenCompat {
           |   * @param that the <code>GenSeq</code> to add.
           |   * @return a new <code>Every</code> that contains all elements of this <code>Every</code> followed by all elements of <code>that</code> <code>GenSeq</code>.
           |   */
-          |  final def union[U >: T](that: scala.collection.GenSeq[U])(implicit cbf: scala.collection.generic.CanBuildFrom[Vector[T], U, Vector[U]]): Every[U] = {
+          |  final def union[U >: T](that: Seq[U])(implicit cbf: scala.collection.generic.CanBuildFrom[Vector[T], U, Vector[U]]): Every[U] = {
           |    val vec = underlying.union(that)(cbf)
           |    Every(vec.head, vec.tail: _*)
           |  }
@@ -99,9 +99,98 @@ object GenCompat {
     generateFile(targetDir, "EveryCompat.scala", content)
   }
 
+  def generateChainCompat(targetDir: File, scalaVersion: String): File = {
+    val content =
+      if (scalaVersion startsWith "2.13")
+        """package org.scalactic
+          |trait ChainCompat[+T] {
+          |
+          |  val toList: List[T]
+          |
+          |  /**
+          |   * Converts this <code>Chain</code> into a collection of type <code>Col</code> by copying all elements.
+          |   *
+          |   * @tparam Col the collection type to build.
+          |   * @return a new collection containing all elements of this <code>Chain</code>.
+          |   */
+          |  final def to[C1](factory: scala.collection.Factory[T, C1]): C1 = toList.to(factory)
+          |
+          |  /**
+          |   * Produces a new <code>Chain</code> that contains all elements of this <code>Chain</code> and also all elements of a given <code>GenSeq</code>.
+          |   *
+          |   * <p>
+          |   * <code>chainX</code> <code>union</code> <code>ys</code> is equivalent to <code>chainX</code> <code>++</code> <code>ys</code>.
+          |   * </p>
+          |   *
+          |   * <p>
+          |   * Another way to express this is that <code>chainX</code> <code>union</code> <code>ys</code> computes the order-presevring multi-set union
+          |   * of <code>chainX</code> and <code>ys</code>. This <code>union</code> method is hence a counter-part of <code>diff</code> and <code>intersect</code> that
+          |   * also work on multi-sets.
+          |   * </p>
+          |   *
+          |   * @param that the <code>GenSeq</code> to add.
+          |   * @return a new <code>Chain</code> that contains all elements of this <code>Chain</code> followed by all elements of <code>that</code> <code>GenSeq</code>.
+          |   */
+          |  final def union[U >: T](that: Seq[U]): Chain[U] = {
+          |    val l = toList.union(that)
+          |    Chain(l.head, l.tail: _ *)
+          |  }
+          |}
+        """.stripMargin
+      else
+        """package org.scalactic
+          |
+          |trait ChainCompat[+T] {
+          |
+          |  val toList: List[T]
+          |
+          |  import scala.annotation.unchecked.{ uncheckedVariance => uV }
+          |
+          |  /**
+          |   * Converts this <code>Chain</code> into a collection of type <code>Col</code> by copying all elements.
+          |   *
+          |   * @tparam Col the collection type to build.
+          |   * @return a new collection containing all elements of this <code>Chain</code>.
+          |   */
+          |  final def to[Col[_]](implicit cbf: scala.collection.generic.CanBuildFrom[Nothing, T, Col[T @uV]]): Col[T @uV] = toList.to[Col](cbf)
+          |
+          |  /**
+          |   * Converts this <code>Chain</code> to an unspecified Traversable.
+          |   *
+          |   * @return a <code>Traversable</code> containing all elements of this <code>Chain</code>.
+          |   */
+          |  final def toTraversable: Traversable[T] = toList.toTraversable
+          |
+          |  /**
+          |   * Produces a new <code>Chain</code> that contains all elements of this <code>Chain</code> and also all elements of a given <code>GenSeq</code>.
+          |   *
+          |   * <p>
+          |   * <code>chainX</code> <code>union</code> <code>ys</code> is equivalent to <code>chainX</code> <code>++</code> <code>ys</code>.
+          |   * </p>
+          |   *
+          |   * <p>
+          |   * Another way to express this is that <code>chainX</code> <code>union</code> <code>ys</code> computes the order-presevring multi-set union
+          |   * of <code>chainX</code> and <code>ys</code>. This <code>union</code> method is hence a counter-part of <code>diff</code> and <code>intersect</code> that
+          |   * also work on multi-sets.
+          |   * </p>
+          |   *
+          |   * @param that the <code>GenSeq</code> to add.
+          |   * @return a new <code>Chain</code> that contains all elements of this <code>Chain</code> followed by all elements of <code>that</code> <code>GenSeq</code>.
+          |   */
+          |  final def union[U >: T](that: scala.collection.GenSeq[U])(implicit cbf: scala.collection.generic.CanBuildFrom[List[T], U, List[U]]): Chain[U] = {
+          |    val l = toList.union(that)(cbf)
+          |    Chain(l.head, l.tail: _*)
+          |  }
+          |}
+        """.stripMargin
+
+    generateFile(targetDir, "ChainCompat.scala", content)
+  }
+
   def genMain(targetDir: File, version: String, scalaVersion: String): Seq[File] =
     Seq(
-      generateEveryCompat(new File(targetDir, "org/scalactic"), scalaVersion)
+      generateEveryCompat(new File(targetDir, "org/scalactic"), scalaVersion),
+      generateChainCompat(new File(targetDir, "org/scalactic"), scalaVersion)
     )
 
 }
