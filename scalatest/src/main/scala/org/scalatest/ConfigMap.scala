@@ -107,7 +107,10 @@ class ConfigMap(underlying: scala.collection.Map[String, Any]) extends scala.col
 
   override def +[A >: Any](kv: (String, A)): ConfigMap = new ConfigMap(underlying + kv)
 
-  def -(key: String): ConfigMap = new ConfigMap(underlying.filter(_._1 != key))
+  def -(key: String): ConfigMap =
+    new ConfigMap(underlying.filter(_._1 != key))
+  def -(key1: String, key2: String, keys: String*): ConfigMap =
+    new ConfigMap(underlying.filter{case (k, _) => k != key1 && k != key2 && !keys.contains(k)})
 
   override def empty: ConfigMap = new ConfigMap(Map.empty[String, Any])
 

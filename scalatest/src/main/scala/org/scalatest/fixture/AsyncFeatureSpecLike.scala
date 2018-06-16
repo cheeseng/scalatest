@@ -15,7 +15,7 @@
  */
 package org.scalatest.fixture
 
-import org.scalatest._
+import org.scalatest.{ AsyncTestSuite => _, _ }
 import org.scalatest.exceptions._
 import org.scalactic.{source, Prettifier}
 import scala.concurrent.Future

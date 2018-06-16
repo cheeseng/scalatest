@@ -363,54 +363,6 @@ final class PosDouble private (val value: Double) extends AnyVal {
   * @return the measurement of the angle x in degrees.
   */
   def toDegrees: Double = math.toDegrees(value)
-
-  // adapted from RichInt:
-  /**
-  * Create a <code>Range</code> from this <code>PosDouble</code> value
-  * until the specified <code>end</code> (exclusive) with step value 1.
-  *
-  * @param end The final bound of the range to make.
-  * @return A [[scala.collection.immutable.Range.Partial[Double, NumericRange[Double]]]] from `this` up to but
-  * not including `end`.
-  */
-  def until(end: Double): Range.Partial[Double, NumericRange[Double]] =
-    value.until(end)
-
-  /**
-  * Create a <code>Range</code> from this <code>PosDouble</code> value
-  * until the specified <code>end</code> (exclusive) with the specified <code>step</code> value.
-  *
-  * @param end The final bound of the range to make.
-  * @param end The final bound of the range to make.
-  * @param step The number to increase by for each step of the range.
-  * @return A [[scala.collection.immutable.NumericRange.Exclusive[Double]]] from `this` up to but
-  * not including `end`.
-  */
-  def until(end: Double, step: Double): NumericRange.Exclusive[Double] =
-    value.until(end, step)
-
-  /**
-  * Create an inclusive <code>Range</code> from this <code>PosDouble</code> value
-  * to the specified <code>end</code> with step value 1.
-  *
-  * @param end The final bound of the range to make.
-  * @return A [[scala.collection.immutable.Range.Partial[Double, NumericRange[Double]]]] from `'''this'''` up to
-  * and including `end`.
-  */
-  def to(end: Double): Range.Partial[Double, NumericRange[Double]] =
-    value.to(end)
-
-  /**
-  * Create an inclusive <code>Range</code> from this <code>PosDouble</code> value
-  * to the specified <code>end</code> with the specified <code>step</code> value.
-  *
-  * @param end The final bound of the range to make.
-  * @param step The number to increase by for each step of the range.
-  * @return A [[scala.collection.immutable.NumericRange.Inclusive[Double]]] from `'''this'''` up to
-  * and including `end`.
-  */
-  def to(end: Double, step: Double): NumericRange.Inclusive[Double] =
-    value.to(end, step)
 }
 
 /**

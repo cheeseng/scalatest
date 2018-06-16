@@ -376,53 +376,6 @@ import scala.util.Try
   */
   def toDegrees: Float = math.toDegrees(value.toDouble).toFloat
 
-  // adapted from RichInt:
-  /**
-  * Create a <code>Range</code> from this <code>PosFloat</code> value
-  * until the specified <code>end</code> (exclusive) with step value 1.
-  *
-  * @param end The final bound of the range to make.
-  * @return A [[scala.collection.immutable.Range.Partial[Float, NumericRange[Float]]]] from `this` up to but
-  * not including `end`.
-  */
-  def until(end: Float): Range.Partial[Float, NumericRange[Float]] =
-    value.until(end)
-
-  /**
-  * Create a <code>Range</code> (exclusive) from this <code>PosFloat</code> value
-  * until the specified <code>end</code> (exclusive) with the specified <code>step</code> value.
-  *
-  * @param end The final bound of the range to make.
-  * @param end The final bound of the range to make.
-  * @param step The number to increase by for each step of the range.
-  * @return A [[scala.collection.immutable.NumericRange.Exclusive[Float]]] from `this` up to but
-  * not including `end`.
-  */
-  def until(end: Float, step: Float): NumericRange.Exclusive[Float] =
-    value.until(end, step)
-
-  /**
-  * Create an inclusive <code>Range</code> from this <code>PosFloat</code> value
-  * to the specified <code>end</code> with step value 1.
-  *
-  * @param end The final bound of the range to make.
-  * @return A [[scala.collection.immutable.Range.Partial[Float], NumericRange[Float]]] from `'''this'''` up to
-  * and including `end`.
-  */
-  def to(end: Float): Range.Partial[Float, NumericRange[Float]] =
-    value.to(end)
-
-  /**
-  * Create an inclusive <code>Range</code> from this <code>PosFloat</code> value
-  * to the specified <code>end</code> with the specified <code>step</code> value.
-  *
-  * @param end The final bound of the range to make.
-  * @param step The number to increase by for each step of the range.
-  * @return A [[scala.collection.immutable.NumericRange.Inclusive[Float]]] from `'''this'''` up to
-  * and including `end`.
-  */
-  def to(end: Float, step: Float): NumericRange.Inclusive[Float] =
-    value.to(end, step)
 }
 
 /**

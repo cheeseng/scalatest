@@ -15,7 +15,7 @@
  */
 package org.scalatest
 
-import org.scalactic._
+import org.scalactic.{ exceptions => _, FailureMessages => _, UnquotedString => _, Resources => _, _ }
 import org.scalatest.enablers._
 import org.scalatest.matchers._
 import org.scalatest.words._

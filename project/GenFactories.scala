@@ -32,7 +32,7 @@ import org.scalatest.MatchersHelper.orMatchersAndApply
 import org.scalatest.words.MatcherWords
 import scala.collection.GenTraversable
 import scala.util.matching.Regex
-import org.scalactic._
+import org.scalactic.{ exceptions => _, _ }
 import TripleEqualsSupport.Spread
 import TripleEqualsSupport.TripleEqualsInvocation
 import org.scalatest.FailureMessages

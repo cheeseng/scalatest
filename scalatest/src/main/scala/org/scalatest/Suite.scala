@@ -15,7 +15,7 @@
  */
 package org.scalatest
 
-import org.scalactic._
+import org.scalactic.{ exceptions => _, Resources => _, _ }
 import org.scalatest.events._
 import Requirements._
 import exceptions._

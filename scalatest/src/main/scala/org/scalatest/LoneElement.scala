@@ -15,7 +15,7 @@
  */
 package org.scalatest
 
-import org.scalactic._
+import org.scalactic.{ exceptions => _, FailureMessages => _, _ }
 import enablers.Collecting
 import exceptions.StackDepthException
 

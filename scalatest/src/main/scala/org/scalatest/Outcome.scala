@@ -15,9 +15,9 @@
  */
 package org.scalatest
 
-import org.scalactic._
+import org.scalactic.{ exceptions => _, _ }
 import Requirements._
-import org.scalatest.exceptions.StackDepthException
+import exceptions.StackDepthException
 
 /**
  * Superclass for the possible outcomes of running a test.

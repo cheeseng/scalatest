@@ -15,7 +15,7 @@
  */
 package org.scalatest.fixture
 
-import org.scalatest._
+import org.scalatest.{ AsyncTestSuite => _, _ }
 import org.scalactic.source
 import scala.concurrent.Future
 import java.util.ConcurrentModificationException

@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.scalatest.fixture
+package org.scalatest
+package fixture
 
-import org.scalatest._
 import org.scalactic.source
 import org.scalatest.Suite.autoTagClassAnnotations
 
