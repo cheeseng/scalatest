@@ -23,7 +23,7 @@ import FailureMessages.decorateToStringValue
 import enablers.Collecting
 import scala.language.higherKinds
 import enablers.InspectorAsserting
-import org.scalactic._
+import org.scalactic.{ exceptions => _, _ }
 
 /**
  * Provides nestable <em>inspector methods</em> (or just <em>inspectors</em>) that enable assertions to be made about collections.

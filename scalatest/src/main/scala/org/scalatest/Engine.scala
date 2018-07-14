@@ -15,7 +15,7 @@
  */
 package org.scalatest
 
-import org.scalactic._
+import org.scalactic.{ exceptions => _, _ }
 import Requirements._
 import org.scalatest.Suite._
 import java.util.ConcurrentModificationException

@@ -24,7 +24,7 @@ import scala.util.matching.Regex
 import java.lang.reflect.Field
 import org.scalatest.exceptions.TestFailedException
 import org.scalatest.exceptions.StackDepthException
-import org.scalactic._
+import org.scalactic.{ exceptions => _, FailureMessages => _, UnquotedString => _, _ }
 
 // TODO: drop generic support for be as an equality comparison, in favor of specific ones.
 // TODO: mention on JUnit and TestNG docs that you can now mix in ShouldMatchers or MustMatchers

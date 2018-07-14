@@ -15,7 +15,7 @@
  */
 package org.scalatest
 
-import org.scalactic._
+import org.scalactic.{ UnquotedString => _, FailureMessages => _, _ }
 import org.scalatest.exceptions._
 import Suite.anExceptionThatShouldCauseAnAbort
 import Suite.autoTagClassAnnotations

@@ -15,7 +15,7 @@
  */
 package org.scalatest
 
-import org.scalactic._
+import org.scalactic.{ exceptions => _, _ }
 import org.scalatest.words.{TypeCheckWord, CompileWord}
 import scala.reflect.macros.{ Context, TypecheckException, ParseException }
 import org.scalatest.exceptions.StackDepthException

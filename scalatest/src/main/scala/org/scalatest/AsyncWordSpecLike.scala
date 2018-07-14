@@ -15,7 +15,7 @@
  */
 package org.scalatest
 
-import org.scalactic._
+import org.scalactic.{ exceptions => _, FailureMessages => _, UnquotedString => _, Resources => _, _ }
 import scala.concurrent.Future
 import Suite.anExceptionThatShouldCauseAnAbort
 import Suite.autoTagClassAnnotations

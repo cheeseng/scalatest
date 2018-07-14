@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.scalatest.tools
+package org.scalatest
+package tools
 
-import org.scalatest._
 import ArgsParser._
 import SuiteDiscoveryHelper._
 import java.util.concurrent.atomic.AtomicBoolean
@@ -208,7 +208,7 @@ class ScalaTestFramework extends SbtFramework {
 
           val module = runtimeMirror.staticModule("org.scalatest.tools.Runner$")
           val obj = runtimeMirror.reflectModule(module)
-          val runnerInstance = obj.instance.asInstanceOf[Runner.type]
+          val runnerInstance = obj.instance.asInstanceOf[org.scalatest.tools.Runner.type]
 
           runnerInstance.spanScaleFactor = parseDoubleArgument(spanScaleFactors, "-F", 1.0)
           

@@ -16,7 +16,7 @@
 package org.scalatest
 
 import org.scalactic.Requirements._
-import org.scalactic._
+import org.scalactic.{ exceptions => _, Resources => _, _ }
 import org.scalatest.Suite._
 import java.util.ConcurrentModificationException
 import java.util.concurrent.atomic.AtomicReference

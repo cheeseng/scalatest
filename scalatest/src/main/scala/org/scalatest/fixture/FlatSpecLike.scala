@@ -13,9 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.scalatest.fixture
+package org.scalatest
+package fixture
 
-import org.scalatest._
 import org.scalactic.source
 import java.util.ConcurrentModificationException
 import java.util.concurrent.atomic.AtomicReference
