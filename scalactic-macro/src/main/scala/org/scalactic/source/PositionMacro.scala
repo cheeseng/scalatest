@@ -37,27 +37,10 @@ object PositionMacro {
 
     context.Expr(
       Apply(
-        Select(
-          Select(
-            Select(
-              Select(
-                Select(
-                  Ident(newTermName("_root_")),
-                  newTermName("org")
-                ),
-              newTermName("scalactic")
-              ),
-              newTermName("source")
-            ),
-            newTermName("Position")
-          ),
-          newTermName("apply")
-        ),
-        List(
-          Literal(Constant(context.enclosingPosition.source.file.name)),
-          Literal(if (showScalacticFillFilePathnames) Constant(context.enclosingPosition.source.path) else Constant(Resources.pleaseDefineScalacticFillFilePathnameEnvVar)),
-          Literal(Constant(context.enclosingPosition.line))
-        )
+        typeOf[_root_.org.scalactic.source.Position.type].decl(TermName("apply")),
+        Literal(Constant(context.enclosingPosition.source.file.name)),
+        Literal(if (showScalacticFillFilePathnames) Constant(context.enclosingPosition.source.path) else Constant(Resources.pleaseDefineScalacticFillFilePathnameEnvVar)),
+        Literal(Constant(context.enclosingPosition.line))
       )
     )
   }
