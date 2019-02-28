@@ -7114,7 +7114,7 @@ org.scalatest.exceptions.TestFailedException: org.scalatest.Matchers$ResultOfCol
     // SKIP-DOTTY-START
     def shouldBe(aType: ResultOfATypeInvocation[_]): Assertion = macro TypeMatcherMacro.shouldBeATypeImpl
     // SKIP-DOTTY-END
-    //DOTTY-ONLY inline def shouldBe(aType: ResultOfATypeInvocation[_]): Assertion = ~TypeMatcherMacro.shouldBeATypeImpl('(this), '(aType))
+    //DOTTY-ONLY inline def shouldBe(aType: ResultOfATypeInvocation[_]): Assertion = ${ TypeMatcherMacro.shouldBeATypeImpl('{this}, '{aType}) }
 
     /**
      * This method enables syntax such as the following:
@@ -7127,7 +7127,7 @@ org.scalatest.exceptions.TestFailedException: org.scalatest.Matchers$ResultOfCol
     // SKIP-DOTTY-START
     def shouldBe(anType: ResultOfAnTypeInvocation[_]): Assertion = macro TypeMatcherMacro.shouldBeAnTypeImpl
     // SKIP-DOTTY-END
-    //DOTTY-ONLY inline def shouldBe(anType: ResultOfAnTypeInvocation[_]): Assertion = ~TypeMatcherMacro.shouldBeAnTypeImpl('(this), '(anType))
+    //DOTTY-ONLY inline def shouldBe(anType: ResultOfAnTypeInvocation[_]): Assertion = ${ TypeMatcherMacro.shouldBeAnTypeImpl('{this}, '{anType}) }
 
     /**
      * This method enables syntax such as the following:

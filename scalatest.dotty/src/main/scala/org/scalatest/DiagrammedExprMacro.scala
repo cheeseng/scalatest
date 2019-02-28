@@ -424,8 +424,8 @@ import scala.quoted._
 object DiagrammedExprMacro {
   def let[S: Type, T](expr: Expr[S])(body: Expr[S] => Expr[T]): Expr[T] =
     '{
-      val x = ~expr
-      ~body('(x))
+      val x = $expr
+      ${body('{x})}
     }
 
   def lets[S: Type, T](xs: List[Expr[S]])(body: List[Expr[S]] => Expr[T]): Expr[T] = {
@@ -475,28 +475,28 @@ object DiagrammedExprMacro {
             val left = parse(lhs.seal[T & Boolean])
             val right = parse(rhs.seal[T & Boolean])
             '{
-              val l = ~left
-              val r = ~right
+              val l = $left
+              val r = $right
               if (l.value) l
-              else DiagrammedExpr.applyExpr(l, r :: Nil, r.value, ~getAnchor(expr))
+              else DiagrammedExpr.applyExpr(l, r :: Nil, r.value, ${getAnchor(expr)})
             }
           case "&&" | "&" =>
             val left = parse(lhs.seal[T & Boolean])
             val right = parse(rhs.seal[T & Boolean])
             '{
-              val l = ~left
-              val r = ~right
-              if (l.value) DiagrammedExpr.applyExpr(l, r :: Nil, r.value, ~getAnchor(expr))
+              val l = $left
+              val r = $right
+              if (l.value) DiagrammedExpr.applyExpr(l, r :: Nil, r.value, ${getAnchor(expr)})
               else l
             }
           case _ =>
             val left = parse(lhs.seal[Any])
             val right = parse(rhs.seal[Any])
             '{
-              val l = ~left
-              val r = ~right
-              val res = ~apply('(l.value), op, '(r.value) :: Nil)
-              DiagrammedExpr.applyExpr(l, r :: Nil, res, ~getAnchor(expr))
+              val l = $left
+              val r = $right
+              val res = ${ apply('{l.value}, op, '{r.value} :: Nil) }
+              DiagrammedExpr.applyExpr(l, r :: Nil, res, ${getAnchor(expr)})
             }
         }
       case Term.Apply(Term.Select(lhs, op), args) =>
@@ -505,8 +505,8 @@ object DiagrammedExprMacro {
 
         let(left) { (l: Expr[DiagrammedExpr[_]]) =>
           lets(rights) { (rs: List[Expr[DiagrammedExpr[_]]]) =>
-            val res = apply('((~l).value), op, rs)
-            '{ DiagrammedExpr.applyExpr(~l, ~rs.toExprOfList, ~res, ~getAnchor(expr)) }
+            val res = apply('{($l).value}, op, rs)
+            '{ DiagrammedExpr.applyExpr($l, ${rs.toExprOfList}, $res, ${getAnchor(expr)}) }
           }
         }
       case _ =>
@@ -526,8 +526,8 @@ object DiagrammedExprMacro {
         val obj = parse(qual.seal[Any])
 
         '{
-          val o = ~obj
-          DiagrammedExpr.selectExpr(o, ~selectField('(o.value), name), ~getAnchor(expr))
+          val o = $obj
+          DiagrammedExpr.selectExpr(o, ${selectField('{o.value}, name)}, ${getAnchor(expr)})
         }
     }
   }
@@ -545,7 +545,7 @@ object DiagrammedExprMacro {
    * org.scalatest.DiagrammedExpr.simpleExpr(expr, anchorOfExpr)
    */
   def simpleExpr[T:Type](expr: Expr[T])(implicit refl: Reflection): Expr[DiagrammedExpr[T]] = {
-    '{ DiagrammedExpr.simpleExpr(~expr, ~getAnchor(expr)) }
+    '{ DiagrammedExpr.simpleExpr($expr, ${getAnchor(expr)}) }
   }
 
   def getAnchor(expr: Expr[_])(implicit refl: Reflection): Expr[Int] = {

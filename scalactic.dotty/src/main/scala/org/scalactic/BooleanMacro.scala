@@ -868,7 +868,7 @@ object BooleanMacro {
     import util._
 
     def exprStr: String = condition.show
-    def defaultCase = '(Bool.simpleMacroBool(~condition, ~exprStr.toExpr, ~prettifier))
+    def defaultCase = '{ Bool.simpleMacroBool($condition, ${exprStr.toExpr}, $prettifier) }
     def isImplicitMethodType(tp: Type): Boolean =
       Type.IsMethodType.unapply(tp).flatMap(tp => if tp.isImplicit then Some(true) else None).nonEmpty
 
@@ -879,19 +879,19 @@ object BooleanMacro {
           case "||" =>
             val left = parse(lhs.seal[Boolean], prettifier)
             val right = parse(rhs.seal[Boolean], prettifier)
-            '(~left || ~right)
+            '{ $left || $right }
           case "|" =>
             val left = parse(lhs.seal[Boolean], prettifier)
             val right = parse(rhs.seal[Boolean], prettifier)
-            '(~left | ~right)
+            '{ $left | $right }
           case "&&" =>
             val left = parse(lhs.seal[Boolean], prettifier)
             val right = parse(rhs.seal[Boolean], prettifier)
-            '(~left && ~right)
+            '{ $left && $right }
           case "&" =>
             val left = parse(lhs.seal[Boolean], prettifier)
             val right = parse(rhs.seal[Boolean], prettifier)
-            '(~left & ~right)
+            '{ $left & $right }
           case _ =>
             sel.tpe.widen match {
               case Type.MethodType(_, Type.ByNameType(_) :: Nil, _) =>
@@ -904,7 +904,7 @@ object BooleanMacro {
                       val l = left.seal[Any]
                       val r = right.seal[Any]
                       val b = result.seal[Boolean]
-                      val code = '{ Bool.binaryMacroBool(~l, ~op.toExpr, ~r, ~b, ~prettifier) }
+                      val code = '{ Bool.binaryMacroBool($l, ${op.toExpr}, $r, $b, $prettifier) }
                       code.unseal
                     }
                   }
@@ -927,9 +927,9 @@ object BooleanMacro {
       //   }.seal[Bool]
       case Term.Select(left, "unary_!") =>
         val receiver = parse(left.seal[Boolean], prettifier)
-        '{ !(~receiver) }
+        '{ !($receiver) }
       case Term.Literal(_) =>
-        '(Bool.simpleMacroBool(~condition, "", ~prettifier))
+        '{ Bool.simpleMacroBool($condition, "", $prettifier) }
       case _ =>
         defaultCase
     }
