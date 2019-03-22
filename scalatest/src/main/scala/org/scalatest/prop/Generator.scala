@@ -189,6 +189,29 @@ trait Generator[T] { thisGeneratorOfT =>
     */
   def next(szp: SizeParam, edges: List[T], rnd: Randomizer): (T, List[T], Randomizer)
 
+  private[scalatest] def next(minSize: PosZInt, maxSize: PosZInt, initialSizes: List[PosZInt], initialEdges: List[T], initialRnd: Randomizer): (T, List[T], Randomizer, List[PosZInt]) = {
+    
+    @tailrec
+    def loop(initSizes: List[PosZInt], edges: List[T], rnd: Randomizer): (T, List[T], Randomizer, List[PosZInt]) = {
+      val (size, nextInitSizes, nextRnd) = 
+      initSizes match {
+         case head :: tail => (head, tail, rnd)
+         case Nil =>
+           val (sz, nextRnd) = rnd.choosePosZInt(minSize, maxSize)
+           (sz, Nil, nextRnd)
+      }
+      try {  
+        val (nextT, nextEdges, nextNextRnd) = next(SizeParam(minSize, maxSize, size), edges, nextRnd)
+        (nextT, nextEdges, nextNextRnd, nextInitSizes)
+      }
+      catch {
+        case ise: IllegalStateException => loop(nextInitSizes, edges, nextRnd)
+      }
+    }
+    
+    loop(initialSizes, initialEdges, initialRnd)
+  }
+
   /**
     * Given a function from types [[T]] to [[U]], return a new [[Generator]] that produces
     * values of type [[U]].
@@ -315,6 +338,18 @@ trait Generator[T] { thisGeneratorOfT =>
             val genOfU: Generator[U] = f(nextT)
             val (u, _, nextNextRandomizer) = genOfU.next(szp, Nil, nextRandomizer)
             (u, Nil, nextNextRandomizer)
+        }
+      }
+
+      override private[scalatest] def next(minSize: PosZInt, maxSize: PosZInt, initSizes: List[PosZInt], edges: List[U], rnd: Randomizer): (U, List[U], Randomizer, List[PosZInt]) = {
+        edges match {
+          case head :: tail =>
+            (head, tail, rnd, initSizes)
+          case _ =>
+            val (nextT, _, nextRandomizer, nextInitSizes) = thisGeneratorOfT.next(minSize, maxSize, initSizes, Nil, rnd)
+            val genOfU: Generator[U] = f(nextT)
+            val (u, _, nextNextRandomizer, nextNextInitSizes) = genOfU.next(minSize, maxSize, nextInitSizes, Nil, nextRandomizer)
+            (u, Nil, nextNextRandomizer, nextNextInitSizes)
         }
       }
 

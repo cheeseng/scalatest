@@ -142,14 +142,7 @@ abstract class UnitPropCheckerAsserting {
 
       @tailrec
       def loop(succeededCount: Int, discardedCount: Int, edges: List[A], rnd: Randomizer, initialSizes: List[PosZInt], initSeed: Long): PropertyCheckResult = {
-        val (size, nextInitialSizes, nextRnd) =
-          initialSizes match {
-            case head :: tail => (head, tail, rnd)
-            case Nil =>
-              val (sz, nextRnd) = rnd.choosePosZInt(minSize, maxSize)
-              (sz, Nil, nextRnd)
-          }
-        val (a, nextEdges, nextNextRnd) = genA.next(SizeParam(PosZInt(0), maxSize, size), edges, nextRnd) // TODO: Move PosZInt farther out
+        val (a, nextEdges, nextNextRnd, nextInitialSizes) = genA.next(minSize, maxSize, initialSizes, edges, rnd)
 
         val result: Try[T] = Try { fun(a) }
         val argsPassed = List(if (names.isDefinedAt(0)) PropertyArgument(Some(names(0)), a) else PropertyArgument(None, a))
