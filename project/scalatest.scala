@@ -105,7 +105,7 @@ object ScalatestBuild {
 
   def sharedSettings: Seq[Setting[_]] = Seq(
     javaHome := getJavaHome(scalaBinaryVersion.value),
-    scalaVersion := "2.13.0",
+    scalaVersion := "2.13.1",
     crossScalaVersions := supportedScalaVersions,
     version := releaseVersion,
     scalacOptions ++= Seq("-feature"),
@@ -2220,7 +2220,7 @@ object ScalatestBuild {
 
   // List of available night build at https://repo1.maven.org/maven2/ch/epfl/lamp/dotty-compiler_0.14/
   // lazy val dottyVersion = dottyLatestNightlyBuild.get
-  lazy val dottyVersion = "0.18.1-RC1"
+  lazy val dottyVersion = "0.21.0-RC1"
   lazy val dottySettings = List(
     scalaVersion := dottyVersion,
     libraryDependencies := libraryDependencies.value.map(_.withDottyCompat(scalaVersion.value)),
