@@ -769,6 +769,7 @@ class Framework extends SbtFramework {
                                   summaryCounter.testsCanceledCount.get, summaryCounter.suitesCompletedCount.get, summaryCounter.suitesAbortedCount.get, summaryCounter.scopesPendingCount.get)
         dispatchReporter(RunCompleted(tracker.nextOrdinal(), Some(duration), Some(summary)))
         dispatchReporter.dispatchDisposeAndWaitUntilDone()
+        suiteSortingReporter.doDispose()
 
         execSvc.shutdown()
 

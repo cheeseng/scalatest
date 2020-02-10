@@ -1302,6 +1302,10 @@ object Runner {
             }
             finally {
               execSvc.shutdown()
+              distributedSuiteSorter match {
+                case Some(dss) => dss.doDispose()
+                case None => 
+              }
             }
           }
           else {

@@ -277,6 +277,7 @@ private[scalatest] class SuiteSortingReporter(dispatch: Reporter, val testSortin
     */
   override def doDispose(): Unit = {
     fireReadyEvents()
+    timer.cancel()
   }
   
   // Also happening inside synchronized block
