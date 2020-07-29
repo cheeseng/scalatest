@@ -77,9 +77,9 @@ class AsyncWordSpecLikeSpec extends AnyFunSpec {
       val rep = new EventRecordingReporter
       val spec = new ExampleSpec
       val status = spec.run(None, Args(reporter = rep))
-      // SKIP-SCALATESTJS,NATIVE-START
+      // SKIP-SCALATESTJS-START
       status.waitUntilCompleted()
-      // SKIP-SCALATESTJS,NATIVE-END
+      // SKIP-SCALATESTJS-END
       assert(rep.testStartingEventsReceived.length == 4)
       assert(rep.testSucceededEventsReceived.length == 1)
       assert(rep.testSucceededEventsReceived(0).testName == "test 1")
