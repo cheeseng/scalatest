@@ -113,7 +113,7 @@ sealed trait Status { thisStatus =>
    */
   def isCompleted(): Boolean
 
-  // SKIP-SCALATESTJS,NATIVE-START
+  // SKIP-SCALATESTJS-START
   /**
    * Blocking call that waits until the entity represented by this <code>Status</code> (one test, one suite, or all of
    * a suite's tests or nested suites) has completed, then either returns normally, or if an unreported exception has
@@ -137,7 +137,7 @@ sealed trait Status { thisStatus =>
    *            via a ScalaTest event and therefore was installed as an unreported exception on this <code>Status</code>.
    */
   def waitUntilCompleted(): Unit
-  // SKIP-SCALATESTJS,NATIVE-END
+  // SKIP-SCALATESTJS-END
 
   /**
    * Registers the passed callback function to be executed when this status completes.
@@ -449,12 +449,12 @@ object SucceededStatus extends Status with Serializable {
    */
   def isCompleted() = true
 
-  // SKIP-SCALATESTJS,NATIVE-START
+  // SKIP-SCALATESTJS-START
   /**
    * Always returns immediately.
    */
   def waitUntilCompleted(): Unit = {}
-  // SKIP-SCALATESTJS,NATIVE-END
+  // SKIP-SCALATESTJS-END
 
   /**
    * Executes the passed function immediately on the calling thread.
@@ -492,12 +492,12 @@ object FailedStatus extends Status with Serializable {
    */
   def isCompleted() = true
 
-  // SKIP-SCALATESTJS,NATIVE-START
+  // SKIP-SCALATESTJS-START
   /**
    * Always returns immediately.
    */
   def waitUntilCompleted(): Unit = {}
-  // SKIP-SCALATESTJS,NATIVE-END
+  // SKIP-SCALATESTJS-END
 
   /**
    * Executes the passed function immediately on the calling thread.
@@ -540,7 +540,7 @@ private[scalatest] final class ScalaTestStatefulStatus extends Status with Seria
 
   def isCompleted() = latch.getCount == 0L
 
-  // SKIP-SCALATESTJS,NATIVE-START
+  // SKIP-SCALATESTJS-START
   def waitUntilCompleted(): Unit = {
     latch.await()
     unreportedException match {
@@ -548,7 +548,7 @@ private[scalatest] final class ScalaTestStatefulStatus extends Status with Seria
       case None => // Do nothing
     }
   }
-  // SKIP-SCALATESTJS,NATIVE-END
+  // SKIP-SCALATESTJS-END
 
   def setFailed(): Unit = {
     synchronized {
@@ -706,7 +706,7 @@ final class StatefulStatus extends Status with Serializable {
    */
   def isCompleted() = latch.getCount == 0L
 
-  // SKIP-SCALATESTJS,NATIVE-START
+  // SKIP-SCALATESTJS-START
   /**
    * Blocking call that returns only after <code>setCompleted</code> has been invoked on this <code>StatefulStatus</code> instance.
    */
@@ -717,7 +717,7 @@ final class StatefulStatus extends Status with Serializable {
       case None => // Do nothing
     }
   }
-  // SKIP-SCALATESTJS,NATIVE-END
+  // SKIP-SCALATESTJS-END
 
   /**
    * Sets the status to failed without changing the completion status.
@@ -920,12 +920,12 @@ final class CompositeStatus(statuses: Set[Status]) extends Status with Serializa
   // I think that was a fuzzy design if not a buggy one. In this implementation, the latch is the ultimate arbiter
   // of whether the status has completed.
 
-  // SKIP-SCALATESTJS,NATIVE-START
+  // SKIP-SCALATESTJS-START
   /**
    * Blocking call that returns only after all composite <code>Status</code>s have completed.
    */
   def waitUntilCompleted(): Unit = latch.await()
-  // SKIP-SCALATESTJS,NATIVE-END
+  // SKIP-SCALATESTJS-END
 
   /**
    * Registers the passed function to be executed when this status completes.
