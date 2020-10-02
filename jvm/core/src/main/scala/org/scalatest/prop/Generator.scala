@@ -3890,7 +3890,9 @@ object Generator {
                 def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[Option[T]]], Randomizer) = {
                   val (topRoseTreeOfT, rnd2) = genOfT.shrink(t, rndPassedToShrinks) // topRoseTreeOfT is a RoseTree[T]
                   val (nestedRoseTrees, rnd3) = topRoseTreeOfT.shrinks(rnd2) // nestedRoseTrees: List[RoseTree[T]]
-                  (List(Rose(None: Option[T])) ++ nestedRoseTrees.map(nrt => nrt.map(t => Some(t))), rnd3)
+                  val listOfRoseOfNone: List[RoseTree[Option[T]]] = List[Rose[Option[T]]](Rose(None))
+                  val listOfNestedRoseTrees: List[RoseTree[Option[T]]] = nestedRoseTrees.map(nrt => nrt.map(t => Some(t): Option[T]))
+                  (listOfRoseOfNone ++ listOfNestedRoseTrees, rnd3)
                 }
               }
             (rootRoseTree, rnd)
