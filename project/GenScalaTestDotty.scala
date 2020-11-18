@@ -360,22 +360,7 @@ object GenScalaTestDotty {
     ) ++
       copyDir("jvm/scalatest-test/src/test/scala/org/scalatest/concurrent", "org/scalatest/concurrent", targetDir,
         List(
-          "WaitersSpec.scala",    // skipped because Waiters not supported.
-          "AsyncAssertionsSpec.scala",    // skipped because AsyncAssertions (deprecated name for Waiters) not supported.
-          "ConductorFixtureSuite.scala",  // skipped because Conductors not supported.
-          "ConductorMethodsSuite.scala",   // skipped because Conductors not supported.
-          "ConductorSuite.scala",   // skipped because Conductors not supported.
-          "ConductorFixtureDeprecatedSuite.scala",  // skipped because Conductors not supported.
-          "ConductorMethodsDeprecatedSuite.scala",   // skipped because Conductors not supported.
-          "ConductorDeprecatedSuite.scala",   // skipped because Conductors not supported.
           "EventuallySpec.scala",   // skipped because Eventually not supported.
-          "IntegrationPatienceSpec.scala",  // skipped because depends on Eventually
-          "DeprecatedIntegrationPatienceSpec.scala",
-          "JavaFuturesSpec.scala",      // skipped because depends on java futures
-          "TestThreadsStartingCounterSpec.scala",   // skipped because depends on Conductors
-          "DeprecatedTimeLimitedTestsSpec.scala",   // skipped because DeprecatedTimeLimitedTests not supported.
-          "TimeoutsSpec.scala",            // skipped because Timeouts not supported.
-          "UltimatelySpec.scala",   // skipped because Eventually not supported.
           "TimeLimitsSpec.scala",  // skipped because failed with line number tests.
           "ScalaFuturesSpec.scala",  // skipped because failed with line number tests.
         )) ++
