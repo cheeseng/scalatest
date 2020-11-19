@@ -66,8 +66,8 @@ object Position {
   /**
    * Helper method for Position macro.
    */
-  private def genPosition(implicit qctx: QuoteContext): Expr[Position] = {
-    import qctx.tasty.rootPosition
+  private def genPosition(using QuoteContext): Expr[Position] = {
+    import qctx.reflect.rootPosition
 
     val pos = rootPosition
     val file = pos.sourceFile
