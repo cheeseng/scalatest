@@ -149,8 +149,7 @@ object GenScalacticDotty {
   def genTest(targetDir: File, version: String, scalaVersion: String): Seq[File] =
     copyDir("jvm/scalactic-test/src/test/scala/org/scalactic", "org/scalactic", targetDir,
       List(
-        "TripleEqualsSpec.for210",  // Old staff, we shall delete this soon.
-        "FutureSugarSpec.scala"     // instability, occasional timeout in CI
+        "TripleEqualsSpec.for210"  // Old staff, we shall delete this soon.
       )) ++
     copyDir("jvm/scalactic-test/src/test/scala/org/scalactic/anyvals", "org/scalactic/anyvals", targetDir,
       List(
