@@ -80,6 +80,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
       tfe.failedCodeLineNumber should be (Some( thisLineNumber - 3))
     }
     
+    // SKIP-DOTTY-START
     it("should throw TestFailedException with correct stack depth and message when at least one element failed") {
       forAll(examples) { colFun => 
         val col = colFun(Set(1, 2, 3))
@@ -128,6 +129,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
         }
       }
     }
+    // SKIP-DOTTY-END
     
     it("should propagate TestPendingException thrown from assertion") {
       forAll(examples) { colFun =>
@@ -216,6 +218,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
       it("should do nothing if succeeds") {
         forAll(Array(1, 2, 3)) { e => e should be < 4 }
       }
+      // SKIP-DOTTY-START
       it("should throw a TFE with a good error message if fails") {
         val e = intercept[exceptions.TestFailedException] {
           forAll(Array(1, 2, 3, 4, 5)) { e =>
@@ -236,12 +239,14 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
           case other => fail("Expected cause to be TestFailedException, but got: " + other)
         }
       }
+      // SKIP-DOTTY-END
     }
 
     describe("when used with Strings") {
       it("should do nothing if succeeds") {
         forAll("123") { e => e should be < '4' }
       }
+      // SKIP-DOTTY-START
       it("should throw a TFE with a good error message if fails") {
         val e = intercept[exceptions.TestFailedException] {
           forAll("12345") { e =>
@@ -262,6 +267,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
           case other => fail("Expected cause to be TestFailedException, but got: " + other)
         }
       }
+      // SKIP-DOTTY-END
     }
 
     // SKIP-SCALATESTJS,NATIVE-START
@@ -271,6 +277,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
         val jList123: java.util.List[Int] = List(1, 2, 3).asJava
         forAll(jList123) { e => e should be < 4 }
       }
+      // SKIP-DOTTY-START
       it("should throw a TFE with a good error message if fails") {
         val jList12345: java.util.List[Int] = List(1, 2, 3, 4, 5).asJava
         val e = intercept[exceptions.TestFailedException] {
@@ -292,6 +299,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
           case other => fail("Expected cause to be TestFailedException, but got: " + other)
         }
       }
+      // SKIP-DOTTY-END
     }
 
     describe("when used with java.util.Map") {
@@ -300,6 +308,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
         val jMap123: java.util.Map[Int, Int] = Map(1 -> 2, 2 -> 3, 3 -> 4).asJava
         forAll(jMap123) { e => e.key should be < 4 }
       }
+      // SKIP-DOTTY-START
       it("should throw a TFE with a good error message if fails") {
         val jMap12345: java.util.Map[Int, Int] = javaMap(Entry(1, 2), Entry(2, 3), Entry(3, 4), Entry(4, 5), Entry(5, 6))
         val e = intercept[exceptions.TestFailedException] {
@@ -321,6 +330,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
           case other => fail("Expected cause to be TestFailedException, but got: " + other)
         }
       }
+      // SKIP-DOTTY-END
     }
     // SKIP-SCALATESTJS,NATIVE-END
   }
@@ -354,6 +364,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
       }
     }
     
+    // SKIP-DOTTY-START
     it("should throw TestFailedException with correct stack depth and message when less than minimum count of elements passed") {
       forAll(examples) { colFun =>
         val col = colFun(Set(1, 2, 3))
@@ -440,6 +451,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
         e.getCause should be (null)
       }
     }
+    // SKIP-DOTTY-END
     
     it("should pass when more than minimum count of elements passed") {
       forAll(examples) { colFun =>
@@ -448,6 +460,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
       }
     }
     
+    // SKIP-DOTTY-START
     it("should throw TestFailedException with correct stack depth and message when none of the elements passed") {
       forAll(examples) { colFun =>
         val col = colFun(Set(1, 2, 3))
@@ -470,6 +483,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
         e.getCause should be (null)
       }
     }
+    // SKIP-DOTTY-END
     
     it("should pass when all of the elements passed") {
       forAll(examples) { colFun =>
@@ -598,6 +612,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
       }
     }
     
+    // SKIP-DOTTY-START
     it("should throw TestFailedException with correct stack depth and message when number of element passed is more than maximum allowed") {
       forAll(examples) { colFun =>
         val col = colFun(Set(1, 2, 3, 4, 5))
@@ -618,6 +633,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
         e.message should be (Some("forAtMost(2) failed, because 3 elements satisfied the assertion block at index " + firstIndex + ", " + secondIndex + " and " + thirdIndex + " in " + decorateToStringValue(prettifier, col)))
       }
     }
+    // SKIP-DOTTY-END
     
     it("should pass when none of the elements passed") {
       forAll(examples) { colFun =>
@@ -739,6 +755,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
       }
     }
     
+    // SKIP-DOTTY-START
     it("should use 'no element' in error message when no element satisfied the assertion block") {
       forAll(examples) { colFun =>
         val col = colFun(Set(1, 2, 3))
@@ -866,6 +883,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
                                   "in " + decorateToStringValue(prettifier, col)))
       }
     }
+    // SKIP-DOTTY-END
     
     it("should throw TestFailedException with correct stack depth and messsage when number of element passed is more than specified succeeded count") {
       forAll(examples) { colFun =>
@@ -1174,6 +1192,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
       }
     }
     
+    // SKIP-DOTTY-START
     it("should use 'no element' in error message when no element satisfied the assertion block and 'from' is > 0 ") {
       forAll(examples) { colFun =>
         val col = colFun(Set(1, 2, 3))
@@ -1287,9 +1306,10 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
                                   "  at index " + secondIndex + ", " + second  + " was not greater than 4 (InspectorsSpec.scala:" + (thisLineNumber - 17) + "), \n" +
                                   "  at index " + thirdIndex + ", " + third  + " was not greater than 4 (InspectorsSpec.scala:" + (thisLineNumber - 18) + "), \n" +
                                   "  at index " + forthIndex + ", " + forth  + " was not greater than 4 (InspectorsSpec.scala:" + (thisLineNumber - 19) + ") \n" +
-                                  "in " + decorateToStringValue(prettifier, col)))
+                                  "in " + decorateToStringValue(prettifier, col)))                          
       }
     }
+    // SKIP-DOTTY-END
     
     it("should throw TestFailedException with correct stack depth and message when number of element passed is more than upper bound of the specified range") {
       forAll(examples) { colFun =>
@@ -1528,6 +1548,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
       }
     }
     
+    // SKIP-DOTTY-START
     it("should throw TestFailedException with correct stack depth and error message when at least one element fails in nested forAll ") {
       val listOfList = 
         List(
@@ -1547,7 +1568,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
                                 "  at index 1, forAll failed, because: \n" +
                                 "    at index 1, 1 was not equal to 0 (InspectorsSpec.scala:" + (thisLineNumber - 8) + ") \n" +
                                 "  in List(8, 9, 12) (InspectorsSpec.scala:" + (thisLineNumber - 10) + ") \n" +
-                                "in List(List(2, 4, 6), List(8, 9, 12))"))
+                                "in List(List(2, 4, 6), List(8, 9, 12))"))                          
       e.getCause match {
         case tfe: exceptions.TestFailedException => 
           tfe.failedCodeFileName should be (Some("InspectorsSpec.scala"))
@@ -1566,6 +1587,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
         case other => fail("Expected cause to be TestFailedException, but got: " + other)
       }
     }
+    // SKIP-DOTTY-END
   }
   
   describe("forAtLeast nested") {
@@ -1581,6 +1603,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
       }
     }
     
+    // SKIP-DOTTY-START
     it("should throw TestFailedException with correct stack depth and error message when nested satisfied assertion does not satisfied the outer") {
       val listOfList = 
         List(
@@ -1604,6 +1627,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
                                  "in List(List(2, 3, 6), List(8, 11, 13))"))
       e.getCause should be (null)
     }
+    // SKIP-DOTTY-END
   }
   
   describe("forAtMost nested") {
@@ -1619,6 +1643,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
       }
     }
     
+    // SKIP-DOTTY-START
     it("should throw TestFailedException with correct stack depth and error message when nested satisfied assertion does not satisfied the outer") {
       val listOfList = 
         List(
@@ -1637,6 +1662,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
       e.message should be (Some("forAtMost(1) failed, because 2 elements satisfied the assertion block at index 0 and 1 in List(List(2, 3, 6), List(8, 11, 13))"))
       e.getCause should be (null)
     }
+    // SKIP-DOTTY-END
     
   }
   
@@ -1653,6 +1679,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
       }
     }
     
+    // SKIP-DOTTY-START
     it("should throw TestFailedException with correct stack depth and error message when nested assertion does not satisfied the outer") {
       val listOfList = 
         List(
@@ -1669,6 +1696,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
       e.message should be (Some("forExactly(1) failed, because 2 elements satisfied the assertion block at index 0 and 1 in List(List(2, 4, 6), List(8, 10, 12))"))
       e.getCause should be (null)
     }
+    // SKIP-DOTTY-END
     
   }
   
@@ -1685,6 +1713,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
       }
     }
     
+    // SKIP-DOTTY-START
     it("should throw TestFailedException with correct stack depth and error message when nested assertion does not satisfied the outer") {
       val listOfList = 
         List(
@@ -1701,6 +1730,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
       e.message should be (Some("forNo failed, because 1 element satisfied the assertion block at index 1 in List(List(1, 8, 10), List(7, 9, 11))"))
       e.getCause should be (null)
     }
+    // SKIP-DOTTY-END
   }
   
   describe("forBetween nested") {
@@ -1721,6 +1751,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
       }
     }
     
+    // SKIP-DOTTY-START
     it("should throw TestFailedException with correct stack depth and error message when nested assertion does not satisfied the outer") {
       val listOfList = 
         List(
@@ -1744,6 +1775,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
                                 "List(41, 45, 46, 48, 50))"))
       e.getCause should be (null)
     }
+    // SKIP-DOTTY-END
   }
   
   describe("forEvery nested") {
@@ -1759,6 +1791,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
       }
     }
     
+    // SKIP-DOTTY-START
     it("should throw TestFailedException with correct stack depth and error message when at least one element fails in nested forAll ") {
       val listOfList = 
         List(
@@ -1783,9 +1816,11 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
                                 "    at index 0, 1 was not equal to 0 (InspectorsSpec.scala:" + (thisLineNumber - 11) + "), \n" +
                                 "    at index 2, 1 was not equal to 0 (InspectorsSpec.scala:" + (thisLineNumber - 12) + ") \n" + 
                                 "  in List(11, 16, 19) (InspectorsSpec.scala:" + (thisLineNumber - 14) + ") \n" +
-                                "in List(List(2, 4, 6), List(8, 9, 12), List(11, 16, 19))"))
+                                "in List(List(2, 4, 6), List(8, 9, 12), List(11, 16, 19))"))                          
       e.getCause should be (null)
     }
+    // SKIP-DOTTY-END
+
     
   }
 
