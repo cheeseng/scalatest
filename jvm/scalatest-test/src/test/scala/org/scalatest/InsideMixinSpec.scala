@@ -55,6 +55,7 @@ class InsideMixinSpec extends AnyFunSpec {
       }
     }
 
+    // SKIP-DOTTY-START
     it("should throw a TFE when the partial function isn't defined at the passed value") {
       val caught = the [TestFailedException] thrownBy {
         inside (rec) { case Record(name, _, 99) =>
@@ -65,6 +66,7 @@ class InsideMixinSpec extends AnyFunSpec {
       caught.failedCodeLineNumber.value should equal (thisLineNumber - 5)
       caught.failedCodeFileName.value should be ("InsideMixinSpec.scala")
     }
+    // SKIP-DOTTY-END
 
     it("should include an inside clause when a matcher fails inside") {
       val caught = the [TestFailedException] thrownBy {
