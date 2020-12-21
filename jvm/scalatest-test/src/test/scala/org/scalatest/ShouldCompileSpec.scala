@@ -53,7 +53,7 @@ class ShouldCompileSpec extends AnyFunSpec {
         //DOTTY-ONLY val errMsg = Resources.expectedNoErrorButGotTypeError("", "")
 
         val e = intercept[TestFailedException] {
-          "println(\"test)" should compile
+          "println(\"test)" newShould compile
         }
 
         assert(e.message.get.startsWith(errMsg.substring(0, errMsg.indexOf(':'))))
@@ -72,7 +72,7 @@ class ShouldCompileSpec extends AnyFunSpec {
 
       it("should throw TestFailedException with correct message and stack depth when type check failed") {
         val e = intercept[TestFailedException] {
-          """val a: String = 2""" should compile
+          """val a: String = 2""" newShould compile
         }
         val errMsg = Resources.expectedNoErrorButGotTypeError("", "")
         assert(e.message.get.startsWith(errMsg.substring(0, errMsg.indexOf(':'))))
@@ -89,7 +89,7 @@ class ShouldCompileSpec extends AnyFunSpec {
         //DOTTY-ONLY val errMsg = Resources.expectedNoErrorButGotTypeError("", "")
         
         val e = intercept[TestFailedException] {
-          """println("test)""" should compile
+          """println("test)""" newShould compile
         }
 
         assert(e.message.get.startsWith(errMsg.substring(0, errMsg.indexOf(':'))))

@@ -57,6 +57,7 @@ import MatchersHelper.indicateSuccess
 import MatchersHelper.newTestFailedException
 import MatchersHelper.startWithRegexWithGroups
 import org.scalatest.exceptions._
+//DOTTY-ONLY import scala.compiletime.testing.typeChecks
 
 // TODO: drop generic support for be as an equality comparison, in favor of specific ones.
 // TODO: Put links from ShouldMatchers to wherever I reveal the matrix and algo of how properties are checked dynamically.
@@ -7545,6 +7546,12 @@ org.scalatest.exceptions.TestFailedException: org.scalatest.Matchers$ResultOfCol
     def shouldNot(includeWord: IncludeWord)(implicit ev: T <:< String): ResultOfIncludeWordForString =
       new ResultOfIncludeWordForString(leftSideValue, false, prettifier, pos)
   }
+
+  extension (inline code: String) inline def newShould(compileWord: CompileWord)(implicit pos: source.Position): Assertion = {
+    ${ CompileMacro.assertCompilesImpl('code, '{typeChecks(code)}, '{ pos }) }
+  }
+
+
 
   /**
    * This class is part of the ScalaTest matchers DSL. Please see the documentation for <a href="Matchers.html"><code>Matchers</code></a> for an overview of
