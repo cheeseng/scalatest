@@ -6798,6 +6798,14 @@ org.scalatest.exceptions.TestFailedException: org.scalatest.Matchers$ResultOfCol
 
   private val ShouldMethodHelper = new ShouldMethodHelperClass
 
+  extension [T](leftSideValue: T)(using pos: source.Position, prettifier: Prettifier) inline def shouldEqual(right: Any)(implicit equality: Equality[T]): Assertion = {
+    if (!equality.areEqual(leftSideValue, right)) {
+      val prettyPair = prettifier(leftSideValue, right)
+      indicateFailure(Resources.formatString(Resources.rawDidNotEqual, Array(prettyPair.left, prettyPair.right)), None, pos, prettyPair.analysis)
+    }
+    else indicateSuccess(FailureMessages.equaled(prettifier, leftSideValue, right))
+  }
+
   /**
    * This class is part of the ScalaTest matchers DSL. Please see the documentation for <a href="Matchers.html"><code>Matchers</code></a> for an overview of
    * the matchers DSL.
@@ -6855,13 +6863,13 @@ org.scalatest.exceptions.TestFailedException: org.scalatest.Matchers$ResultOfCol
      *   ^
      * </pre>
      */
-    def shouldEqual(right: Any)(implicit equality: Equality[T]): Assertion = {
+    /*def shouldEqual(right: Any)(implicit equality: Equality[T]): Assertion = {
       if (!equality.areEqual(leftSideValue, right)) {
         val prettyPair = prettifier(leftSideValue, right)
         indicateFailure(Resources.formatString(Resources.rawDidNotEqual, Array(prettyPair.left, prettyPair.right)), None, pos, prettyPair.analysis)
       }
       else indicateSuccess(FailureMessages.equaled(prettifier, leftSideValue, right))
-    }
+    }*/
 
     /**
      * This method enables syntax such as the following:
