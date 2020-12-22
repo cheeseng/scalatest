@@ -6798,12 +6798,26 @@ org.scalatest.exceptions.TestFailedException: org.scalatest.Matchers$ResultOfCol
 
   private val ShouldMethodHelper = new ShouldMethodHelperClass
 
-  extension [T](leftSideValue: T)(using pos: source.Position, prettifier: Prettifier) inline def shouldEqual(right: Any)(implicit equality: Equality[T]): Assertion = {
+  extension [T](leftSideValue: T)(using pos: source.Position, prettifier: Prettifier) def shouldEqual(right: Any)(implicit equality: Equality[T]): Assertion = {
     if (!equality.areEqual(leftSideValue, right)) {
       val prettyPair = prettifier(leftSideValue, right)
       indicateFailure(Resources.formatString(Resources.rawDidNotEqual, Array(prettyPair.left, prettyPair.right)), None, pos, prettyPair.analysis)
     }
     else indicateSuccess(FailureMessages.equaled(prettifier, leftSideValue, right))
+  }
+
+  extension [T](leftSideValue: T)(using pos: source.Position, prettifier: Prettifier) def shouldEqual(spread: Spread[T]): Assertion = {
+    if (!spread.isWithin(leftSideValue)) {
+      indicateFailure(FailureMessages.didNotEqualPlusOrMinus(prettifier, leftSideValue, spread.pivot, spread.tolerance), None, pos)
+    }
+    else indicateSuccess(FailureMessages.equaledPlusOrMinus(prettifier, leftSideValue, spread.pivot, spread.tolerance))
+  }
+
+  extension [T](leftSideValue: T)(using pos: source.Position, prettifier: Prettifier) def shouldEqual(right: Null)(implicit ev: T <:< AnyRef): Assertion = {
+    if (leftSideValue != null) {
+      indicateFailure(FailureMessages.didNotEqualNull(prettifier, leftSideValue), None, pos)
+    }
+    else indicateSuccess(FailureMessages.equaledNull)
   }
 
   /**
@@ -6879,12 +6893,12 @@ org.scalatest.exceptions.TestFailedException: org.scalatest.Matchers$ResultOfCol
      *        ^
      * </pre>
      */
-    def shouldEqual(spread: Spread[T]): Assertion = {
+    /*def shouldEqual(spread: Spread[T]): Assertion = {
       if (!spread.isWithin(leftSideValue)) {
         indicateFailure(FailureMessages.didNotEqualPlusOrMinus(prettifier, leftSideValue, spread.pivot, spread.tolerance), None, pos)
       }
       else indicateSuccess(FailureMessages.equaledPlusOrMinus(prettifier, leftSideValue, spread.pivot, spread.tolerance))
-    }
+    }*/
 
     /**
      * This method enables syntax such as the following:
@@ -6894,12 +6908,12 @@ org.scalatest.exceptions.TestFailedException: org.scalatest.Matchers$ResultOfCol
      *        ^
      * </pre>
      */
-    def shouldEqual(right: Null)(implicit ev: T <:< AnyRef): Assertion = {
+    /*def shouldEqual(right: Null)(implicit ev: T <:< AnyRef): Assertion = {
       if (leftSideValue != null) {
         indicateFailure(FailureMessages.didNotEqualNull(prettifier, leftSideValue), None, pos)
       }
       else indicateSuccess(FailureMessages.equaledNull)
-    }
+    }*/
 
     /**
      * This method enables syntax such as the following:
