@@ -366,6 +366,21 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
        scalatestWordSpecTest
      )
 
+  val akkaVersion         = "2.6.10"
+
+  lazy val eventuallyTest = Project("eventually-test", file("jvm/eventually-test"))
+    .settings(
+      projectTitle := "Eventually Test", 
+      scalaVersion := "2.13.4", 
+      libraryDependencies ++= 
+        Seq(
+          "com.typesafe.akka" %% "akka-actor" % akkaVersion,
+          "com.typesafe.akka" %% "akka-stream" % akkaVersion,
+          "com.typesafe.akka" %% "akka-testkit" % akkaVersion % Test exclude("org.scalatest", "scalatest"),
+        ), 
+      javaOptions += "-Ylog-classpath"  
+    ).dependsOn(scalacticMacro, scalactic, scalatest)
+
   lazy val scalatestDiagramsTest = project.in(file("jvm/diagrams-test"))
     .settings(sharedSettings: _*)
     .settings(sharedTestSettings: _*)

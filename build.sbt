@@ -132,6 +132,7 @@ lazy val scalatestDiagramsDotty = ScalatestBuild.scalatestDiagramsDotty
 lazy val scalatestMatchersCoreDotty = ScalatestBuild.scalatestMatchersCoreDotty
 lazy val scalatestShouldMatchersDotty = ScalatestBuild.scalatestShouldMatchersDotty
 lazy val scalatestMustMatchersDotty = ScalatestBuild.scalatestMustMatchersDotty
+lazy val eventuallyTest = ScalatestBuild.eventuallyTest
 lazy val scalatestModulesDotty = ScalatestBuild.scalatestModulesDotty
 lazy val scalatestDoc = ScalatestBuild.scalatestDoc
 lazy val rootProject = ScalatestBuild.rootProject
