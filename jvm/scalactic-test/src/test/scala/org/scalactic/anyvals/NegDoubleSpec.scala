@@ -18,7 +18,7 @@ package org.scalactic.anyvals
 import org.scalatest._
 import org.scalactic.Equality
 import org.scalactic.TypeCheckedTripleEquals
-import org.scalatest.prop.PropertyChecks
+import org.scalatest.prop.{PropertyChecks, RoseTree}
 // SKIP-SCALATESTJS,NATIVE-START
 import scala.collection.immutable.NumericRange
 // SKIP-SCALATESTJS,NATIVE-END
@@ -247,13 +247,15 @@ class NegDoubleSpec extends funspec.AnyFunSpec with matchers.should.Matchers wit
       }
 
       it("should offer a unary + method that is consistent with Double") {
-        forAll { (p: NegDouble) =>
+        forAll { (rt: RoseTree[NegDouble]) =>
+          val p: NegDouble = rt.value
           (+p).toDouble shouldEqual (+(p.toDouble))
         }
       }
 
       it("should offer a unary - method that returns PosDouble") {
-        forAll { (p: NegDouble) =>
+        forAll { (rt: RoseTree[NegDouble]) =>
+          val p: NegDouble = rt.value
           (-p) shouldEqual (PosDouble.ensuringValid(-(p.toDouble)))
         }
       }
@@ -261,7 +263,9 @@ class NegDoubleSpec extends funspec.AnyFunSpec with matchers.should.Matchers wit
 
     it("should offer a 'plus' method that takes a NegZDouble and returns a NegDouble") {
 
-      forAll { (negDouble: NegDouble, posZDouble: NegZDouble) =>
+      forAll { (rtNegDouble: RoseTree[NegDouble], rtPosZDouble: RoseTree[NegZDouble]) =>
+        val negDouble: NegDouble = rtNegDouble.value
+        val posZDouble: NegZDouble = rtPosZDouble.value
         (negDouble plus posZDouble) should === (NegDouble.ensuringValid(negDouble.value + posZDouble.value))
       }
 
@@ -288,20 +292,24 @@ class NegDoubleSpec extends funspec.AnyFunSpec with matchers.should.Matchers wit
     }
 
     it("should offer 'min' and 'max' methods that are consistent with Double") {
-      forAll { (pdouble1: NegDouble, pdouble2: NegDouble) =>
+      forAll { (rtPdouble1: RoseTree[NegDouble], rtPdouble2: RoseTree[NegDouble]) =>
+        val pdouble1: NegDouble = rtPdouble1.value
+        val pdouble2: NegDouble = rtPdouble2.value
         pdouble1.max(pdouble2).toDouble shouldEqual pdouble1.toDouble.max(pdouble2.toDouble)
         pdouble1.min(pdouble2).toDouble shouldEqual pdouble1.toDouble.min(pdouble2.toDouble)
       }
     }
 
     it("should offer an 'isWhole' method that is consistent with Double") {
-      forAll { (pdouble: NegDouble) =>
+      forAll { (rt: RoseTree[NegDouble]) =>
+        val pdouble: NegDouble = rt.value
         pdouble.isWhole shouldEqual pdouble.toDouble.isWhole
       }
     }
 
     it("should offer 'round', 'ceil', and 'floor' methods that are consistent with Double") {
-      forAll { (pdouble: NegDouble) =>
+      forAll { (rt: RoseTree[NegDouble]) =>
+        val pdouble: NegDouble = rt.value
         pdouble.round.toDouble shouldEqual pdouble.toDouble.round
         pdouble.ceil.toDouble shouldEqual pdouble.toDouble.ceil
         pdouble.floor.toDouble shouldEqual pdouble.toDouble.floor
@@ -309,21 +317,25 @@ class NegDoubleSpec extends funspec.AnyFunSpec with matchers.should.Matchers wit
     }
 
     it("should offer 'toRadians' and 'toDegrees' methods that are consistent with Double") {
-      forAll { (pdouble: NegDouble) =>
+      forAll { (rt: RoseTree[NegDouble]) =>
+        val pdouble: NegDouble = rt.value
         pdouble.toRadians shouldEqual pdouble.toDouble.toRadians
       }
     }
 
     it("should offer widening methods for basic types that are consistent with Double") {
-      forAll { (pdouble: NegDouble) =>
+      forAll { (rt: RoseTree[NegDouble]) =>
+        val pdouble: NegDouble = rt.value
         def widen(value: Double): Double = value
         widen(pdouble) shouldEqual widen(pdouble.toDouble)
       }
-      forAll { (pdouble: NegDouble) =>
+      forAll { (rt: RoseTree[NegDouble]) =>
+        val pdouble: NegDouble = rt.value
         def widen(value: NegZDouble): NegZDouble = value
         widen(pdouble) shouldEqual widen(NegZDouble.from(pdouble.toDouble).get)
       }
-      forAll { (pdouble: NegDouble) =>
+      forAll { (rt: RoseTree[NegDouble]) =>
+        val pdouble: NegDouble = rt.value
         def widen(value: NonZeroDouble): NonZeroDouble = value
         widen(pdouble) shouldEqual widen(NonZeroDouble.from(pdouble.toDouble).get)
       }
@@ -340,7 +352,8 @@ class NegDoubleSpec extends funspec.AnyFunSpec with matchers.should.Matchers wit
       // SKIP-DOTTY-END
     }
     it("should offer an isFinite method that returns true if the value does not represent infinity") {
-      forAll { (n: NegFiniteDouble) =>
+      forAll { (rt: RoseTree[NegFiniteDouble]) =>
+        val n: NegFiniteDouble = rt.value
         (n: NegDouble).isFinite should be (true)
         NegDouble.NegativeInfinity.isFinite should be (false)
       }

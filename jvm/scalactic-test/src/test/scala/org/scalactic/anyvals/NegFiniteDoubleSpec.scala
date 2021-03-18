@@ -18,7 +18,7 @@ package org.scalactic.anyvals
 import org.scalatest._
 import org.scalactic.Equality
 import org.scalactic.TypeCheckedTripleEquals
-import org.scalatest.prop.PropertyChecks
+import org.scalatest.prop.{PropertyChecks, RoseTree}
 // SKIP-SCALATESTJS,NATIVE-START
 import scala.collection.immutable.NumericRange
 // SKIP-SCALATESTJS,NATIVE-END
@@ -246,33 +246,39 @@ class NegFiniteDoubleSpec extends funspec.AnyFunSpec with matchers.should.Matche
       }
 
       it("should offer a unary + method that is consistent with Double") {
-        forAll { (p: NegFiniteDouble) =>
+        forAll { (rt: RoseTree[NegFiniteDouble]) =>
+          val p: NegFiniteDouble = rt.value
           (+p).toDouble shouldEqual (+(p.toDouble))
         }
       }
 
       it("should offer a unary - method that returns PosFiniteDouble") {
-        forAll { (p: NegFiniteDouble) =>
+        forAll { (rt: RoseTree[NegFiniteDouble]) =>
+          val p: NegFiniteDouble = rt.value
           (-p) shouldEqual (PosFiniteDouble.ensuringValid(-(p.toDouble)))
         }
       }
     }
 
     it("should offer 'min' and 'max' methods that are consistent with Double") {
-      forAll { (pdouble1: NegFiniteDouble, pdouble2: NegFiniteDouble) =>
+      forAll { (rt1: RoseTree[NegFiniteDouble], rt2: RoseTree[NegFiniteDouble]) =>
+        val pdouble1: NegFiniteDouble = rt1.value
+        val pdouble2: NegFiniteDouble = rt2.value
         pdouble1.max(pdouble2).toDouble shouldEqual pdouble1.toDouble.max(pdouble2.toDouble)
         pdouble1.min(pdouble2).toDouble shouldEqual pdouble1.toDouble.min(pdouble2.toDouble)
       }
     }
 
     it("should offer an 'isWhole' method that is consistent with Double") {
-      forAll { (pdouble: NegFiniteDouble) =>
+      forAll { (rt: RoseTree[NegFiniteDouble]) =>
+        val pdouble: NegFiniteDouble = rt.value
         pdouble.isWhole shouldEqual pdouble.toDouble.isWhole
       }
     }
 
     it("should offer 'round', 'ceil', and 'floor' methods that are consistent with Double") {
-      forAll { (pdouble: NegFiniteDouble) =>
+      forAll { (rt: RoseTree[NegFiniteDouble]) =>
+        val pdouble: NegFiniteDouble = rt.value
         pdouble.round.toDouble shouldEqual pdouble.toDouble.round
         pdouble.ceil.toDouble shouldEqual pdouble.toDouble.ceil
         pdouble.floor.toDouble shouldEqual pdouble.toDouble.floor
@@ -280,21 +286,25 @@ class NegFiniteDoubleSpec extends funspec.AnyFunSpec with matchers.should.Matche
     }
 
     it("should offer 'toRadians' and 'toDegrees' methods that are consistent with Double") {
-      forAll { (pdouble: NegFiniteDouble) =>
+      forAll { (rt: RoseTree[NegFiniteDouble]) =>
+        val pdouble: NegFiniteDouble = rt.value
         pdouble.toRadians shouldEqual pdouble.toDouble.toRadians
       }
     }
 
     it("should offer widening methods for basic types that are consistent with Double") {
-      forAll { (pdouble: NegFiniteDouble) =>
+      forAll { (rt: RoseTree[NegFiniteDouble]) =>
+        val pdouble: NegFiniteDouble = rt.value
         def widen(value: Double): Double = value
         widen(pdouble) shouldEqual widen(pdouble.toDouble)
       }
-      forAll { (pdouble: NegFiniteDouble) =>
+      forAll { (rt: RoseTree[NegFiniteDouble]) =>
+        val pdouble: NegFiniteDouble = rt.value
         def widen(value: NegZFiniteDouble): NegZFiniteDouble = value
         widen(pdouble) shouldEqual widen(NegZFiniteDouble.from(pdouble.toDouble).get)
       }
-      forAll { (pdouble: NegFiniteDouble) =>
+      forAll { (rt: RoseTree[NegFiniteDouble]) =>
+        val pdouble: NegFiniteDouble = rt.value
         def widen(value: NonZeroDouble): NonZeroDouble = value
         widen(pdouble) shouldEqual widen(NonZeroDouble.from(pdouble.toDouble).get)
       }

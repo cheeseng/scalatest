@@ -18,7 +18,7 @@ package org.scalactic.anyvals
 import org.scalatest._
 import org.scalactic.Equality
 import org.scalactic.TypeCheckedTripleEquals
-import org.scalatest.prop.PropertyChecks
+import org.scalatest.prop.{PropertyChecks, RoseTree}
 // SKIP-SCALATESTJS,NATIVE-START
 import scala.collection.immutable.NumericRange
 // SKIP-SCALATESTJS,NATIVE-END
@@ -277,13 +277,15 @@ class FiniteDoubleSpec extends funspec.AnyFunSpec with matchers.should.Matchers 
       }
 
       it("should offer a unary + method that is consistent with Double") {
-        forAll { (pDouble: FiniteDouble) =>
+        forAll { (roseTreeOfPDouble: RoseTree[FiniteDouble]) =>
+          val pDouble: FiniteDouble = roseTreeOfPDouble.value
           (+pDouble).toDouble shouldEqual (+(pDouble.toDouble))
         }
       }
 
       it("should offer a unary - method that returns another FiniteDouble") {
-        forAll { (pDouble: FiniteDouble) =>
+        forAll { (roseTreeOfPDouble: RoseTree[FiniteDouble]) =>
+          val pDouble: FiniteDouble = roseTreeOfPDouble.value
           (-pDouble) shouldEqual (FiniteDouble.ensuringValid(-(pDouble.toDouble)))
         }
       }
@@ -343,20 +345,24 @@ class FiniteDoubleSpec extends funspec.AnyFunSpec with matchers.should.Matchers 
     }
 
     it("should offer 'min' and 'max' methods that are consistent with Double") {
-      forAll { (pdouble1: FiniteDouble, pdouble2: FiniteDouble) =>
+      forAll { (roseTreeOfPdouble1: RoseTree[FiniteDouble], roseTreeOfPdouble2: RoseTree[FiniteDouble]) =>
+        val pdouble1: FiniteDouble = roseTreeOfPdouble1.value
+        val pdouble2: FiniteDouble = roseTreeOfPdouble2.value
         pdouble1.max(pdouble2).toDouble shouldEqual pdouble1.toDouble.max(pdouble2.toDouble)
         pdouble1.min(pdouble2).toDouble shouldEqual pdouble1.toDouble.min(pdouble2.toDouble)
       }
     }
 
     it("should offer an 'isWhole' method that is consistent with Double") {
-      forAll { (pdouble: FiniteDouble) =>
+      forAll { (roseTreeOfPdouble: RoseTree[FiniteDouble]) =>
+        val pdouble: FiniteDouble = roseTreeOfPdouble.value
         pdouble.isWhole shouldEqual pdouble.toDouble.isWhole
       }
     }
 
     it("should offer 'round', 'ceil', and 'floor' methods that are consistent with Double") {
-      forAll { (pdouble: FiniteDouble) =>
+      forAll { (roseTreeOfPdouble: RoseTree[FiniteDouble]) =>
+        val pdouble: FiniteDouble = roseTreeOfPdouble.value
         pdouble.round.toDouble shouldEqual pdouble.toDouble.round
         pdouble.ceil.toDouble shouldEqual pdouble.toDouble.ceil
         pdouble.floor.toDouble shouldEqual pdouble.toDouble.floor
@@ -364,7 +370,8 @@ class FiniteDoubleSpec extends funspec.AnyFunSpec with matchers.should.Matchers 
     }
 
     it("should offer 'toRadians' and 'toDegrees' methods that are consistent with Double") {
-      forAll { (pdouble: FiniteDouble) =>
+      forAll { (roseTreeOfPdouble: RoseTree[FiniteDouble]) =>
+        val pdouble: FiniteDouble = roseTreeOfPdouble.value
         pdouble.toRadians shouldEqual pdouble.toDouble.toRadians
       }
     }

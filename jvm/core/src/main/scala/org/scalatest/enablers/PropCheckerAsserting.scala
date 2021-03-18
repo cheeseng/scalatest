@@ -60,7 +60,7 @@ trait PropCheckerAsserting[T] {
     * @param argNames the list of argument names
     * @return the <code>Result</code> of the property check.
     */
-  def check1[A](fun: (A) => T,
+  def check1[A](fun: (RoseTree[A]) => T,
                genA: org.scalatest.prop.Generator[A],
                prms: Configuration.Parameter,
                prettifier: Prettifier,
@@ -68,7 +68,7 @@ trait PropCheckerAsserting[T] {
                names: List[String],
                argNames: Option[List[String]] = None): Result
 
-  def check2[A, B](fun: (A, B) => T,
+  def check2[A, B](fun: (RoseTree[A], RoseTree[B]) => T,
                    genA: org.scalatest.prop.Generator[A],
                    genB: org.scalatest.prop.Generator[B],
                    prms: Configuration.Parameter,
@@ -77,7 +77,7 @@ trait PropCheckerAsserting[T] {
                    names: List[String],
                    argNames: Option[List[String]] = None): Result
 
-  def check3[A, B, C](fun: (A, B, C) => T,
+  def check3[A, B, C](fun: (RoseTree[A], RoseTree[B], RoseTree[C]) => T,
                       genA: org.scalatest.prop.Generator[A],
                       genB: org.scalatest.prop.Generator[B],
                       genC: org.scalatest.prop.Generator[C],
@@ -87,7 +87,7 @@ trait PropCheckerAsserting[T] {
                       names: List[String],
                       argNames: Option[List[String]] = None): Result
 
-  def check4[A, B, C, D](fun: (A, B, C, D) => T,
+  def check4[A, B, C, D](fun: (RoseTree[A], RoseTree[B], RoseTree[C], RoseTree[D]) => T,
                          genA: org.scalatest.prop.Generator[A],
                          genB: org.scalatest.prop.Generator[B],
                          genC: org.scalatest.prop.Generator[C],
@@ -98,7 +98,7 @@ trait PropCheckerAsserting[T] {
                          names: List[String],
                          argNames: Option[List[String]] = None): Result
 
-  def check5[A, B, C, D, E](fun: (A, B, C, D, E) => T,
+  def check5[A, B, C, D, E](fun: (RoseTree[A], RoseTree[B], RoseTree[C], RoseTree[D], RoseTree[E]) => T,
                             genA: org.scalatest.prop.Generator[A],
                             genB: org.scalatest.prop.Generator[B],
                             genC: org.scalatest.prop.Generator[C],
@@ -110,7 +110,7 @@ trait PropCheckerAsserting[T] {
                             names: List[String],
                             argNames: Option[List[String]] = None): Result
 
-  def check6[A, B, C, D, E, F](fun: (A, B, C, D, E, F) => T,
+  def check6[A, B, C, D, E, F](fun: (RoseTree[A], RoseTree[B], RoseTree[C], RoseTree[D], RoseTree[E], RoseTree[F]) => T,
                                genA: org.scalatest.prop.Generator[A],
                                genB: org.scalatest.prop.Generator[B],
                                genC: org.scalatest.prop.Generator[C],
@@ -136,7 +136,7 @@ abstract class UnitPropCheckerAsserting {
 
     type S = T
 
-    private def checkForAll[A](names: List[String], config: Parameter, genA: org.scalatest.prop.Generator[A])(fun: (A) => T): PropertyCheckResult = {
+    private def checkForAll[A](names: List[String], config: Parameter, genA: org.scalatest.prop.Generator[A])(fun: (RoseTree[A]) => T): PropertyCheckResult = {
       val maxDiscarded = Configuration.calculateMaxDiscarded(config.maxDiscardedFactor, config.minSuccessful)
       val minSize = config.minSize
       val maxSize = PosZInt.ensuringValid(minSize + config.sizeRange)
@@ -151,9 +151,8 @@ abstract class UnitPropCheckerAsserting {
               (sz, Nil, nextRnd)
           }
         val (roseTreeOfA, nextEdges, nextNextRnd) = genA.next(SizeParam(PosZInt(0), maxSize, size), edges, nextRnd) // TODO: Move PosZInt farther out
-        val a = roseTreeOfA.value
-        val result: Try[T] = Try { fun(a) }
-        val argsPassed = List(if (names.isDefinedAt(0)) PropertyArgument(Some(names(0)), a) else PropertyArgument(None, a))
+        val result: Try[T] = Try { fun(roseTreeOfA) }
+        val argsPassed = List(if (names.isDefinedAt(0)) PropertyArgument(Some(names(0)), roseTreeOfA.value) else PropertyArgument(None, roseTreeOfA.value))
         result match {
           case Success(r) =>
             if (discard(r)) {
@@ -201,7 +200,7 @@ abstract class UnitPropCheckerAsserting {
                   theRes
 
                 case roseTreeHead :: roseTreeTail =>
-                  val result: Try[T] = Try { fun(roseTreeHead.value) }
+                  val result: Try[T] = Try { fun(roseTreeHead) }
                   result match {
                     case Success(_) =>
                       // println("shrinkLoop: case roseTreeHead :: roseTreeTail SUCCESS!")
@@ -234,7 +233,7 @@ abstract class UnitPropCheckerAsserting {
     private def checkForAll[A, B](names: List[String], config: Parameter,
                           genA: org.scalatest.prop.Generator[A],
                           genB: org.scalatest.prop.Generator[B])
-                         (fun: (A, B) => T): PropertyCheckResult = {
+                         (fun: (RoseTree[A], RoseTree[B]) => T): PropertyCheckResult = {
       val maxDiscarded = Configuration.calculateMaxDiscarded(config.maxDiscardedFactor, config.minSuccessful)
       val minSize = config.minSize
       val maxSize = PosZInt.ensuringValid(minSize + config.sizeRange)
@@ -250,13 +249,11 @@ abstract class UnitPropCheckerAsserting {
           }
         val (roseTreeOfA, nextAEdges, rnd2) = genA.next(SizeParam(PosZInt(0), maxSize, size), aEdges, rnd1) // TODO: See if PosZInt can be moved farther out
         val (roseTreeOfB, nextBEdges, rnd3) = genB.next(SizeParam(PosZInt(0), maxSize, size), bEdges, rnd2)
-        val a = roseTreeOfA.value
-        val b = roseTreeOfB.value
-        val result: Try[T] = Try { fun(a, b) }
+        val result: Try[T] = Try { fun(roseTreeOfA, roseTreeOfB) }
         val argsPassed =
           List(
-            if (names.isDefinedAt(0)) PropertyArgument(Some(names(0)), a) else PropertyArgument(None, a),
-            if (names.isDefinedAt(1)) PropertyArgument(Some(names(1)), b) else PropertyArgument(None, b)
+            if (names.isDefinedAt(0)) PropertyArgument(Some(names(0)), roseTreeOfA.value) else PropertyArgument(None, roseTreeOfA.value),
+            if (names.isDefinedAt(1)) PropertyArgument(Some(names(1)), roseTreeOfB.value) else PropertyArgument(None, roseTreeOfB.value)
           )
         result match {
           case Success(r) =>
@@ -304,7 +301,7 @@ abstract class UnitPropCheckerAsserting {
                              genA: org.scalatest.prop.Generator[A],
                              genB: org.scalatest.prop.Generator[B],
                              genC: org.scalatest.prop.Generator[C])
-                            (fun: (A, B, C) => T): PropertyCheckResult = {
+                            (fun: (RoseTree[A], RoseTree[B], RoseTree[C]) => T): PropertyCheckResult = {
       val maxDiscarded = Configuration.calculateMaxDiscarded(config.maxDiscardedFactor, config.minSuccessful)
       val minSize = config.minSize
       val maxSize = PosZInt.ensuringValid(minSize + config.sizeRange)
@@ -321,15 +318,12 @@ abstract class UnitPropCheckerAsserting {
         val (roseTreeOfA, nextAEdges, rnd2) = genA.next(SizeParam(PosZInt(0), maxSize, size), aEdges, rnd1)
         val (roseTreeOfB, nextBEdges, rnd3) = genB.next(SizeParam(PosZInt(0), maxSize, size), bEdges, rnd2)
         val (roseTreeOfC, nextCEdges, rnd4) = genC.next(SizeParam(PosZInt(0), maxSize, size), cEdges, rnd3)
-        val a = roseTreeOfA.value
-        val b = roseTreeOfB.value
-        val c = roseTreeOfC.value
-        val result: Try[T] = Try { fun(a, b, c) }
+        val result: Try[T] = Try { fun(roseTreeOfA, roseTreeOfB, roseTreeOfC) }
         val argsPassed =
           List(
-            if (names.isDefinedAt(0)) PropertyArgument(Some(names(0)), a) else PropertyArgument(None, a),
-            if (names.isDefinedAt(1)) PropertyArgument(Some(names(1)), b) else PropertyArgument(None, b),
-            if (names.isDefinedAt(2)) PropertyArgument(Some(names(2)), c) else PropertyArgument(None, c)
+            if (names.isDefinedAt(0)) PropertyArgument(Some(names(0)), roseTreeOfA.value) else PropertyArgument(None, roseTreeOfA.value),
+            if (names.isDefinedAt(1)) PropertyArgument(Some(names(1)), roseTreeOfB.value) else PropertyArgument(None, roseTreeOfB.value),
+            if (names.isDefinedAt(2)) PropertyArgument(Some(names(2)), roseTreeOfC.value) else PropertyArgument(None, roseTreeOfC.value)
           )
         result match {
           case Success(r) =>
@@ -379,7 +373,7 @@ abstract class UnitPropCheckerAsserting {
                                 genB: org.scalatest.prop.Generator[B],
                                 genC: org.scalatest.prop.Generator[C],
                                 genD: org.scalatest.prop.Generator[D])
-                               (fun: (A, B, C, D) => T): PropertyCheckResult = {
+                               (fun: (RoseTree[A], RoseTree[B], RoseTree[C], RoseTree[D]) => T): PropertyCheckResult = {
       val maxDiscarded = Configuration.calculateMaxDiscarded(config.maxDiscardedFactor, config.minSuccessful)
       val minSize = config.minSize
       val maxSize = PosZInt.ensuringValid(minSize + config.sizeRange)
@@ -397,17 +391,13 @@ abstract class UnitPropCheckerAsserting {
         val (roseTreeOfB, nextBEdges, rnd3) = genB.next(SizeParam(PosZInt(0), maxSize, size), bEdges, rnd2)
         val (roseTreeOfC, nextCEdges, rnd4) = genC.next(SizeParam(PosZInt(0), maxSize, size), cEdges, rnd3)
         val (roseTreeOfD, nextDEdges, rnd5) = genD.next(SizeParam(PosZInt(0), maxSize, size), dEdges, rnd4)
-        val a = roseTreeOfA.value
-        val b = roseTreeOfB.value
-        val c = roseTreeOfC.value
-        val d = roseTreeOfD.value
-        val result: Try[T] = Try { fun(a, b, c, d) }
+        val result: Try[T] = Try { fun(roseTreeOfA, roseTreeOfB, roseTreeOfC, roseTreeOfD) }
         val argsPassed =
           List(
-            if (names.isDefinedAt(0)) PropertyArgument(Some(names(0)), a) else PropertyArgument(None, a),
-            if (names.isDefinedAt(1)) PropertyArgument(Some(names(1)), b) else PropertyArgument(None, b),
-            if (names.isDefinedAt(2)) PropertyArgument(Some(names(2)), c) else PropertyArgument(None, c),
-            if (names.isDefinedAt(3)) PropertyArgument(Some(names(3)), d) else PropertyArgument(None, d)
+            if (names.isDefinedAt(0)) PropertyArgument(Some(names(0)), roseTreeOfA.value) else PropertyArgument(None, roseTreeOfA.value),
+            if (names.isDefinedAt(1)) PropertyArgument(Some(names(1)), roseTreeOfB.value) else PropertyArgument(None, roseTreeOfB.value),
+            if (names.isDefinedAt(2)) PropertyArgument(Some(names(2)), roseTreeOfC.value) else PropertyArgument(None, roseTreeOfC.value),
+            if (names.isDefinedAt(3)) PropertyArgument(Some(names(3)), roseTreeOfD.value) else PropertyArgument(None, roseTreeOfD.value)
           )
         result match {
           case Success(r) =>
@@ -459,7 +449,7 @@ abstract class UnitPropCheckerAsserting {
                                    genC: org.scalatest.prop.Generator[C],
                                    genD: org.scalatest.prop.Generator[D],
                                    genE: org.scalatest.prop.Generator[E])
-                                  (fun: (A, B, C, D, E) => T): PropertyCheckResult = {
+                                  (fun: (RoseTree[A], RoseTree[B], RoseTree[C], RoseTree[D], RoseTree[E]) => T): PropertyCheckResult = {
       val maxDiscarded = Configuration.calculateMaxDiscarded(config.maxDiscardedFactor, config.minSuccessful)
       val minSize = config.minSize
       val maxSize = PosZInt.ensuringValid(minSize + config.sizeRange)
@@ -478,19 +468,14 @@ abstract class UnitPropCheckerAsserting {
         val (roseTreeOfC, nextCEdges, rnd4) = genC.next(SizeParam(PosZInt(0), maxSize, size), cEdges, rnd3)
         val (roseTreeOfD, nextDEdges, rnd5) = genD.next(SizeParam(PosZInt(0), maxSize, size), dEdges, rnd4)
         val (roseTreeOfE, nextEEdges, rnd6) = genE.next(SizeParam(PosZInt(0), maxSize, size), eEdges, rnd5)
-        val a = roseTreeOfA.value
-        val b = roseTreeOfB.value
-        val c = roseTreeOfC.value
-        val d = roseTreeOfD.value
-        val e = roseTreeOfE.value
-        val result: Try[T] = Try { fun(a, b, c, d, e) }
+        val result: Try[T] = Try { fun(roseTreeOfA, roseTreeOfB, roseTreeOfC, roseTreeOfD, roseTreeOfE) }
         val argsPassed =
           List(
-            if (names.isDefinedAt(0)) PropertyArgument(Some(names(0)), a) else PropertyArgument(None, a),
-            if (names.isDefinedAt(1)) PropertyArgument(Some(names(1)), b) else PropertyArgument(None, b),
-            if (names.isDefinedAt(2)) PropertyArgument(Some(names(2)), c) else PropertyArgument(None, c),
-            if (names.isDefinedAt(3)) PropertyArgument(Some(names(3)), d) else PropertyArgument(None, d),
-            if (names.isDefinedAt(4)) PropertyArgument(Some(names(4)), e) else PropertyArgument(None, e)
+            if (names.isDefinedAt(0)) PropertyArgument(Some(names(0)), roseTreeOfA.value) else PropertyArgument(None, roseTreeOfA.value),
+            if (names.isDefinedAt(1)) PropertyArgument(Some(names(1)), roseTreeOfB.value) else PropertyArgument(None, roseTreeOfB.value),
+            if (names.isDefinedAt(2)) PropertyArgument(Some(names(2)), roseTreeOfC.value) else PropertyArgument(None, roseTreeOfC.value),
+            if (names.isDefinedAt(3)) PropertyArgument(Some(names(3)), roseTreeOfD.value) else PropertyArgument(None, roseTreeOfD.value),
+            if (names.isDefinedAt(4)) PropertyArgument(Some(names(4)), roseTreeOfE.value) else PropertyArgument(None, roseTreeOfE.value)
           )
         result match {
           case Success(r) =>
@@ -544,7 +529,7 @@ abstract class UnitPropCheckerAsserting {
                                       genD: org.scalatest.prop.Generator[D],
                                       genE: org.scalatest.prop.Generator[E],
                                       genF: org.scalatest.prop.Generator[F])
-                                     (fun: (A, B, C, D, E, F) => T): PropertyCheckResult = {
+                                     (fun: (RoseTree[A], RoseTree[B], RoseTree[C], RoseTree[D], RoseTree[E], RoseTree[F]) => T): PropertyCheckResult = {
       val maxDiscarded = Configuration.calculateMaxDiscarded(config.maxDiscardedFactor, config.minSuccessful)
       val minSize = config.minSize
       val maxSize = PosZInt.ensuringValid(minSize + config.sizeRange)
@@ -564,21 +549,15 @@ abstract class UnitPropCheckerAsserting {
         val (roseTreeOfD, nextDEdges, rnd5) = genD.next(SizeParam(PosZInt(0), maxSize, size), dEdges, rnd4)
         val (roseTreeOfE, nextEEdges, rnd6) = genE.next(SizeParam(PosZInt(0), maxSize, size), eEdges, rnd5)
         val (roseTreeOfF, nextFEdges, rnd7) = genF.next(SizeParam(PosZInt(0), maxSize, size), fEdges, rnd6)
-        val a = roseTreeOfA.value
-        val b = roseTreeOfB.value
-        val c = roseTreeOfC.value
-        val d = roseTreeOfD.value
-        val e = roseTreeOfE.value
-        val f = roseTreeOfF.value
-        val result: Try[T] = Try { fun(a, b, c, d, e, f) }
+        val result: Try[T] = Try { fun(roseTreeOfA, roseTreeOfB, roseTreeOfC, roseTreeOfD, roseTreeOfE, roseTreeOfF) }
         val argsPassed =
           List(
-            if (names.isDefinedAt(0)) PropertyArgument(Some(names(0)), a) else PropertyArgument(None, a),
-            if (names.isDefinedAt(1)) PropertyArgument(Some(names(1)), b) else PropertyArgument(None, b),
-            if (names.isDefinedAt(2)) PropertyArgument(Some(names(2)), c) else PropertyArgument(None, c),
-            if (names.isDefinedAt(3)) PropertyArgument(Some(names(3)), d) else PropertyArgument(None, d),
-            if (names.isDefinedAt(4)) PropertyArgument(Some(names(4)), e) else PropertyArgument(None, e),
-            if (names.isDefinedAt(5)) PropertyArgument(Some(names(5)), f) else PropertyArgument(None, f)
+            if (names.isDefinedAt(0)) PropertyArgument(Some(names(0)), roseTreeOfA.value) else PropertyArgument(None, roseTreeOfA.value),
+            if (names.isDefinedAt(1)) PropertyArgument(Some(names(1)), roseTreeOfB.value) else PropertyArgument(None, roseTreeOfB.value),
+            if (names.isDefinedAt(2)) PropertyArgument(Some(names(2)), roseTreeOfC.value) else PropertyArgument(None, roseTreeOfC.value),
+            if (names.isDefinedAt(3)) PropertyArgument(Some(names(3)), roseTreeOfD.value) else PropertyArgument(None, roseTreeOfD.value),
+            if (names.isDefinedAt(4)) PropertyArgument(Some(names(4)), roseTreeOfE.value) else PropertyArgument(None, roseTreeOfE.value),
+            if (names.isDefinedAt(5)) PropertyArgument(Some(names(5)), roseTreeOfF.value) else PropertyArgument(None, roseTreeOfF.value)
           )
         result match {
           case Success(r) =>
@@ -660,7 +639,7 @@ abstract class UnitPropCheckerAsserting {
       }
     }
 
-    def check1[A](fun: (A) => T,
+    def check1[A](fun: (RoseTree[A]) => T,
                   genA: org.scalatest.prop.Generator[A],
                   prms: Configuration.Parameter,
                   prettifier: Prettifier,
@@ -671,7 +650,7 @@ abstract class UnitPropCheckerAsserting {
       checkResult(result, prettifier, pos, argNames)
     }
 
-    def check2[A, B](fun: (A, B) => T,
+    def check2[A, B](fun: (RoseTree[A], RoseTree[B]) => T,
                      genA: org.scalatest.prop.Generator[A],
                      genB: org.scalatest.prop.Generator[B],
                      prms: Configuration.Parameter,
@@ -683,7 +662,7 @@ abstract class UnitPropCheckerAsserting {
       checkResult(result, prettifier, pos, argNames)
     }
 
-    def check3[A, B, C](fun: (A, B, C) => T,
+    def check3[A, B, C](fun: (RoseTree[A], RoseTree[B], RoseTree[C]) => T,
                         genA: org.scalatest.prop.Generator[A],
                         genB: org.scalatest.prop.Generator[B],
                         genC: org.scalatest.prop.Generator[C],
@@ -696,7 +675,7 @@ abstract class UnitPropCheckerAsserting {
       checkResult(result, prettifier, pos, argNames)
     }
 
-    def check4[A, B, C, D](fun: (A, B, C, D) => T,
+    def check4[A, B, C, D](fun: (RoseTree[A], RoseTree[B], RoseTree[C], RoseTree[D]) => T,
                            genA: org.scalatest.prop.Generator[A],
                            genB: org.scalatest.prop.Generator[B],
                            genC: org.scalatest.prop.Generator[C],
@@ -710,7 +689,7 @@ abstract class UnitPropCheckerAsserting {
       checkResult(result, prettifier, pos, argNames)
     }
 
-    def check5[A, B, C, D, E](fun: (A, B, C, D, E) => T,
+    def check5[A, B, C, D, E](fun: (RoseTree[A], RoseTree[B], RoseTree[C], RoseTree[D], RoseTree[E]) => T,
                               genA: org.scalatest.prop.Generator[A],
                               genB: org.scalatest.prop.Generator[B],
                               genC: org.scalatest.prop.Generator[C],
@@ -725,7 +704,7 @@ abstract class UnitPropCheckerAsserting {
       checkResult(result, prettifier, pos, argNames)
     }
 
-    def check6[A, B, C, D, E, F](fun: (A, B, C, D, E, F) => T,
+    def check6[A, B, C, D, E, F](fun: (RoseTree[A], RoseTree[B], RoseTree[C], RoseTree[D], RoseTree[E], RoseTree[F]) => T,
                                  genA: org.scalatest.prop.Generator[A],
                                  genB: org.scalatest.prop.Generator[B],
                                  genC: org.scalatest.prop.Generator[C],
@@ -760,14 +739,14 @@ trait FuturePropCheckerAsserting {
     type Result = Future[Assertion]
     type S = T
 
-    private def checkForAll[A](names: List[String], config: Parameter, genA: org.scalatest.prop.Generator[A])(fun: (A) => Future[T]): Future[PropertyCheckResult] = {
+    private def checkForAll[A](names: List[String], config: Parameter, genA: org.scalatest.prop.Generator[A])(fun: (RoseTree[A]) => Future[T]): Future[PropertyCheckResult] = {
 
       case class AccumulatedResult(succeededCount: Int, discardedCount: Int, edges: List[A], rnd: Randomizer, initialSizes: List[PosZInt], result: Option[PropertyCheckResult], failedA: Option[A])
 
       def shrunkenFuture(future: Future[PropertyCheckResult], a: A, rnd: Randomizer): Future[PropertyCheckResult] =
         future.flatMap {
           case pcr @ PropertyCheckResult.Failure(succeededCount, optEx, _, argsPassed, initSeed) => 
-            def shrinkLoop(shrinksRemaining: List[A]): Future[PropertyCheckResult] = {
+            def shrinkLoop(shrinksRemaining: List[RoseTree[A]]): Future[PropertyCheckResult] = {
               shrinksRemaining match {
                 case Nil => Future.successful(pcr) // Can I reuse future here out of curiosity? That one is also completed.
                 case shrinkHead :: shrinkTail =>
@@ -793,7 +772,7 @@ trait FuturePropCheckerAsserting {
             // the next rnd that comes out of here, but later when we
             // traverse the tree, we will use it.
             val (firstLevelRoseTrees, _) = rootRoseTree.shrinks(rnd2)
-            shrinkLoop(firstLevelRoseTrees.map(_.value).take(100))
+            shrinkLoop(firstLevelRoseTrees.take(100))
           case pcr => Future.successful(pcr)
         }
 
@@ -810,11 +789,10 @@ trait FuturePropCheckerAsserting {
               (sz, Nil, nextRnd)
           }
         val (roseTreeOfA, nextEdges, nextNextRnd) = genA.next(SizeParam(PosZInt(0), maxSize, size), edges, nextRnd) // TODO: Move PosZInt farther out
-        val a = roseTreeOfA.value
-
-        val argsPassed = List(if (names.isDefinedAt(0)) PropertyArgument(Some(names(0)), a) else PropertyArgument(None, a))
+        
+        val argsPassed = List(if (names.isDefinedAt(0)) PropertyArgument(Some(names(0)), roseTreeOfA.value) else PropertyArgument(None, roseTreeOfA.value))
         try {
-          val future = fun(a)
+          val future = fun(roseTreeOfA)
           future.map { r =>
             if (discard(r)) {
               val nextDiscardedCount = discardedCount + 1
@@ -835,7 +813,7 @@ trait FuturePropCheckerAsserting {
 
               }
               else
-                AccumulatedResult(succeededCount, discardedCount, edges, rnd, initialSizes, Some(new PropertyCheckResult.Failure(succeededCount, cause, names, argsPassed, initSeed)), Some(a))
+                AccumulatedResult(succeededCount, discardedCount, edges, rnd, initialSizes, Some(new PropertyCheckResult.Failure(succeededCount, cause, names, argsPassed, initSeed)), Some(roseTreeOfA.value))
 
             }
           } recover {
@@ -847,7 +825,7 @@ trait FuturePropCheckerAsserting {
                 AccumulatedResult(succeededCount, discardedCount, edges, rnd, initialSizes, Some(new PropertyCheckResult.Exhausted(succeededCount, nextDiscardedCount, names, argsPassed, initSeed)), None)
 
             case ex: Throwable =>
-              AccumulatedResult(succeededCount, discardedCount, edges, rnd, initialSizes, Some(new PropertyCheckResult.Failure(succeededCount, Some(ex), names, argsPassed, initSeed)), Some(a))
+              AccumulatedResult(succeededCount, discardedCount, edges, rnd, initialSizes, Some(new PropertyCheckResult.Failure(succeededCount, Some(ex), names, argsPassed, initSeed)), Some(roseTreeOfA.value))
           } flatMap { result =>
             if (result.result.isDefined)
               Future.successful(result)
@@ -870,7 +848,7 @@ trait FuturePropCheckerAsserting {
               loop(result.succeededCount, result.discardedCount, result.edges, result.rnd, result.initialSizes, initSeed)
 
           case ex: Throwable =>
-            val result = AccumulatedResult(succeededCount, discardedCount, edges, rnd, initialSizes, Some(new PropertyCheckResult.Failure(succeededCount, Some(ex), names, argsPassed, initSeed)), Some(a))
+            val result = AccumulatedResult(succeededCount, discardedCount, edges, rnd, initialSizes, Some(new PropertyCheckResult.Failure(succeededCount, Some(ex), names, argsPassed, initSeed)), Some(roseTreeOfA.value))
             Future.successful(result)
         }
       }
@@ -891,7 +869,7 @@ trait FuturePropCheckerAsserting {
       }
     }
 
-    private def checkForAll[A, B](names: List[String], config: Parameter, genA: org.scalatest.prop.Generator[A], genB: org.scalatest.prop.Generator[B])(fun: (A, B) => Future[T]): Future[PropertyCheckResult] = {
+    private def checkForAll[A, B](names: List[String], config: Parameter, genA: org.scalatest.prop.Generator[A], genB: org.scalatest.prop.Generator[B])(fun: (RoseTree[A], RoseTree[B]) => Future[T]): Future[PropertyCheckResult] = {
 
       case class AccumulatedResult(succeededCount: Int, discardedCount: Int, aEdges: List[A], bEdges: List[B], rnd: Randomizer, initialSizes: List[PosZInt], result: Option[PropertyCheckResult])
 
@@ -909,16 +887,14 @@ trait FuturePropCheckerAsserting {
           }
         val (roseTreeOfA, nextAEdges, rnd2) = genA.next(SizeParam(PosZInt(0), maxSize, size), aEdges, nextRnd)
         val (roseTreeOfB, nextBEdges, nextNextRnd) = genB.next(SizeParam(PosZInt(0), maxSize, size), bEdges, rnd2)
-        val a = roseTreeOfA.value
-        val b = roseTreeOfB.value
-
+        
         val argsPassed =
           List(
-            if (names.isDefinedAt(0)) PropertyArgument(Some(names(0)), a) else PropertyArgument(None, a),
-            if (names.isDefinedAt(1)) PropertyArgument(Some(names(1)), b) else PropertyArgument(None, b)
+            if (names.isDefinedAt(0)) PropertyArgument(Some(names(0)), roseTreeOfA.value) else PropertyArgument(None, roseTreeOfA.value),
+            if (names.isDefinedAt(1)) PropertyArgument(Some(names(1)), roseTreeOfB.value) else PropertyArgument(None, roseTreeOfB.value)
           )
         try {
-          val future = fun(a, b)
+          val future = fun(roseTreeOfA, roseTreeOfB)
           future.map { r =>
             if (discard(r)) {
               val nextDiscardedCount = discardedCount + 1
@@ -992,7 +968,7 @@ trait FuturePropCheckerAsserting {
     }
 
     private def checkForAll[A, B, C](names: List[String], config: Parameter, genA: org.scalatest.prop.Generator[A], genB: org.scalatest.prop.Generator[B],
-                                     genC: org.scalatest.prop.Generator[C])(fun: (A, B, C) => Future[T]): Future[PropertyCheckResult] = {
+                                     genC: org.scalatest.prop.Generator[C])(fun: (RoseTree[A], RoseTree[B], RoseTree[C]) => Future[T]): Future[PropertyCheckResult] = {
 
       case class AccumulatedResult(succeededCount: Int, discardedCount: Int, aEdges: List[A], bEdges: List[B], cEdges: List[C], rnd: Randomizer, initialSizes: List[PosZInt], result: Option[PropertyCheckResult])
 
@@ -1011,17 +987,14 @@ trait FuturePropCheckerAsserting {
         val (roseTreeOfA, nextAEdges, rnd2) = genA.next(SizeParam(PosZInt(0), maxSize, size), aEdges, nextRnd)
         val (roseTreeOfB, nextBEdges, rnd3) = genB.next(SizeParam(PosZInt(0), maxSize, size), bEdges, rnd2)
         val (roseTreeOfC, nextCEdges, nextNextRnd) = genC.next(SizeParam(PosZInt(0), maxSize, size), cEdges, rnd3)
-        val a = roseTreeOfA.value
-        val b = roseTreeOfB.value
-        val c = roseTreeOfC.value
         val argsPassed =
           List(
-            if (names.isDefinedAt(0)) PropertyArgument(Some(names(0)), a) else PropertyArgument(None, a),
-            if (names.isDefinedAt(1)) PropertyArgument(Some(names(1)), b) else PropertyArgument(None, b),
-            if (names.isDefinedAt(2)) PropertyArgument(Some(names(2)), c) else PropertyArgument(None, c)
+            if (names.isDefinedAt(0)) PropertyArgument(Some(names(0)), roseTreeOfA.value) else PropertyArgument(None, roseTreeOfA.value),
+            if (names.isDefinedAt(1)) PropertyArgument(Some(names(1)), roseTreeOfB.value) else PropertyArgument(None, roseTreeOfB.value),
+            if (names.isDefinedAt(2)) PropertyArgument(Some(names(2)), roseTreeOfC.value) else PropertyArgument(None, roseTreeOfC.value)
           )
         try {
-          val future = fun(a, b, c)
+          val future = fun(roseTreeOfA, roseTreeOfB, roseTreeOfC)
           future.map { r =>
             if (discard(r)) {
               val nextDiscardedCount = discardedCount + 1
@@ -1096,7 +1069,7 @@ trait FuturePropCheckerAsserting {
     }
 
     private def checkForAll[A, B, C, D](names: List[String], config: Parameter, genA: org.scalatest.prop.Generator[A], genB: org.scalatest.prop.Generator[B],
-                                     genC: org.scalatest.prop.Generator[C], genD: org.scalatest.prop.Generator[D])(fun: (A, B, C, D) => Future[T]): Future[PropertyCheckResult] = {
+                                     genC: org.scalatest.prop.Generator[C], genD: org.scalatest.prop.Generator[D])(fun: (RoseTree[A], RoseTree[B], RoseTree[C], RoseTree[D]) => Future[T]): Future[PropertyCheckResult] = {
 
       case class AccumulatedResult(succeededCount: Int, discardedCount: Int, aEdges: List[A], bEdges: List[B], cEdges: List[C], dEdges: List[D], rnd: Randomizer, initialSizes: List[PosZInt], result: Option[PropertyCheckResult])
 
@@ -1116,19 +1089,15 @@ trait FuturePropCheckerAsserting {
         val (roseTreeOfB, nextBEdges, rnd3) = genB.next(SizeParam(PosZInt(0), maxSize, size), bEdges, rnd2)
         val (roseTreeOfC, nextCEdges, rnd4) = genC.next(SizeParam(PosZInt(0), maxSize, size), cEdges, rnd3)
         val (roseTreeOfD, nextDEdges, nextNextRnd) = genD.next(SizeParam(PosZInt(0), maxSize, size), dEdges, rnd4)
-        val a = roseTreeOfA.value
-        val b = roseTreeOfB.value
-        val c = roseTreeOfC.value
-        val d = roseTreeOfD.value
         val argsPassed =
           List(
-            if (names.isDefinedAt(0)) PropertyArgument(Some(names(0)), a) else PropertyArgument(None, a),
-            if (names.isDefinedAt(1)) PropertyArgument(Some(names(1)), b) else PropertyArgument(None, b),
-            if (names.isDefinedAt(2)) PropertyArgument(Some(names(2)), c) else PropertyArgument(None, c),
-            if (names.isDefinedAt(3)) PropertyArgument(Some(names(3)), d) else PropertyArgument(None, d)
+            if (names.isDefinedAt(0)) PropertyArgument(Some(names(0)), roseTreeOfA.value) else PropertyArgument(None, roseTreeOfA.value),
+            if (names.isDefinedAt(1)) PropertyArgument(Some(names(1)), roseTreeOfB.value) else PropertyArgument(None, roseTreeOfB.value),
+            if (names.isDefinedAt(2)) PropertyArgument(Some(names(2)), roseTreeOfC.value) else PropertyArgument(None, roseTreeOfC.value),
+            if (names.isDefinedAt(3)) PropertyArgument(Some(names(3)), roseTreeOfD.value) else PropertyArgument(None, roseTreeOfD.value)
           )
         try {
-          val future = fun(a, b, c, d)
+          val future = fun(roseTreeOfA, roseTreeOfB, roseTreeOfC, roseTreeOfD)
           future.map { r =>
             if (discard(r)) {
               val nextDiscardedCount = discardedCount + 1
@@ -1204,7 +1173,7 @@ trait FuturePropCheckerAsserting {
     }
 
     private def checkForAll[A, B, C, D, E](names: List[String], config: Parameter, genA: org.scalatest.prop.Generator[A], genB: org.scalatest.prop.Generator[B],
-                                        genC: org.scalatest.prop.Generator[C], genD: org.scalatest.prop.Generator[D], genE: org.scalatest.prop.Generator[E])(fun: (A, B, C, D, E) => Future[T]): Future[PropertyCheckResult] = {
+                                        genC: org.scalatest.prop.Generator[C], genD: org.scalatest.prop.Generator[D], genE: org.scalatest.prop.Generator[E])(fun: (RoseTree[A], RoseTree[B], RoseTree[C], RoseTree[D], RoseTree[E]) => Future[T]): Future[PropertyCheckResult] = {
 
       case class AccumulatedResult(succeededCount: Int, discardedCount: Int, aEdges: List[A], bEdges: List[B], cEdges: List[C], dEdges: List[D], eEdges: List[E], rnd: Randomizer, initialSizes: List[PosZInt], result: Option[PropertyCheckResult])
 
@@ -1225,21 +1194,16 @@ trait FuturePropCheckerAsserting {
         val (roseTreeOfC, nextCEdges, rnd4) = genC.next(SizeParam(PosZInt(0), maxSize, size), cEdges, rnd3)
         val (roseTreeOfD, nextDEdges, rnd5) = genD.next(SizeParam(PosZInt(0), maxSize, size), dEdges, rnd4)
         val (roseTreeOfE, nextEEdges, nextNextRnd) = genE.next(SizeParam(PosZInt(0), maxSize, size), eEdges, rnd5)
-        val a = roseTreeOfA.value
-        val b = roseTreeOfB.value
-        val c = roseTreeOfC.value
-        val d = roseTreeOfD.value
-        val e = roseTreeOfE.value
         val argsPassed =
           List(
-            if (names.isDefinedAt(0)) PropertyArgument(Some(names(0)), a) else PropertyArgument(None, a),
-            if (names.isDefinedAt(1)) PropertyArgument(Some(names(1)), b) else PropertyArgument(None, b),
-            if (names.isDefinedAt(2)) PropertyArgument(Some(names(2)), c) else PropertyArgument(None, c),
-            if (names.isDefinedAt(3)) PropertyArgument(Some(names(3)), d) else PropertyArgument(None, d),
-            if (names.isDefinedAt(4)) PropertyArgument(Some(names(4)), e) else PropertyArgument(None, e)
+            if (names.isDefinedAt(0)) PropertyArgument(Some(names(0)), roseTreeOfA.value) else PropertyArgument(None, roseTreeOfA.value),
+            if (names.isDefinedAt(1)) PropertyArgument(Some(names(1)), roseTreeOfB.value) else PropertyArgument(None, roseTreeOfB.value),
+            if (names.isDefinedAt(2)) PropertyArgument(Some(names(2)), roseTreeOfC.value) else PropertyArgument(None, roseTreeOfC.value),
+            if (names.isDefinedAt(3)) PropertyArgument(Some(names(3)), roseTreeOfD.value) else PropertyArgument(None, roseTreeOfD.value),
+            if (names.isDefinedAt(4)) PropertyArgument(Some(names(4)), roseTreeOfE.value) else PropertyArgument(None, roseTreeOfE.value)
           )
         try {
-          val future = fun(a, b, c, d, e)
+          val future = fun(roseTreeOfA, roseTreeOfB, roseTreeOfC, roseTreeOfD, roseTreeOfE)
           future.map { r =>
             if (discard(r)) {
               val nextDiscardedCount = discardedCount + 1
@@ -1317,7 +1281,7 @@ trait FuturePropCheckerAsserting {
 
     private def checkForAll[A, B, C, D, E, F](names: List[String], config: Parameter, genA: org.scalatest.prop.Generator[A], genB: org.scalatest.prop.Generator[B],
                                            genC: org.scalatest.prop.Generator[C], genD: org.scalatest.prop.Generator[D], genE: org.scalatest.prop.Generator[E],
-                                           genF: org.scalatest.prop.Generator[F])(fun: (A, B, C, D, E, F) => Future[T]): Future[PropertyCheckResult] = {
+                                           genF: org.scalatest.prop.Generator[F])(fun: (RoseTree[A], RoseTree[B], RoseTree[C], RoseTree[D], RoseTree[E], RoseTree[F]) => Future[T]): Future[PropertyCheckResult] = {
 
       case class AccumulatedResult(succeededCount: Int, discardedCount: Int, aEdges: List[A], bEdges: List[B], cEdges: List[C], dEdges: List[D], eEdges: List[E], fEdges: List[F], rnd: Randomizer, initialSizes: List[PosZInt], result: Option[PropertyCheckResult])
 
@@ -1339,23 +1303,17 @@ trait FuturePropCheckerAsserting {
         val (roseTreeOfD, nextDEdges, rnd5) = genD.next(SizeParam(PosZInt(0), maxSize, size), dEdges, rnd4)
         val (roseTreeOfE, nextEEdges, rnd6) = genE.next(SizeParam(PosZInt(0), maxSize, size), eEdges, rnd5)
         val (roseTreeOfF, nextFEdges, nextNextRnd) = genF.next(SizeParam(PosZInt(0), maxSize, size), fEdges, rnd6)
-        val a = roseTreeOfA.value
-        val b = roseTreeOfB.value
-        val c = roseTreeOfC.value
-        val d = roseTreeOfD.value
-        val e = roseTreeOfE.value
-        val f = roseTreeOfF.value
         val argsPassed =
           List(
-            if (names.isDefinedAt(0)) PropertyArgument(Some(names(0)), a) else PropertyArgument(None, a),
-            if (names.isDefinedAt(1)) PropertyArgument(Some(names(1)), b) else PropertyArgument(None, b),
-            if (names.isDefinedAt(2)) PropertyArgument(Some(names(2)), c) else PropertyArgument(None, c),
-            if (names.isDefinedAt(3)) PropertyArgument(Some(names(3)), d) else PropertyArgument(None, d),
-            if (names.isDefinedAt(4)) PropertyArgument(Some(names(4)), e) else PropertyArgument(None, e),
-            if (names.isDefinedAt(5)) PropertyArgument(Some(names(5)), f) else PropertyArgument(None, f)
+            if (names.isDefinedAt(0)) PropertyArgument(Some(names(0)), roseTreeOfA.value) else PropertyArgument(None, roseTreeOfA.value),
+            if (names.isDefinedAt(1)) PropertyArgument(Some(names(1)), roseTreeOfB.value) else PropertyArgument(None, roseTreeOfB.value),
+            if (names.isDefinedAt(2)) PropertyArgument(Some(names(2)), roseTreeOfC.value) else PropertyArgument(None, roseTreeOfC.value),
+            if (names.isDefinedAt(3)) PropertyArgument(Some(names(3)), roseTreeOfD.value) else PropertyArgument(None, roseTreeOfD.value),
+            if (names.isDefinedAt(4)) PropertyArgument(Some(names(4)), roseTreeOfE.value) else PropertyArgument(None, roseTreeOfE.value),
+            if (names.isDefinedAt(5)) PropertyArgument(Some(names(5)), roseTreeOfF.value) else PropertyArgument(None, roseTreeOfF.value)
           )
         try {
-          val future = fun(a, b, c, d, e, f)
+          val future = fun(roseTreeOfA, roseTreeOfB, roseTreeOfC, roseTreeOfD, roseTreeOfE, roseTreeOfF)
           future.map { r =>
             if (discard(r)) {
               val nextDiscardedCount = discardedCount + 1
@@ -1465,7 +1423,7 @@ trait FuturePropCheckerAsserting {
       }
     }
 
-    def check1[A](fun: (A) => Future[T],
+    def check1[A](fun: (RoseTree[A]) => Future[T],
                   genA: org.scalatest.prop.Generator[A],
                   prms: Configuration.Parameter,
                   prettifier: Prettifier,
@@ -1478,7 +1436,7 @@ trait FuturePropCheckerAsserting {
       }
     }
 
-    def check2[A, B](fun: (A, B) => Future[T],
+    def check2[A, B](fun: (RoseTree[A], RoseTree[B]) => Future[T],
                      genA: org.scalatest.prop.Generator[A],
                      genB: org.scalatest.prop.Generator[B],
                      prms: Configuration.Parameter,
@@ -1492,7 +1450,7 @@ trait FuturePropCheckerAsserting {
       }
     }
 
-    def check3[A, B, C](fun: (A, B, C) => Future[T],
+    def check3[A, B, C](fun: (RoseTree[A], RoseTree[B], RoseTree[C]) => Future[T],
                         genA: org.scalatest.prop.Generator[A],
                         genB: org.scalatest.prop.Generator[B],
                         genC: org.scalatest.prop.Generator[C],
@@ -1507,7 +1465,7 @@ trait FuturePropCheckerAsserting {
       }
     }
 
-    def check4[A, B, C, D](fun: (A, B, C, D) => Future[T],
+    def check4[A, B, C, D](fun: (RoseTree[A], RoseTree[B], RoseTree[C], RoseTree[D]) => Future[T],
                            genA: org.scalatest.prop.Generator[A],
                            genB: org.scalatest.prop.Generator[B],
                            genC: org.scalatest.prop.Generator[C],
@@ -1523,7 +1481,7 @@ trait FuturePropCheckerAsserting {
       }
     }
 
-    def check5[A, B, C, D, E](fun: (A, B, C, D, E) => Future[T],
+    def check5[A, B, C, D, E](fun: (RoseTree[A], RoseTree[B], RoseTree[C], RoseTree[D], RoseTree[E]) => Future[T],
                               genA: org.scalatest.prop.Generator[A],
                               genB: org.scalatest.prop.Generator[B],
                               genC: org.scalatest.prop.Generator[C],
@@ -1540,7 +1498,7 @@ trait FuturePropCheckerAsserting {
       }
     }
 
-    def check6[A, B, C, D, E, F](fun: (A, B, C, D, E, F) => Future[T],
+    def check6[A, B, C, D, E, F](fun: (RoseTree[A], RoseTree[B], RoseTree[C], RoseTree[D], RoseTree[E], RoseTree[F]) => Future[T],
                                  genA: org.scalatest.prop.Generator[A],
                                  genB: org.scalatest.prop.Generator[B],
                                  genC: org.scalatest.prop.Generator[C],

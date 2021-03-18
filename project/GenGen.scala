@@ -565,7 +565,7 @@ trait GeneratorDrivenPropertyChecks extends CommonGenerators with Whenever with 
    *
    * @param fun the property check function to apply to the generated arguments
    */
-    def apply[A, ASSERTION](fun: (A) => ASSERTION)
+    def apply[A, ASSERTION](fun: (RoseTree[A]) => ASSERTION)
       (implicit
         config: PropertyCheckConfiguration,
         genA: org.scalatest.prop.Generator[A],
@@ -594,7 +594,7 @@ trait GeneratorDrivenPropertyChecks extends CommonGenerators with Whenever with 
    *
    * @param fun the property check function to apply to the generated arguments
    */
-    def apply[A, B, ASSERTION](fun: (A, B) => ASSERTION)
+    def apply[A, B, ASSERTION](fun: (RoseTree[A], RoseTree[B]) => ASSERTION)
       (implicit
         config: PropertyCheckConfiguration,
         genA: org.scalatest.prop.Generator[A],
@@ -624,7 +624,7 @@ trait GeneratorDrivenPropertyChecks extends CommonGenerators with Whenever with 
    *
    * @param fun the property check function to apply to the generated arguments
    */
-    def apply[A, B, C, ASSERTION](fun: (A, B, C) => ASSERTION)
+    def apply[A, B, C, ASSERTION](fun: (RoseTree[A], RoseTree[B], RoseTree[C]) => ASSERTION)
       (implicit
         config: PropertyCheckConfiguration,
         genA: org.scalatest.prop.Generator[A],
@@ -655,7 +655,7 @@ trait GeneratorDrivenPropertyChecks extends CommonGenerators with Whenever with 
    *
    * @param fun the property check function to apply to the generated arguments
    */
-    def apply[A, B, C, D, ASSERTION](fun: (A, B, C, D) => ASSERTION)
+    def apply[A, B, C, D, ASSERTION](fun: (RoseTree[A], RoseTree[B], RoseTree[C], RoseTree[D]) => ASSERTION)
       (implicit
         config: PropertyCheckConfiguration,
         genA: org.scalatest.prop.Generator[A],
@@ -687,7 +687,7 @@ trait GeneratorDrivenPropertyChecks extends CommonGenerators with Whenever with 
    *
    * @param fun the property check function to apply to the generated arguments
    */
-    def apply[A, B, C, D, E, ASSERTION](fun: (A, B, C, D, E) => ASSERTION)
+    def apply[A, B, C, D, E, ASSERTION](fun: (RoseTree[A], RoseTree[B], RoseTree[C], RoseTree[D], RoseTree[E]) => ASSERTION)
       (implicit
         config: PropertyCheckConfiguration,
         genA: org.scalatest.prop.Generator[A],
@@ -720,7 +720,7 @@ trait GeneratorDrivenPropertyChecks extends CommonGenerators with Whenever with 
    *
    * @param fun the property check function to apply to the generated arguments
    */
-    def apply[A, B, C, D, E, F, ASSERTION](fun: (A, B, C, D, E, F) => ASSERTION)
+    def apply[A, B, C, D, E, F, ASSERTION](fun: (RoseTree[A], RoseTree[B], RoseTree[C], RoseTree[D], RoseTree[E], RoseTree[F]) => ASSERTION)
       (implicit
         config: PropertyCheckConfiguration,
         genA: org.scalatest.prop.Generator[A],
@@ -741,7 +741,7 @@ trait GeneratorDrivenPropertyChecks extends CommonGenerators with Whenever with 
 """
 
   val propertyCheckForAllTemplate = """
-  def forAll[$alphaUpper$, ASSERTION](fun: ($alphaUpper$) => ASSERTION)
+  def forAll[$alphaUpper$, ASSERTION](fun: ($roseTreeOfAlphaUpper$) => ASSERTION)
   (implicit
     config: PropertyCheckConfiguration,
     $gens$,
@@ -751,7 +751,7 @@ trait GeneratorDrivenPropertyChecks extends CommonGenerators with Whenever with 
   ): asserting.Result =
     asserting.check$n$(fun, $genRefs$, getParameter(List.empty, config), prettifier, pos, List.empty)
 
-  def forAll[$alphaUpper$, ASSERTION]($namesAndTypes$)(fun: ($alphaUpper$) => ASSERTION)
+  def forAll[$alphaUpper$, ASSERTION]($namesAndTypes$)(fun: ($roseTreeOfAlphaUpper$) => ASSERTION)
     (implicit
       config: PropertyCheckConfiguration,
 $gens$,
@@ -761,7 +761,7 @@ $gens$,
     ): asserting.Result =
       asserting.check$n$(fun, $genRefs$, getParameter(List.empty, config), prettifier, pos, List($alphaLower$))
 
-  def forAll[$alphaUpper$, ASSERTION]($namesAndTypes$, configParams: PropertyCheckConfigParam*)(fun: ($alphaUpper$) => ASSERTION)
+  def forAll[$alphaUpper$, ASSERTION]($namesAndTypes$, configParams: PropertyCheckConfigParam*)(fun: ($roseTreeOfAlphaUpper$) => ASSERTION)
     (implicit
       config: PropertyCheckConfiguration,
 $gens$,
@@ -771,7 +771,7 @@ $gens$,
     ): asserting.Result =
       asserting.check$n$(fun, $genRefs$, getParameter(configParams, config), prettifier, pos, List($alphaLower$))
 
-  def forAll[$alphaUpper$, ASSERTION]($gens$)(fun: ($alphaUpper$) => ASSERTION)
+  def forAll[$alphaUpper$, ASSERTION]($gens$)(fun: ($roseTreeOfAlphaUpper$) => ASSERTION)
     (implicit
       config: PropertyCheckConfiguration,
       prettifier: Prettifier,
@@ -780,7 +780,7 @@ $gens$,
     ): asserting.Result =
     asserting.check$n$(fun, $genRefs$, getParameter(List.empty, config), prettifier, pos, List.empty)
 
-  def forAll[$alphaUpper$, ASSERTION]($gens$, configParams: PropertyCheckConfigParam*)(fun: ($alphaUpper$) => ASSERTION)
+  def forAll[$alphaUpper$, ASSERTION]($gens$, configParams: PropertyCheckConfigParam*)(fun: ($roseTreeOfAlphaUpper$) => ASSERTION)
     (implicit
       config: PropertyCheckConfiguration,
       prettifier: Prettifier,
@@ -789,7 +789,7 @@ $gens$,
     ): asserting.Result =
     asserting.check$n$(fun, $genRefs$, getParameter(configParams, config), prettifier, pos, List.empty)
 
-  def forAll[$alphaUpper$, ASSERTION]($gensAndNames$)(fun: ($alphaUpper$) => ASSERTION)
+  def forAll[$alphaUpper$, ASSERTION]($gensAndNames$)(fun: ($roseTreeOfAlphaUpper$) => ASSERTION)
     (implicit
       config: PropertyCheckConfiguration,
       prettifier: Prettifier,
@@ -800,7 +800,7 @@ $gens$,
     asserting.check$n$(fun, $genRefs$, getParameter(List.empty, config), prettifier, pos, List($argNameNames$))
   }
 
-  def forAll[$alphaUpper$, ASSERTION]($gensAndNames$, configParams: PropertyCheckConfigParam*)(fun: ($alphaUpper$) => ASSERTION)
+  def forAll[$alphaUpper$, ASSERTION]($gensAndNames$, configParams: PropertyCheckConfigParam*)(fun: ($roseTreeOfAlphaUpper$) => ASSERTION)
     (implicit
       config: PropertyCheckConfiguration,
       prettifier: Prettifier,
@@ -3499,6 +3499,7 @@ $okayAssertions$
           val st = new org.antlr.stringtemplate.StringTemplate(propertyCheckForAllTemplate)
           val alphaLower = alpha.take(i).mkString(", ")
           val alphaUpper = alpha.take(i).toUpperCase.mkString(", ")
+          val roseTreeOfAlphaUpper = alpha.take(i).toUpperCase.map(a => "RoseTree[" + a + "]").mkString(", ")
           val argType = alpha.take(i).map(c => c + ": " + c.toUpper).mkString(", ")
           val strings = List.fill(i)("String").mkString(", ")
           val arbShrinks = alpha.take(i).toUpperCase.map(
@@ -3554,6 +3555,7 @@ $okayAssertions$
           st.setAttribute("stepToStepToResult", stepToStepToResult)
           st.setAttribute("alphaLower", alphaLower)
           st.setAttribute("alphaUpper", alphaUpper)
+          st.setAttribute("roseTreeOfAlphaUpper", roseTreeOfAlphaUpper)
           st.setAttribute("alphaLast", alpha.take(i).last.toString)
           st.setAttribute("strings", strings)
           st.setAttribute("sumOfArgLengths", sumOfArgLengths)
@@ -3623,6 +3625,7 @@ $okayAssertions$
       val alphaLower = alpha.mkString(", ")
       val initLower = alpha.init.mkString(", ")
       val alphaUpper = alpha.toUpperCase.mkString(", ")
+      val roseTreeOfAlphaUpper = alpha.toUpperCase.map(a => "RoseTree[" + a + "]").mkString(", ")
       val initToLastName = alpha.init.head + alpha.init.tail.toUpperCase + "To" + alpha.last.toString.toUpperCase
       val lastToInitName = alpha.last.toString + "To" + alpha.init.toUpperCase
       val initType = if (i > 1) "(" + alpha.init.mkString(", ").toUpperCase + ")" else alpha.init.mkString(", ").toUpperCase
@@ -3646,6 +3649,7 @@ $okayAssertions$
         val st = new org.antlr.stringtemplate.StringTemplate(generatorTemplate)
         st.setAttribute("arity", i)
         st.setAttribute("alphaUpper", alphaUpper)
+        st.setAttribute("roseTreeOfAlphaUpper", roseTreeOfAlphaUpper)
         st.setAttribute("initLower", initLower)
         st.setAttribute("initToLastName", initToLastName)
         st.setAttribute("lastToInitName", lastToInitName)

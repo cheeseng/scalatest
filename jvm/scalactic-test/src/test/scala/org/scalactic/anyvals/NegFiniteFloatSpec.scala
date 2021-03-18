@@ -18,7 +18,7 @@ package org.scalactic.anyvals
 import org.scalatest._
 import OptionValues._
 import org.scalactic.TypeCheckedTripleEquals
-import org.scalatest.prop.PropertyChecks
+import org.scalatest.prop.{PropertyChecks, RoseTree}
 // SKIP-SCALATESTJS,NATIVE-START
 import scala.collection.immutable.NumericRange
 // SKIP-SCALATESTJS,NATIVE-END
@@ -241,33 +241,39 @@ class NegFiniteFloatSpec extends funspec.AnyFunSpec with matchers.should.Matcher
       }
 
       it("should offer a unary + method that is consistent with Float") {
-        forAll { (p: NegFiniteFloat) =>
+        forAll { (rt: RoseTree[NegFiniteFloat]) =>
+          val p: NegFiniteFloat = rt.value
           (+p).toFloat shouldEqual (+(p.toFloat))
         }
       }
 
       it("should offer a unary - method that returns PosFiniteFloat") {
-        forAll { (p: NegFiniteFloat) =>
+        forAll { (rt: RoseTree[NegFiniteFloat]) =>
+          val p: NegFiniteFloat = rt.value
           (-p) shouldEqual (PosFiniteFloat.ensuringValid(-(p.toFloat)))
         }
       }
     }
 
     it("should offer 'min' and 'max' methods that are consistent with Float") {
-      forAll { (pfloat1: NegFiniteFloat, pfloat2: NegFiniteFloat) =>
+      forAll { (rt1: RoseTree[NegFiniteFloat], rt2: RoseTree[NegFiniteFloat]) =>
+        val pfloat1: NegFiniteFloat = rt1.value
+        val pfloat2: NegFiniteFloat = rt2.value
         pfloat1.max(pfloat2).toFloat shouldEqual pfloat1.toFloat.max(pfloat2.toFloat)
         pfloat1.min(pfloat2).toFloat shouldEqual pfloat1.toFloat.min(pfloat2.toFloat)
       }
     }
 
     it("should offer an 'isWhole' method that is consistent with Float") {
-      forAll { (pfloat: NegFiniteFloat) =>
+      forAll { (rt: RoseTree[NegFiniteFloat]) =>
+        val pfloat: NegFiniteFloat = rt.value
         pfloat.isWhole shouldEqual pfloat.toFloat.isWhole
       }
     }
 
     it("should offer 'round', 'ceil', and 'floor' methods that are consistent with Float") {
-      forAll { (pfloat: NegFiniteFloat) =>
+      forAll { (rt: RoseTree[NegFiniteFloat]) =>
+        val pfloat: NegFiniteFloat = rt.value
         // SKIP-SCALATESTJS,NATIVE-START
         pfloat.round.toFloat shouldEqual pfloat.toFloat.round
         // SKIP-SCALATESTJS,NATIVE-END
@@ -277,7 +283,8 @@ class NegFiniteFloatSpec extends funspec.AnyFunSpec with matchers.should.Matcher
     }
 
     it("should offer 'toRadians' and 'toDegrees' methods that are consistent with Float") {
-      forAll { (pfloat: NegFiniteFloat) =>
+      forAll { (rt: RoseTree[NegFiniteFloat]) =>
+        val pfloat: NegFiniteFloat = rt.value
         pfloat.toRadians shouldEqual pfloat.toFloat.toRadians
       }
     }
