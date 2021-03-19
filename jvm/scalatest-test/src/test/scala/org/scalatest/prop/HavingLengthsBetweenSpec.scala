@@ -98,6 +98,7 @@ class HavingLengthsBetweenSpec extends AnyFunSpec with Matchers {
         val canonicalLists = List(0, 1, -1, 2, -2, 3, -3).map(i => List(i))
         val expectedLists = List(List.empty[Int]) ++ canonicalLists
         val nonCanonical = List(99)
+        println("---debug: " + lstGen.shrink(nonCanonical, Randomizer.default))
         lstGen.shrink(nonCanonical, Randomizer.default)._1.shrinks(Randomizer.default)._1.map(_.value) should contain theSameElementsAs expectedLists
         val canonical = List(3)
         // Ensure 3 (an Int canonical value) does not show up twice in the output

@@ -2590,11 +2590,9 @@ object Generator {
     * @tparam T the type that we are producing a List of
     * @return a List of values of type [[T]]
     */
-  implicit def listGenerator[T](implicit genOfT: Generator[T]): Generator[List[T]] with HavingLength[List[T]] =
-    new Generator[List[T]] with HavingLength[List[T]] { outerGenOfListOfT =>
-      private val listEdges = List(Nil)
+  implicit def listGenerator[T](implicit genOfT: Generator[T]): Generator[List[T]] with HavingLength[List[T]] = {
 
-      // TODO This only uses Roses. Check that we don't need RoseTrees.
+    // TODO This only uses Roses. Check that we don't need RoseTrees.
       case class NextRoseTree(value: List[T]) extends RoseTree[List[T]] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[List[T]]], Randomizer) = {
           val xs = value
@@ -2644,6 +2642,13 @@ object Generator {
         }
       }
 
+    abstract class ListGenerator extends Generator[List[T]] {
+      override def shrink(value: List[T], rnd: Randomizer): (RoseTree[List[T]], Randomizer) = (NextRoseTree(value), rnd)
+    }
+
+    new ListGenerator with HavingLength[List[T]] { outerGenOfListOfT =>
+      private val listEdges = List(Nil)
+
       override def initEdges(maxLength: PosZInt, rnd: Randomizer): (List[List[T]], Randomizer) = {
         (listEdges.take(maxLength), rnd)
       }
@@ -2661,15 +2666,13 @@ object Generator {
         (canonicalsOfT.map(t => List(t)), rnd1)
       }
 
-      override def shrink(value: List[T], rnd: Randomizer): (RoseTree[List[T]], Randomizer) = (NextRoseTree(value), rnd)
-
       override def toString = "Generator[List[T]]"
       def havingSize(size: PosZInt): Generator[List[T]] = { // TODO: add with HavingLength again
         // No edges and no shrinking. Since they said they want a list of a particular length,
         // that is what they'll get.
         // Hmm, TODO: Seems like shrinking could work by simplifying the Ts, but not reducing
         // the length of the List.
-        new Generator[List[T]] {
+        new ListGenerator {
           override def initEdges(maxLength: PosZInt, rnd: Randomizer): (List[List[T]], Randomizer) = (Nil, rnd) // TODO: filter lists's edges by valid size
           def next(szp: SizeParam, edges: List[List[T]], rnd: Randomizer): (RoseTree[List[T]], List[List[T]], Randomizer) =
             outerGenOfListOfT.next(SizeParam(PosZInt(0), szp.maxSize, size), edges, rnd) // TODO: SizeParam(size, size, size)?
@@ -2681,7 +2684,7 @@ object Generator {
       def havingSizesBetween(from: PosZInt, to: PosZInt): Generator[List[T]] = { // TODO: add with HavingLength again
         require(from != to, Resources.fromEqualToToHavingSizesBetween(from))
         require(from < to, Resources.fromGreaterThanToHavingSizesBetween(from, to))
-        new Generator[List[T]] {
+        new ListGenerator {
           // I don't think edges should have one list each of length from and to, because they would
           // need to have random contents, and that doesn't seem like an edge.
           override def initEdges(maxLength: PosZInt, rnd: Randomizer): (List[List[T]], Randomizer) = (Nil, rnd) // TODO: filter lists's edges by valid size
@@ -2704,7 +2707,7 @@ object Generator {
         }
       }
       def havingSizesDeterminedBy(f: SizeParam => SizeParam): Generator[List[T]] = // TODO: add with HavingLength again
-        new Generator[List[T]] {
+        new ListGenerator {
           override def initEdges(maxLength: PosZInt, rnd: Randomizer): (List[List[T]], Randomizer) = (Nil, rnd)
           def next(szp: SizeParam, edges: List[List[T]], rnd: Randomizer): (RoseTree[List[T]], List[List[T]], Randomizer) =
             outerGenOfListOfT.next(f(szp), edges, rnd)
@@ -2712,6 +2715,7 @@ object Generator {
           override def toString = s"Generator[List[T] /* having lengths determined by a function */]"
         }
     }
+  }
 
   /**
     * Given a [[Generator]] that produces values of type [[T]], this returns one that produces ''functions'' that return
