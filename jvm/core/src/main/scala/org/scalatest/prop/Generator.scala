@@ -2661,6 +2661,8 @@ object Generator {
         (canonicalsOfT.map(t => List(t)), rnd1)
       }
 
+      override def shrink(value: List[T], rnd: Randomizer): (RoseTree[List[T]], Randomizer) = (NextRoseTree(value), rnd)
+
       override def toString = "Generator[List[T]]"
       def havingSize(size: PosZInt): Generator[List[T]] = { // TODO: add with HavingLength again
         // No edges and no shrinking. Since they said they want a list of a particular length,
