@@ -17,7 +17,7 @@ package org.scalactic.anyvals
 
 import org.scalactic.Equality
 import org.scalatest._
-import org.scalatest.prop.GeneratorDrivenPropertyChecks
+import org.scalatest.prop.{GeneratorDrivenPropertyChecks, RoseTree}
 import OptionValues._
 
 import scala.util.{Failure, Success, Try}
@@ -206,25 +206,30 @@ class NegIntSpec extends funspec.AnyFunSpec with matchers.should.Matchers with G
     }
 
     it("should offer a unary ~ method that is consistent with Int") {
-      forAll { (pint: NegInt) =>
+      forAll { (rt: RoseTree[NegInt]) =>
+        val pint: NegInt = rt.value
         (~pint) shouldEqual (~(pint.toInt))
       }
     }
 
     it("should offer a unary + method that is consistent with Int") {
-      forAll { (p: NegInt) =>
+      forAll { (rt: RoseTree) =>
+        val p: NegInt = rt.value
         (+p).toInt shouldEqual (+(p.toInt))
       }
     }
 
     it("should offer a unary - method that returns PosInt") {
-      forAll { (p: NegInt) =>
+      forAll { (rt: RoseTree[NegInt]) =>
+        val p: NegInt = rt.value
         (-p) shouldEqual (-(p.toInt))
       }
     }
 
     it("should offer << methods that are consistent with Int") {
-      forAll { (pint: NegInt, shift: Int) =>
+      forAll { (rtPint: RoseTree[NegInt], rtShift: RoseTree[Int]) =>
+        val pint: NegInt = rtPint.value
+        val shift: Int = rtShift.value
         pint << shift shouldEqual pint.toInt << shift
       }
       forAll { (pint: NegInt, shift: Long) =>
@@ -233,37 +238,55 @@ class NegIntSpec extends funspec.AnyFunSpec with matchers.should.Matchers with G
     }
 
     it("should offer >>> methods that are consistent with Int") {
-      forAll { (pint: NegInt, shift: Int) =>
+      forAll { (rtPint: RoseTree[NegInt], rtShift: RoseTree[Int]) =>
+        val pint: NegInt = rtPint.value
+        val shift: Int = rtShift.value
         pint >>> shift shouldEqual pint.toInt >>> shift
       }
-      forAll { (pint: NegInt, shift: Long) =>
+      forAll { (rtPint: RoseTree[NegInt], rtShift: RoseTree[Long]) =>
+        val pint: NegInt = rtPint.value
+        val shift: Long = rtShift.value
         pint >>> shift shouldEqual pint.toInt >>> shift
       }
     }
 
     it("should offer >> methods that are consistent with Int") {
-      forAll { (pint: NegInt, shift: Int) =>
+      forAll { (rtPint: RoseTree[NegInt], rtShift: RoseTree[Int]) =>
+        val pint: NegInt = rtPint.value
+        val shift: Int = rtShift.value
         pint >> shift shouldEqual pint.toInt >> shift
       }
-      forAll { (pint: NegInt, shift: Long) =>
+      forAll { (rtPint: RoseTree[NegInt], rtShift: RoseTree[Long]) =>
+        val pint: NegInt = rtPint.value
+        val shift: Long = rtShift.value
         pint >> shift shouldEqual pint.toInt >> shift
       }
     }
 
     it("should offer a '|' method that is consistent with Int") {
-      forAll { (pint: NegInt, byte: Byte) =>
+      forAll { (rtPint: RoseTree[NegInt], rtByte: RoseTree[Byte]) =>
+        val pint: NegInt = rtPint.value
+        val byte: Byte = rtByte.value
         (pint | byte) shouldEqual (pint.toInt | byte)
       }
-      forAll { (pint: NegInt, short: Short) =>
+      forAll { (pint: RoseTree[NegInt], short: RoseTree[Short]) =>
+        val pint: NegInt = rtPint.value 
+        val short: Short = rtShort.value
         (pint | short) shouldEqual (pint.toInt | short)
       }
-      forAll { (pint: NegInt, char: Char) =>
+      forAll { (rtPint: RoseTree[NegInt], rtChar: RoseTree[Char]) =>
+        val pint: NegInt = rtPint.value
+        val char: Char = rtChar.value
         (pint | char) shouldEqual (pint.toInt | char)
       }
-      forAll { (pint: NegInt, int: Int) =>
+      forAll { (rtPint: RoseTree[NegInt], rtInt: RoseTree[Int]) =>
+        val pint: NegInt = rtPint.value
+        val int: Int = rtInt.value
         (pint | int) shouldEqual (pint.toInt | int)
       }
-      forAll { (pint: NegInt, long: Long) =>
+      forAll { (rtPint: RoseTree[NegInt], rtLong: RoseTree[Long]) =>
+        val pint: NegInt = rtPint.value
+        val long: Long = rtLong.value
         (pint | long) shouldEqual (pint.toInt | long)
       }
     }
