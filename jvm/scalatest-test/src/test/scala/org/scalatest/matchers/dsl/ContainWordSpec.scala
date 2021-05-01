@@ -203,9 +203,9 @@ class ContainWordSpec extends AnyFunSpec {
       it("should have correct MatcherResult") {
         mr.matches shouldBe true
         mr.failureMessage shouldBe s"$leftList did not contain a file"
-        mr.negatedFailureMessage shouldBe s"$leftList contained a file: " + "$myFile was a file"
+        mr.negatedFailureMessage shouldBe s"$leftList contained a file: $myFile was a file"
         mr.midSentenceFailureMessage shouldBe s"$leftList did not contain a file"
-        mr.midSentenceNegatedFailureMessage shouldBe s"$leftList contained a file: " + "$myFile was a file"
+        mr.midSentenceNegatedFailureMessage shouldBe s"$leftList contained a file: $myFile was a file"
         mr.rawFailureMessage shouldBe "{0} did not contain a {1}"
         mr.rawNegatedFailureMessage shouldBe "{0} contained a {1}: {2}"
         mr.rawMidSentenceFailureMessage shouldBe "{0} did not contain a {1}"
@@ -221,9 +221,9 @@ class ContainWordSpec extends AnyFunSpec {
       
       it("should have correct negated MatcherResult") {
         nmr.matches shouldBe false
-        nmr.failureMessage shouldBe s"$leftList contained a file: " + "$myFile was a file"
+        nmr.failureMessage shouldBe s"$leftList contained a file: $myFile was a file"
         nmr.negatedFailureMessage shouldBe s"$leftList did not contain a file"
-        nmr.midSentenceFailureMessage shouldBe s"$leftList contained a file: " + "$myFile was a file"
+        nmr.midSentenceFailureMessage shouldBe s"$leftList contained a file: $myFile was a file"
         nmr.midSentenceNegatedFailureMessage shouldBe s"$leftList did not contain a file"
         nmr.rawFailureMessage shouldBe "{0} contained a {1}: {2}"
         nmr.rawNegatedFailureMessage shouldBe "{0} did not contain a {1}"
@@ -259,9 +259,9 @@ class ContainWordSpec extends AnyFunSpec {
       it("should have correct MatcherResult") {
         mr.matches shouldBe true
         mr.failureMessage shouldBe s"$leftList did not contain an file"
-        mr.negatedFailureMessage shouldBe s"$leftList contained an file: " + "$myFile was an file"
+        mr.negatedFailureMessage shouldBe s"$leftList contained an file: $myFile was an file"
         mr.midSentenceFailureMessage shouldBe s"$leftList did not contain an file"
-        mr.midSentenceNegatedFailureMessage shouldBe s"$leftList contained an file: " + "$myFile was an file"
+        mr.midSentenceNegatedFailureMessage shouldBe s"$leftList contained an file: $myFile was an file"
         mr.rawFailureMessage shouldBe "{0} did not contain an {1}"
         mr.rawNegatedFailureMessage shouldBe "{0} contained an {1}: {2}"
         mr.rawMidSentenceFailureMessage shouldBe "{0} did not contain an {1}"
@@ -277,9 +277,9 @@ class ContainWordSpec extends AnyFunSpec {
       
       it("should have correct negated MatcherResult") {
         nmr.matches shouldBe false
-        nmr.failureMessage shouldBe s"$leftList contained an file: " + "$myFile was an file"
+        nmr.failureMessage shouldBe s"$leftList contained an file: $myFile was an file"
         nmr.negatedFailureMessage shouldBe s"$leftList did not contain an file"
-        nmr.midSentenceFailureMessage shouldBe s"$leftList contained an file: " + "$myFile was an file"
+        nmr.midSentenceFailureMessage shouldBe s"$leftList contained an file: $myFile was an file"
         nmr.midSentenceNegatedFailureMessage shouldBe s"$leftList did not contain an file"
         nmr.rawFailureMessage shouldBe "{0} contained an {1}: {2}"
         nmr.rawNegatedFailureMessage shouldBe "{0} did not contain an {1}"

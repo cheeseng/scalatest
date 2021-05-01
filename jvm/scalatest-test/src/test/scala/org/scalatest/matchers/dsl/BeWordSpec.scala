@@ -933,7 +933,7 @@ class BeWordSpec extends AnyFunSpec with FileMocks {
       val mt = be (myFileRight)
       
       it("should have pretty toString") {
-        mt.toString should be ("be (" + "$myFileRight)")
+        mt.toString should be (s"be ($myFileRight)")
       }
       
       val mr = mt(myFileLeft)
