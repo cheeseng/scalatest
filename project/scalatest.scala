@@ -69,7 +69,7 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     resolvers += "Sonatype Public" at "https://oss.sonatype.org/content/groups/public",
     publishTo := sonatypePublishToBundle.value, 
     publishMavenStyle := true,
-    publishArtifact in Test := false,
+    Test / publishArtifact := false,
     pomIncludeRepository := { _ => false },
     pomExtra := (
       <url>http://www.scalatest.org</url>
@@ -228,15 +228,15 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(
       projectTitle := "Common test classes used by scalactic and scalatest",
       libraryDependencies ++= crossBuildTestLibraryDependencies.value,
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
         Def.task{
-          GenCompatibleClasses.genTest((sourceManaged in Compile).value, version.value, scalaVersion.value)
+          GenCompatibleClasses.genTest((Compile / sourceManaged).value, version.value, scalaVersion.value)
         }.taskValue
       },
       publishArtifact := false,
       publish := {},
       publishLocal := {},
-      scalacOptions in (Compile, doc) := List.empty
+      Compile / doc / scalacOptions := List.empty
     ).dependsOn(scalacticMacro, LocalProject("scalatest"))
 
   lazy val scalacticMacro = project.in(file("jvm/scalactic-macro"))
@@ -244,20 +244,20 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(
       projectTitle := "Scalactic Macro",
       organization := "org.scalactic",
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
         Def.task{
-          ScalacticGenResourcesJVM.genResources((sourceManaged in Compile).value / "org" / "scalactic", version.value, scalaVersion.value) ++
-          GenAnyVals.genMain((sourceManaged in Compile).value / "org" / "scalactic" / "anyvals", version.value, scalaVersion.value, false) ++
-          GenEvery.genMain((sourceManaged in Compile).value / "org" / "scalactic", version.value, scalaVersion.value) ++
-          GenColCompatHelper.genMain((sourceManaged in Compile).value / "org" / "scalactic", version.value, scalaVersion.value) ++ 
-          GenMacroContext.genMain((sourceManaged in Compile).value / "org" / "scalactic", version.value, scalaVersion.value)
+          ScalacticGenResourcesJVM.genResources((Compile / sourceManaged).value / "org" / "scalactic", version.value, scalaVersion.value) ++
+          GenAnyVals.genMain((Compile / sourceManaged).value / "org" / "scalactic" / "anyvals", version.value, scalaVersion.value, false) ++
+          GenEvery.genMain((Compile / sourceManaged).value / "org" / "scalactic", version.value, scalaVersion.value) ++
+          GenColCompatHelper.genMain((Compile / sourceManaged).value / "org" / "scalactic", version.value, scalaVersion.value) ++ 
+          GenMacroContext.genMain((Compile / sourceManaged).value / "org" / "scalactic", version.value, scalaVersion.value)
         }.taskValue
       },
       // Disable publishing macros directly, included in scalactic main jar
       publishArtifact := false,
       publish := {},
       publishLocal := {},
-      scalacOptions in (Compile, doc) := List.empty
+      Compile / doc / scalacOptions := List.empty
     )
 
   lazy val scalactic = project.in(file("jvm/scalactic"))
@@ -268,27 +268,27 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
       projectTitle := "Scalactic",
       organization := "org.scalactic",
       initialCommands in console := "import org.scalactic._",
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
         Def.task{
-          GenVersions.genScalacticVersions((sourceManaged in Compile).value / "org" / "scalactic", version.value, scalaVersion.value) ++
-          ScalacticGenResourcesJVM.genFailureMessages((sourceManaged in Compile).value / "org" / "scalactic", version.value, scalaVersion.value) ++
-          GenArrayHelper.genMain((sourceManaged in Compile).value / "org" / "scalactic", version.value, scalaVersion.value)
+          GenVersions.genScalacticVersions((Compile / sourceManaged).value / "org" / "scalactic", version.value, scalaVersion.value) ++
+          ScalacticGenResourcesJVM.genFailureMessages((Compile / sourceManaged).value / "org" / "scalactic", version.value, scalaVersion.value) ++
+          GenArrayHelper.genMain((Compile / sourceManaged).value / "org" / "scalactic", version.value, scalaVersion.value)
         }.taskValue
       },
       scalacOptions ++= (if (scalaBinaryVersion.value == "2.10") Seq.empty[String] else if (scalaVersion.value.startsWith("2.13")) Seq.empty else Seq("-Ypartial-unification")),
       // include the macro classes and resources in the main jar
-      mappings in (Compile, packageBin) ++= mappings.in(scalacticMacro, Compile, packageBin).value,
+      Compile / packageBin / mappings ++= mappings.in(scalacticMacro, Compile, packageBin).value,
       // include the macro sources in the main source jar
-      mappings in (Compile, packageSrc) ++= mappings.in(scalacticMacro, Compile, packageSrc).value,
-      sources in (Compile, doc) :=
-        genDocSources((sources in Compile).value ++ (sources in scalacticMacro in Compile).value,
-          Seq((sourceManaged in Compile).value,
+      Compile / packageSrc / mappings ++= mappings.in(scalacticMacro, Compile, packageSrc).value,
+      Compile / doc / sources :=
+        genDocSources((Compile / sources).value ++ (sources in scalacticMacro in Compile).value,
+          Seq((Compile / sourceManaged).value,
             baseDirectory.value,
             file(".").getCanonicalFile),
           docsrcDir.value), 
       docTaskSetting,
       mimaPreviousArtifacts := Set(organization.value %% name.value % previousReleaseVersion),
-      mimaCurrentClassfiles := (classDirectory in Compile).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar"), 
+      mimaCurrentClassfiles := (Compile / classDirectory).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar"), 
       mimaBinaryIssueFilters ++= Seq()
     ).settings(osgiSettings: _*).settings(
       OsgiKeys.exportPackage := Seq(
@@ -318,16 +318,16 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(
       projectTitle := "Scalactic Test",
       organization := "org.scalactic",
-      testOptions in Test ++=
+      Test / testOptions ++=
         Seq(Tests.Argument(TestFrameworks.ScalaTest,
           "-oDIF",
           "-W", "120", "60")),
-      logBuffered in Test := false,
+      Test / logBuffered := false,
       publishArtifact := false,
       publish := {},
       publishLocal := {},
-      sourceGenerators in Test += Def.task {
-        GenAnyVals.genTest((sourceManaged in Test).value / "scala" / "org" / "scalactic" / "anyvals", version.value, scalaVersion.value)
+      Test / sourceGenerators += Def.task {
+        GenAnyVals.genTest((Test / sourceManaged).value / "scala" / "org" / "scalactic" / "anyvals", version.value, scalaVersion.value)
       }.taskValue,
       scalacOptions ++= (if (scalaBinaryVersion.value == "2.10" || scalaVersion.value.startsWith("2.13")) Seq.empty[String] else Seq("-Ypartial-unification"))
     ).dependsOn(scalactic, scalatest % "test", commonTest % "test")
@@ -337,9 +337,9 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
       organization := "org.scalatest",
       libraryDependencies ++= scalatestLibraryDependencies,
       libraryDependencies ++= scalatestTestLibraryDependencies(scalaVersion.value),
-      testOptions in Test := scalatestTestOptions,
-      logBuffered in Test := false,
-      baseDirectory in Test := file("./"),
+      Test / testOptions := scalatestTestOptions,
+      Test / logBuffered := false,
+      Test / baseDirectory := file("./"),
       publishArtifact := false,
       publish := {},
       publishLocal := {},
@@ -375,9 +375,9 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(sharedTestSettings: _*)
     .settings(
       projectTitle := "ScalaTest FeatureSpec Test", 
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task {
-          GenSafeStyles.genFeatureSpecTest((sourceManaged in Compile).value / "org" / "scalatest" / "featurespec", version.value, scalaVersion.value, false)
+          GenSafeStyles.genFeatureSpecTest((Compile / sourceManaged).value / "org" / "scalatest" / "featurespec", version.value, scalaVersion.value, false)
         }
       },
     ).dependsOn(commonTest % "test")
@@ -387,9 +387,9 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(sharedTestSettings: _*)
     .settings(
       projectTitle := "ScalaTest FlatSpec Test", 
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task {
-          GenSafeStyles.genFlatSpecTest((sourceManaged in Compile).value / "org" / "scalatest" / "flatspec", version.value, scalaVersion.value, false)
+          GenSafeStyles.genFlatSpecTest((Compile / sourceManaged).value / "org" / "scalatest" / "flatspec", version.value, scalaVersion.value, false)
         }
       },
     ).dependsOn(commonTest % "test")
@@ -399,9 +399,9 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(sharedTestSettings: _*)
     .settings(
       projectTitle := "ScalaTest FreeSpec Test", 
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task {
-          GenSafeStyles.genFreeSpecTest((sourceManaged in Compile).value / "org" / "scalatest" / "freespec", version.value, scalaVersion.value, false)
+          GenSafeStyles.genFreeSpecTest((Compile / sourceManaged).value / "org" / "scalatest" / "freespec", version.value, scalaVersion.value, false)
         }
       },
     ).dependsOn(commonTest % "test")
@@ -411,9 +411,9 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(sharedTestSettings: _*)
     .settings(
       projectTitle := "ScalaTest FunSpec Test", 
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task {
-          GenSafeStyles.genFunSpecTest((sourceManaged in Compile).value / "org" / "scalatest" / "funspec", version.value, scalaVersion.value, false)
+          GenSafeStyles.genFunSpecTest((Compile / sourceManaged).value / "org" / "scalatest" / "funspec", version.value, scalaVersion.value, false)
         }
       }, 
     ).dependsOn(commonTest % "test")
@@ -423,9 +423,9 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(sharedTestSettings: _*)
     .settings(
       projectTitle := "ScalaTest FunSuite Test", 
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task {
-          GenSafeStyles.genFunSuiteTest((sourceManaged in Compile).value / "org" / "scalatest" / "funsuite", version.value, scalaVersion.value, false)
+          GenSafeStyles.genFunSuiteTest((Compile / sourceManaged).value / "org" / "scalatest" / "funsuite", version.value, scalaVersion.value, false)
         }
       },  
     ).dependsOn(commonTest % "test")  
@@ -435,9 +435,9 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(sharedTestSettings: _*)
     .settings(
       projectTitle := "ScalaTest PropSpec Test", 
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task {
-          GenSafeStyles.genPropSpecTest((sourceManaged in Compile).value / "org" / "scalatest" / "propspec", version.value, scalaVersion.value, false)
+          GenSafeStyles.genPropSpecTest((Compile / sourceManaged).value / "org" / "scalatest" / "propspec", version.value, scalaVersion.value, false)
         }
       }, 
     ).dependsOn(commonTest % "test")
@@ -447,9 +447,9 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(sharedTestSettings: _*)
     .settings(
       projectTitle := "ScalaTest WordSpec Test", 
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task {
-          GenSafeStyles.genWordSpecTest((sourceManaged in Compile).value / "org" / "scalatest" / "wordspec", version.value, scalaVersion.value, false)
+          GenSafeStyles.genWordSpecTest((Compile / sourceManaged).value / "org" / "scalatest" / "wordspec", version.value, scalaVersion.value, false)
         }
       },
     ).dependsOn(commonTest % "test")            
@@ -464,14 +464,14 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
       organization := "org.scalatest",
       libraryDependencies ++= scalatestLibraryDependencies,
       // include the scalactic classes and resources in the jar
-      mappings in (Compile, packageBin) ++= mappings.in(scalactic, Compile, packageBin).value,
+      Compile / packageBin / mappings ++= mappings.in(scalactic, Compile, packageBin).value,
       // include the scalactic sources in the source jar
-      mappings in (Compile, packageSrc) ++= mappings.in(scalactic, Compile, packageSrc).value,
+      Compile / packageSrc / mappings ++= mappings.in(scalactic, Compile, packageSrc).value,
       // include the scalatest classes and resources in the jar
-      mappings in (Compile, packageBin) ++= mappings.in(scalatest, Compile, packageBin).value,
+      Compile / packageBin / mappings ++= mappings.in(scalatest, Compile, packageBin).value,
       // include the scalatest sources in the source jar
-      mappings in (Compile, packageSrc) ++= mappings.in(scalatest, Compile, packageSrc).value,
-      sourceGenerators in Compile += {
+      Compile / packageSrc / mappings ++= mappings.in(scalatest, Compile, packageSrc).value,
+      Compile / sourceGenerators += {
         // Little trick to get rid of bnd error when publish.
         Def.task{
           (new File(crossTarget.value, "classes")).mkdirs()
@@ -479,9 +479,9 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
         }.taskValue
       },
       scalatestDocSettings,
-      unmanagedResourceDirectories in Compile += baseDirectory.value / "scalatest" / "src" / "main" / "resources",
+      Compile / unmanagedResourceDirectories += baseDirectory.value / "scalatest" / "src" / "main" / "resources",
       mimaPreviousArtifacts := Set(organization.value %% name.value % previousReleaseVersion),
-      mimaCurrentClassfiles := (classDirectory in Compile).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
+      mimaCurrentClassfiles := (Compile / classDirectory).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
     ).settings(osgiSettings: _*).settings(
       OsgiKeys.exportPackage := Seq(
         "org.scalatest",
@@ -562,33 +562,33 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
       libraryDependencies ++= scalatestLibraryDependencies,
       libraryDependencies ++= scalaXmlDependency(scalaVersion.value),
       javaSourceManaged := target.value / "java",
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
         // Little trick to get rid of bnd error when publish.
         Def.task{
-          GenScalaTestDoc.genScala((sourceManaged in Compile).value, version.value, scalaVersion.value) ++ 
-          GenScalaTestDoc.genJava((javaSourceManaged in Compile).value, version.value, scalaVersion.value) ++ 
-          GenTable.genMain((sourceManaged in Compile).value / "org" / "scalatest", version.value, scalaVersion.value) ++
-          GenConfigMap.genMain((sourceManaged in Compile).value, version.value, scalaVersion.value) ++ 
-          ScalaTestGenResourcesJVM.genResources((sourceManaged in Compile).value / "org" / "scalatest", version.value, scalaVersion.value) ++
-          ScalaTestGenResourcesJVM.genFailureMessages((sourceManaged in Compile).value / "org" / "scalatest", version.value, scalaVersion.value) ++ 
-          GenVersions.genScalaTestVersions((sourceManaged in Compile).value / "org" / "scalatest", version.value, scalaVersion.value) ++ 
-          GenCompatibleClasses.genMain((sourceManaged in Compile).value / "org" / "scalatest" / "tools", version.value, scalaVersion.value) ++ 
-          GenFactories.genMain((sourceManaged in Compile).value / "org" / "scalatest" / "matchers" / "dsl", version.value, scalaVersion.value) ++ 
-          GenMatchers.genMain((sourceManaged in Compile).value / "org" / "scalatest", version.value, scalaVersion.value) ++ 
-          GenGen.genMain((sourceManaged in Compile).value / "org" / "scalatest" / "prop", version.value, scalaVersion.value)
+          GenScalaTestDoc.genScala((Compile / sourceManaged).value, version.value, scalaVersion.value) ++ 
+          GenScalaTestDoc.genJava((Compile / javaSourceManaged).value, version.value, scalaVersion.value) ++ 
+          GenTable.genMain((Compile / sourceManaged).value / "org" / "scalatest", version.value, scalaVersion.value) ++
+          GenConfigMap.genMain((Compile / sourceManaged).value, version.value, scalaVersion.value) ++ 
+          ScalaTestGenResourcesJVM.genResources((Compile / sourceManaged).value / "org" / "scalatest", version.value, scalaVersion.value) ++
+          ScalaTestGenResourcesJVM.genFailureMessages((Compile / sourceManaged).value / "org" / "scalatest", version.value, scalaVersion.value) ++ 
+          GenVersions.genScalaTestVersions((Compile / sourceManaged).value / "org" / "scalatest", version.value, scalaVersion.value) ++ 
+          GenCompatibleClasses.genMain((Compile / sourceManaged).value / "org" / "scalatest" / "tools", version.value, scalaVersion.value) ++ 
+          GenFactories.genMain((Compile / sourceManaged).value / "org" / "scalatest" / "matchers" / "dsl", version.value, scalaVersion.value) ++ 
+          GenMatchers.genMain((Compile / sourceManaged).value / "org" / "scalatest", version.value, scalaVersion.value) ++ 
+          GenGen.genMain((Compile / sourceManaged).value / "org" / "scalatest" / "prop", version.value, scalaVersion.value)
         }.taskValue
       },
-      sources in (Compile, doc) :=
-        genDocSources((sources in Compile).value,
-                       Seq((sourceManaged in Compile).value,
-                           (scalaSource in Compile).value, 
-                           (javaSource in Compile).value),
+      Compile / doc / sources :=
+        genDocSources((Compile / sources).value,
+                       Seq((Compile / sourceManaged).value,
+                           (Compile / scalaSource).value, 
+                           (Compile / javaSource).value),
                        docsrcDir.value), 
       scalatestDocSettings,
       docTaskSetting,
-      unmanagedResourceDirectories in Compile += baseDirectory.value / "scalatest" / "src" / "main" / "resources",
+      Compile / unmanagedResourceDirectories += baseDirectory.value / "scalatest" / "src" / "main" / "resources",
       mimaPreviousArtifacts := Set(organization.value %% name.value % previousReleaseVersion),
-      mimaCurrentClassfiles := (classDirectory in Compile).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
+      mimaCurrentClassfiles := (Compile / classDirectory).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
     ).dependsOn(
       scalacticMacro, 
       scalactic
@@ -627,7 +627,7 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
       javaSourceManaged := target.value / "java",
       autoScalaLibrary := false, 
       crossPaths := false, // disable using the Scala version in output paths and artifacts
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
         // Little trick to get rid of bnd error when publish.
         Def.task{
           (new File(crossTarget.value, "classes")).mkdirs()
@@ -636,7 +636,7 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
       },
       scalatestDocSettings,
       mimaPreviousArtifacts := Set(organization.value %% name.value % previousReleaseVersion),
-      mimaCurrentClassfiles := (classDirectory in Compile).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
+      mimaCurrentClassfiles := (Compile / classDirectory).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
     ).settings(osgiSettings: _*).settings(
       OsgiKeys.exportPackage := Seq(
         "org.scalatest.compatible"
@@ -663,28 +663,28 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
       organization := "org.scalatest",
       libraryDependencies ++= scalaXmlDependency(scalaVersion.value),
       libraryDependencies ++= scalatestLibraryDependencies,
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
         // Little trick to get rid of bnd error when publish.
         Def.task{
           (new File(crossTarget.value, "classes")).mkdirs()
           Seq.empty[File]
         }.taskValue
       },
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
        Def.task{
-         GenTable.genMain((sourceManaged in Compile).value / "org" / "scalatest", version.value, scalaVersion.value) ++
-         GenConfigMap.genMain((sourceManaged in Compile).value, version.value, scalaVersion.value) ++ 
-         ScalaTestGenResourcesJVM.genResources((sourceManaged in Compile).value / "org" / "scalatest", version.value, scalaVersion.value) ++
-         ScalaTestGenResourcesJVM.genFailureMessages((sourceManaged in Compile).value / "org" / "scalatest", version.value, scalaVersion.value) ++ 
-         GenVersions.genScalaTestVersions((sourceManaged in Compile).value / "org" / "scalatest", version.value, scalaVersion.value) ++ 
-         GenGen.genMain((sourceManaged in Compile).value / "org" / "scalatest" / "prop", version.value, scalaVersion.value) ++
-         GenCompatibleClasses.genMain((sourceManaged in Compile).value / "org" / "scalatest" / "tools", version.value, scalaVersion.value) ++ 
-         GenSafeStyles.genCore((sourceManaged in Compile).value / "org" / "scalatest", version.value, scalaVersion.value, false)
+         GenTable.genMain((Compile / sourceManaged).value / "org" / "scalatest", version.value, scalaVersion.value) ++
+         GenConfigMap.genMain((Compile / sourceManaged).value, version.value, scalaVersion.value) ++ 
+         ScalaTestGenResourcesJVM.genResources((Compile / sourceManaged).value / "org" / "scalatest", version.value, scalaVersion.value) ++
+         ScalaTestGenResourcesJVM.genFailureMessages((Compile / sourceManaged).value / "org" / "scalatest", version.value, scalaVersion.value) ++ 
+         GenVersions.genScalaTestVersions((Compile / sourceManaged).value / "org" / "scalatest", version.value, scalaVersion.value) ++ 
+         GenGen.genMain((Compile / sourceManaged).value / "org" / "scalatest" / "prop", version.value, scalaVersion.value) ++
+         GenCompatibleClasses.genMain((Compile / sourceManaged).value / "org" / "scalatest" / "tools", version.value, scalaVersion.value) ++ 
+         GenSafeStyles.genCore((Compile / sourceManaged).value / "org" / "scalatest", version.value, scalaVersion.value, false)
        }.taskValue
       },
       scalatestDocSettings,
       mimaPreviousArtifacts := Set(organization.value %% name.value % previousReleaseVersion),
-      mimaCurrentClassfiles := (classDirectory in Compile).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar"), 
+      mimaCurrentClassfiles := (Compile / classDirectory).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar"), 
       mimaBinaryIssueFilters ++= {
         Seq(
           exclude[DirectMissingMethodProblem]("org.scalatest.concurrent.TimeLimits.failAfterImpl"),  // New function not in current version
@@ -727,21 +727,21 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
       projectTitle := "ScalaTest FeatureSpec",
       name := "scalatest-featurespec",
       organization := "org.scalatest",
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
         // Little trick to get rid of bnd error when publish.
         Def.task{
           (new File(crossTarget.value, "classes")).mkdirs()
           Seq.empty[File]
         }.taskValue
       },
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
         Def.task {
-          GenSafeStyles.genFeatureSpec((sourceManaged in Compile).value / "org" / "scalatest" / "featurespec", version.value, scalaVersion.value, false)
+          GenSafeStyles.genFeatureSpec((Compile / sourceManaged).value / "org" / "scalatest" / "featurespec", version.value, scalaVersion.value, false)
         }
       },
       scalatestDocSettings,
       mimaPreviousArtifacts := Set(organization.value %% name.value % previousReleaseVersion),
-      mimaCurrentClassfiles := (classDirectory in Compile).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
+      mimaCurrentClassfiles := (Compile / classDirectory).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
     ).settings(osgiSettings: _*).settings(
       OsgiKeys.exportPackage := Seq(
         "org.scalatest.featurespec"
@@ -766,21 +766,21 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
       projectTitle := "ScalaTest FlatSpec",
       name := "scalatest-flatspec",
       organization := "org.scalatest",
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
         // Little trick to get rid of bnd error when publish.
         Def.task{
           (new File(crossTarget.value, "classes")).mkdirs()
           Seq.empty[File]
         }.taskValue
       },
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
         Def.task {
-          GenSafeStyles.genFlatSpec((sourceManaged in Compile).value / "org" / "scalatest" / "flatspec", version.value, scalaVersion.value, false)
+          GenSafeStyles.genFlatSpec((Compile / sourceManaged).value / "org" / "scalatest" / "flatspec", version.value, scalaVersion.value, false)
         }
       },
       scalatestDocSettings,
       mimaPreviousArtifacts := Set(organization.value %% name.value % previousReleaseVersion),
-      mimaCurrentClassfiles := (classDirectory in Compile).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
+      mimaCurrentClassfiles := (Compile / classDirectory).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
     ).settings(osgiSettings: _*).settings(
       OsgiKeys.exportPackage := Seq(
         "org.scalatest.flatspec"
@@ -805,21 +805,21 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
       projectTitle := "ScalaTest FreeSpec",
       name := "scalatest-freespec",
       organization := "org.scalatest",
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
         // Little trick to get rid of bnd error when publish.
         Def.task{
           (new File(crossTarget.value, "classes")).mkdirs()
           Seq.empty[File]
         }.taskValue
       },
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
         Def.task {
-          GenSafeStyles.genFreeSpec((sourceManaged in Compile).value / "org" / "scalatest" / "freespec", version.value, scalaVersion.value, false)
+          GenSafeStyles.genFreeSpec((Compile / sourceManaged).value / "org" / "scalatest" / "freespec", version.value, scalaVersion.value, false)
         }
       },
       scalatestDocSettings,
       mimaPreviousArtifacts := Set(organization.value %% name.value % previousReleaseVersion),
-      mimaCurrentClassfiles := (classDirectory in Compile).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
+      mimaCurrentClassfiles := (Compile / classDirectory).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
     ).settings(osgiSettings: _*).settings(
       OsgiKeys.exportPackage := Seq(
         "org.scalatest.freespec"
@@ -844,21 +844,21 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
       projectTitle := "ScalaTest FunSuite",
       name := "scalatest-funsuite",
       organization := "org.scalatest",
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
         // Little trick to get rid of bnd error when publish.
         Def.task{
           (new File(crossTarget.value, "classes")).mkdirs()
           Seq.empty[File]
         }.taskValue
       },
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
         Def.task {
-          GenSafeStyles.genFunSuite((sourceManaged in Compile).value / "org" / "scalatest" / "funsuite", version.value, scalaVersion.value, false)
+          GenSafeStyles.genFunSuite((Compile / sourceManaged).value / "org" / "scalatest" / "funsuite", version.value, scalaVersion.value, false)
         }
       }, 
       scalatestDocSettings,
       mimaPreviousArtifacts := Set(organization.value %% name.value % previousReleaseVersion),
-      mimaCurrentClassfiles := (classDirectory in Compile).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
+      mimaCurrentClassfiles := (Compile / classDirectory).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
     ).settings(osgiSettings: _*).settings(
       OsgiKeys.exportPackage := Seq(
         "org.scalatest.funsuite"
@@ -883,21 +883,21 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
       projectTitle := "ScalaTest FunSpec",
       name := "scalatest-funspec",
       organization := "org.scalatest",
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
         // Little trick to get rid of bnd error when publish.
         Def.task{
           (new File(crossTarget.value, "classes")).mkdirs()
           Seq.empty[File]
         }.taskValue
       }, 
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
         Def.task {
-          GenSafeStyles.genFunSpec((sourceManaged in Compile).value / "org" / "scalatest" / "funspec", version.value, scalaVersion.value, false)
+          GenSafeStyles.genFunSpec((Compile / sourceManaged).value / "org" / "scalatest" / "funspec", version.value, scalaVersion.value, false)
         }
       }, 
       scalatestDocSettings,
       mimaPreviousArtifacts := Set(organization.value %% name.value % previousReleaseVersion),
-      mimaCurrentClassfiles := (classDirectory in Compile).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
+      mimaCurrentClassfiles := (Compile / classDirectory).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
     ).settings(osgiSettings: _*).settings(
       OsgiKeys.exportPackage := Seq(
         "org.scalatest.funspec"
@@ -922,21 +922,21 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
       projectTitle := "ScalaTest PropSpec",
       name := "scalatest-propspec",
       organization := "org.scalatest",
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
         // Little trick to get rid of bnd error when publish.
         Def.task{
           (new File(crossTarget.value, "classes")).mkdirs()
           Seq.empty[File]
         }.taskValue
       },
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
         Def.task {
-          GenSafeStyles.genPropSpec((sourceManaged in Compile).value / "org" / "scalatest" / "propspec", version.value, scalaVersion.value, false)
+          GenSafeStyles.genPropSpec((Compile / sourceManaged).value / "org" / "scalatest" / "propspec", version.value, scalaVersion.value, false)
         }
       }, 
       scalatestDocSettings,
       mimaPreviousArtifacts := Set(organization.value %% name.value % previousReleaseVersion),
-      mimaCurrentClassfiles := (classDirectory in Compile).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
+      mimaCurrentClassfiles := (Compile / classDirectory).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
     ).settings(osgiSettings: _*).settings(
       OsgiKeys.exportPackage := Seq(
         "org.scalatest.propspec"
@@ -961,7 +961,7 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
       projectTitle := "ScalaTest RefSpec",
       name := "scalatest-refspec",
       organization := "org.scalatest",
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
         // Little trick to get rid of bnd error when publish.
         Def.task{
           (new File(crossTarget.value, "classes")).mkdirs()
@@ -970,7 +970,7 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
       },
       scalatestDocSettings,
       mimaPreviousArtifacts := Set(organization.value %% name.value % previousReleaseVersion),
-      mimaCurrentClassfiles := (classDirectory in Compile).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
+      mimaCurrentClassfiles := (Compile / classDirectory).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
     ).settings(osgiSettings: _*).settings(
       OsgiKeys.exportPackage := Seq(
         "org.scalatest.refspec"
@@ -995,21 +995,21 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
       projectTitle := "ScalaTest WordSpec",
       name := "scalatest-wordspec",
       organization := "org.scalatest",
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
         // Little trick to get rid of bnd error when publish.
         Def.task{
           (new File(crossTarget.value, "classes")).mkdirs()
           Seq.empty[File]
         }.taskValue
       },
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
         Def.task {
-          GenSafeStyles.genWordSpec((sourceManaged in Compile).value / "org" / "scalatest" / "wordspec", version.value, scalaVersion.value, false)
+          GenSafeStyles.genWordSpec((Compile / sourceManaged).value / "org" / "scalatest" / "wordspec", version.value, scalaVersion.value, false)
         }
       }, 
       scalatestDocSettings,
       mimaPreviousArtifacts := Set(organization.value %% name.value % previousReleaseVersion),
-      mimaCurrentClassfiles := (classDirectory in Compile).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
+      mimaCurrentClassfiles := (Compile / classDirectory).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
     ).settings(osgiSettings: _*).settings(
       OsgiKeys.exportPackage := Seq(
         "org.scalatest.wordspec"
@@ -1034,7 +1034,7 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
       projectTitle := "ScalaTest Diagrams",
       name := "scalatest-diagrams",
       organization := "org.scalatest",
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
         // Little trick to get rid of bnd error when publish.
         Def.task{
           (new File(crossTarget.value, "classes")).mkdirs()
@@ -1043,7 +1043,7 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
       },
       scalatestDocSettings,
       mimaPreviousArtifacts := Set(organization.value %% name.value % previousReleaseVersion),
-      mimaCurrentClassfiles := (classDirectory in Compile).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
+      mimaCurrentClassfiles := (Compile / classDirectory).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
     ).settings(osgiSettings: _*).settings(
       OsgiKeys.exportPackage := Seq(
         "org.scalatest.diagrams"
@@ -1068,21 +1068,21 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
       projectTitle := "ScalaTest Matchers Core",
       name := "scalatest-matchers-core",
       organization := "org.scalatest",
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
         // Little trick to get rid of bnd error when publish.
         Def.task{
           (new File(crossTarget.value, "classes")).mkdirs()
           Seq.empty[File]
         }.taskValue
       },
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
        Def.task{
-         GenFactories.genMain((sourceManaged in Compile).value / "org" / "scalatest" / "matchers" / "dsl", version.value, scalaVersion.value)
+         GenFactories.genMain((Compile / sourceManaged).value / "org" / "scalatest" / "matchers" / "dsl", version.value, scalaVersion.value)
        }.taskValue
       },
       scalatestDocSettings,
       mimaPreviousArtifacts := Set(organization.value %% name.value % previousReleaseVersion),
-      mimaCurrentClassfiles := (classDirectory in Compile).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
+      mimaCurrentClassfiles := (Compile / classDirectory).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
     ).settings(osgiSettings: _*).settings(
       OsgiKeys.exportPackage := Seq(
         "org.scalatest.matchers", 
@@ -1108,7 +1108,7 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
       projectTitle := "ScalaTest Should Matchers",
       name := "scalatest-shouldmatchers",
       organization := "org.scalatest",
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
         // Little trick to get rid of bnd error when publish.
         Def.task{
           (new File(crossTarget.value, "classes")).mkdirs()
@@ -1117,7 +1117,7 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
       },
       scalatestDocSettings,
       mimaPreviousArtifacts := Set(organization.value %% name.value % previousReleaseVersion),
-      mimaCurrentClassfiles := (classDirectory in Compile).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
+      mimaCurrentClassfiles := (Compile / classDirectory).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
     ).settings(osgiSettings: _*).settings(
       OsgiKeys.exportPackage := Seq(
         "org.scalatest.matchers.should"
@@ -1142,21 +1142,21 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
       projectTitle := "ScalaTest Must Matchers",
       name := "scalatest-mustmatchers",
       organization := "org.scalatest",
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
         // Little trick to get rid of bnd error when publish.
         Def.task{
           (new File(crossTarget.value, "classes")).mkdirs()
           Seq.empty[File]
         }.taskValue
       },
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
        Def.task{
-         GenMatchers.genMain((sourceManaged in Compile).value / "org" / "scalatest", version.value, scalaVersion.value)
+         GenMatchers.genMain((Compile / sourceManaged).value / "org" / "scalatest", version.value, scalaVersion.value)
        }.taskValue
       },
       scalatestDocSettings,
       mimaPreviousArtifacts := Set(organization.value %% name.value % previousReleaseVersion),
-      mimaCurrentClassfiles := (classDirectory in Compile).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
+      mimaCurrentClassfiles := (Compile / classDirectory).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
     ).settings(osgiSettings: _*).settings(
       OsgiKeys.exportPackage := Seq(
         "org.scalatest.matchers.must"
@@ -1179,7 +1179,7 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
       publishArtifact := false,
       publish := {},
       publishLocal := {},
-      scalacOptions in (Compile, doc) := List.empty
+      Compile / doc / scalacOptions := List.empty
     ).aggregate(
       scalatestCore, 
       scalatestFeatureSpec, 
@@ -1204,7 +1204,7 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
       projectTitle := "ScalaTest",
       name := "scalatest",
       organization := "org.scalatest",
-      sourceGenerators in Compile += {
+      Compile / sourceGenerators += {
         // Little trick to get rid of bnd error when publish.
         Def.task{
           (new File(crossTarget.value, "classes")).mkdirs()
@@ -1213,7 +1213,7 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
       },
       scalatestDocSettings,
       mimaPreviousArtifacts := Set(organization.value %% name.value % previousReleaseVersion),
-      mimaCurrentClassfiles := (classDirectory in Compile).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
+      mimaCurrentClassfiles := (Compile / classDirectory).value.getParentFile / (name.value + "_" + scalaBinaryVersion.value + "-" + releaseVersion + ".jar")
     ).settings(osgiSettings: _*).settings(
       OsgiKeys.privatePackage := Seq.empty, 
       OsgiKeys.additionalHeaders:= Map(
@@ -1265,16 +1265,16 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     scalacOptions ++= Seq("-feature") ++ (if (scalaBinaryVersion.value == "2.10" || scalaVersion.value.startsWith("2.13")) Seq.empty else Seq("-Ypartial-unification")),
     resolvers += "Sonatype Public" at "https://oss.sonatype.org/content/groups/public",
     libraryDependencies ++= gentestsLibraryDependencies,
-    testOptions in Test := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/html"))
+    Test / testOptions := Seq(Tests.Argument(TestFrameworks.ScalaTest, "-h", "target/html"))
   )
 
   lazy val genRegularTests1 = project.in(file("gentests/GenRegular1"))
     .settings(gentestsSharedSettings: _*)
     .settings(
       genRegularTask1,
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task{
-          GenRegularTests1.genTest((sourceManaged in Test).value, version.value, scalaVersion.value)
+          GenRegularTests1.genTest((Test / sourceManaged).value, version.value, scalaVersion.value)
         }.taskValue
       }
     ).dependsOn(scalatest, commonTest, scalacticMacro % "compile-internal, test-internal")
@@ -1283,9 +1283,9 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(gentestsSharedSettings: _*)
     .settings(
       genRegularTask2,
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task{
-          GenRegularTests2.genTest((sourceManaged in Test).value, version.value, scalaVersion.value)
+          GenRegularTests2.genTest((Test / sourceManaged).value, version.value, scalaVersion.value)
         }.taskValue
       }
     ).dependsOn(scalatest, commonTest, scalacticMacro % "compile-internal, test-internal")
@@ -1294,9 +1294,9 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(gentestsSharedSettings: _*)
     .settings(
       genRegularTask3,
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task{
-          GenRegularTests3.genTest((sourceManaged in Test).value, version.value, scalaVersion.value)
+          GenRegularTests3.genTest((Test / sourceManaged).value, version.value, scalaVersion.value)
         }.taskValue
       }
     ).dependsOn(scalatest, commonTest, scalacticMacro % "compile-internal, test-internal")
@@ -1306,17 +1306,17 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(
       genRegularTask4,
       libraryDependencies ++= scalatestLibraryDependencies,
-      testOptions in Test := scalatestTestOptions,
+      Test / testOptions := scalatestTestOptions,
       javaSourceManaged := target.value / "java",
-      managedSourceDirectories in Test += javaSourceManaged.value,
-      sourceGenerators in Test += {
+      Test / managedSourceDirectories += javaSourceManaged.value,
+      Test / sourceGenerators += {
         Def.task{
-          GenRegularTests4.genJava((javaSourceManaged in Compile).value)
+          GenRegularTests4.genJava((Compile / javaSourceManaged).value)
         }.taskValue
       },
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task{
-          GenRegularTests4.genTest((sourceManaged in Test).value, version.value, scalaVersion.value)
+          GenRegularTests4.genTest((Test / sourceManaged).value, version.value, scalaVersion.value)
         }.taskValue
       }
     ).dependsOn(scalatest, commonTest, scalacticMacro % "compile-internal, test-internal")
@@ -1327,17 +1327,17 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
       genRegularTask5,
       libraryDependencies ++= scalatestLibraryDependencies,
       libraryDependencies ++= gentestsLibraryDependencies,
-      testOptions in Test := scalatestTestOptions,
+      Test / testOptions := scalatestTestOptions,
       javaSourceManaged := target.value / "java",
-      managedSourceDirectories in Test += javaSourceManaged.value,
-      sourceGenerators in Test += {
+      Test / managedSourceDirectories += javaSourceManaged.value,
+      Test / sourceGenerators += {
         Def.task{
-          GenRegularTests5.genJava((javaSourceManaged in Compile).value)
+          GenRegularTests5.genJava((Compile / javaSourceManaged).value)
         }.taskValue
       },
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task{
-          GenRegularTests5.genTest((sourceManaged in Test).value, version.value, scalaVersion.value)
+          GenRegularTests5.genTest((Test / sourceManaged).value, version.value, scalaVersion.value)
         }.taskValue
       }
     ).dependsOn(scalatest, commonTest, scalacticMacro % "compile-internal, test-internal")
@@ -1346,9 +1346,9 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(gentestsSharedSettings: _*)
     .settings(
       genMustMatchersTask,
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task{
-          GenMustMatchersTests1.genTest((sourceManaged in Test).value / "org" / "scalatest", version.value, scalaVersion.value)
+          GenMustMatchersTests1.genTest((Test / sourceManaged).value / "org" / "scalatest", version.value, scalaVersion.value)
         }.taskValue
       }
     ).dependsOn(scalatest, commonTest, scalacticMacro % "compile-internal, test-internal")
@@ -1357,9 +1357,9 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(gentestsSharedSettings: _*)
     .settings(
       genMustMatchersTask,
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task{
-          GenMustMatchersTests2.genTest((sourceManaged in Test).value / "org" / "scalatest", version.value, scalaVersion.value)
+          GenMustMatchersTests2.genTest((Test / sourceManaged).value / "org" / "scalatest", version.value, scalaVersion.value)
         }.taskValue
       }
     ).dependsOn(scalatest, commonTest, scalacticMacro % "compile-internal, test-internal")
@@ -1368,9 +1368,9 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(gentestsSharedSettings: _*)
     .settings(
       genMustMatchersTask,
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task{
-          GenMustMatchersTests3.genTest((sourceManaged in Test).value / "org" / "scalatest", version.value, scalaVersion.value)
+          GenMustMatchersTests3.genTest((Test / sourceManaged).value / "org" / "scalatest", version.value, scalaVersion.value)
         }.taskValue
       }
     ).dependsOn(scalatest, commonTest, scalacticMacro % "compile-internal, test-internal")
@@ -1379,9 +1379,9 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(gentestsSharedSettings: _*)
     .settings(
       genMustMatchersTask,
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task{
-          GenMustMatchersTests4.genTest((sourceManaged in Test).value / "org" / "scalatest", version.value, scalaVersion.value)
+          GenMustMatchersTests4.genTest((Test / sourceManaged).value / "org" / "scalatest", version.value, scalaVersion.value)
         }.taskValue
       }
     ).dependsOn(scalatest, commonTest, scalacticMacro % "compile-internal, test-internal")
@@ -1390,9 +1390,9 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(gentestsSharedSettings: _*)
     .settings(
       genGenTask,
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task{
-          GenGen.genTest((sourceManaged in Test).value / "org" / "scalatest" / "prop", version.value, scalaVersion.value)
+          GenGen.genTest((Test / sourceManaged).value / "org" / "scalatest" / "prop", version.value, scalaVersion.value)
         }.taskValue
       }
     ).dependsOn(scalatest, commonTest, scalacticMacro % "compile-internal, test-internal")
@@ -1401,9 +1401,9 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(gentestsSharedSettings: _*)
     .settings(
       genTablesTask,
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task{
-          GenTable.genTest((sourceManaged in Test).value / "org" / "scalatest" / "prop", version.value, scalaVersion.value)
+          GenTable.genTest((Test / sourceManaged).value / "org" / "scalatest" / "prop", version.value, scalaVersion.value)
         }.taskValue
       }
     ).dependsOn(scalatest, commonTest, scalacticMacro % "compile-internal, test-internal")
@@ -1412,9 +1412,9 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(gentestsSharedSettings: _*)
     .settings(
       genInspectorsTask,
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task{
-          GenInspectors.genTest((sourceManaged in Test).value, version.value, scalaVersion.value)
+          GenInspectors.genTest((Test / sourceManaged).value, version.value, scalaVersion.value)
         }.taskValue
       }
     ).dependsOn(scalatest, commonTest, scalacticMacro % "compile-internal, test-internal")
@@ -1423,9 +1423,9 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(gentestsSharedSettings: _*)
     .settings(
       genInspectorsShorthandsTask1,
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task{
-          GenInspectorsShorthands1.genTest((sourceManaged in Test).value, version.value, scalaVersion.value)
+          GenInspectorsShorthands1.genTest((Test / sourceManaged).value, version.value, scalaVersion.value)
         }.taskValue
       }
     ).dependsOn(scalatest, commonTest, scalacticMacro % "compile-internal, test-internal")
@@ -1434,9 +1434,9 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(gentestsSharedSettings: _*)
     .settings(
       genInspectorsShorthandsTask2,
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task{
-          GenInspectorsShorthands2.genTest((sourceManaged in Test).value, version.value, scalaVersion.value)
+          GenInspectorsShorthands2.genTest((Test / sourceManaged).value, version.value, scalaVersion.value)
         }.taskValue
       }
     ).dependsOn(scalatest, commonTest, scalacticMacro % "compile-internal, test-internal")
@@ -1445,9 +1445,9 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(gentestsSharedSettings: _*)
     .settings(
       genTheyWordTask,
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task{
-          GenTheyWord.genTest((sourceManaged in Test).value / "org" / "scalatest", version.value, scalaVersion.value)
+          GenTheyWord.genTest((Test / sourceManaged).value / "org" / "scalatest", version.value, scalaVersion.value)
         }.taskValue
       }
     ).dependsOn(scalatest, commonTest, scalacticMacro % "compile-internal, test-internal")
@@ -1456,9 +1456,9 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(gentestsSharedSettings: _*)
     .settings(
       genContainTask1,
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task{
-          GenContain1.genTest((sourceManaged in Test).value / "org" / "scalatest", version.value, scalaVersion.value)
+          GenContain1.genTest((Test / sourceManaged).value / "org" / "scalatest", version.value, scalaVersion.value)
         }.taskValue
       }
     ).dependsOn(scalatest, commonTest, scalacticMacro % "compile-internal, test-internal")
@@ -1467,9 +1467,9 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(gentestsSharedSettings: _*)
     .settings(
       genContainTask2,
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task{
-          GenContain2.genTest((sourceManaged in Test).value / "org" / "scalatest", version.value, scalaVersion.value)
+          GenContain2.genTest((Test / sourceManaged).value / "org" / "scalatest", version.value, scalaVersion.value)
         }.taskValue
       }
     ).dependsOn(scalatest, commonTest, scalacticMacro % "compile-internal, test-internal")
@@ -1478,9 +1478,9 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(gentestsSharedSettings: _*)
     .settings(
       genSortedTask,
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task{
-          GenSorted.genTest((sourceManaged in Test).value / "org" / "scalatest", version.value, scalaVersion.value)
+          GenSorted.genTest((Test / sourceManaged).value / "org" / "scalatest", version.value, scalaVersion.value)
         }.taskValue
       }
     ).dependsOn(scalatest, commonTest, scalacticMacro % "compile-internal, test-internal")
@@ -1489,9 +1489,9 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(gentestsSharedSettings: _*)
     .settings(
       genLoneElementTask,
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task{
-          GenLoneElement.genTest((sourceManaged in Test).value / "org" / "scalatest", version.value, scalaVersion.value)
+          GenLoneElement.genTest((Test / sourceManaged).value / "org" / "scalatest", version.value, scalaVersion.value)
         }.taskValue
       }
     ).dependsOn(scalatest, commonTest, scalacticMacro % "compile-internal, test-internal")
@@ -1500,9 +1500,9 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(gentestsSharedSettings: _*)
     .settings(
       genEmptyTask,
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task{
-          GenEmpty.genTest((sourceManaged in Test).value / "org" / "scalatest", version.value, scalaVersion.value)
+          GenEmpty.genTest((Test / sourceManaged).value / "org" / "scalatest", version.value, scalaVersion.value)
         }.taskValue
       }
     ).dependsOn(scalatest, commonTest, scalacticMacro % "compile-internal, test-internal")
@@ -1511,9 +1511,9 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     .settings(gentestsSharedSettings: _*)
     .settings(
       genSafeStyleTestsTask,
-      sourceGenerators in Test += {
+      Test / sourceGenerators += {
         Def.task{
-          GenSafeStyles.genTest((sourceManaged in Test).value / "org" / "scalatest", version.value, scalaVersion.value)
+          GenSafeStyles.genTest((Test / sourceManaged).value / "org" / "scalatest", version.value, scalaVersion.value)
         }.taskValue
       }
     ).dependsOn(scalatest, commonTest, scalacticMacro % "compile-internal, test-internal")*/
@@ -1553,8 +1553,8 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
 
   val genRegular1 = TaskKey[Unit]("genregular1", "Generate regular tests 1")
   val genRegularTask1 = genRegular1 := {
-    val mainTargetDir = (sourceManaged in Compile).value
-    val testTargetDir = (sourceManaged in Test).value
+    val mainTargetDir = (Compile / sourceManaged).value
+    val testTargetDir = (Test / sourceManaged).value
     val theVersion = version.value
     val theScalaVersion = scalaVersion.value
 
@@ -1563,8 +1563,8 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
 
   val genRegular2 = TaskKey[Unit]("genregular2", "Generate regular tests 2")
   val genRegularTask2 = genRegular2 := {
-    val mainTargetDir = (sourceManaged in Compile).value
-    val testTargetDir = (sourceManaged in Test).value
+    val mainTargetDir = (Compile / sourceManaged).value
+    val testTargetDir = (Test / sourceManaged).value
     val theVersion = version.value
     val theScalaVersion = scalaVersion.value
 
@@ -1573,8 +1573,8 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
 
   val genRegular3 = TaskKey[Unit]("genregular3", "Generate regular tests 3")
   val genRegularTask3 = genRegular3 := {
-    val mainTargetDir = (sourceManaged in Compile).value
-    val testTargetDir = (sourceManaged in Test).value
+    val mainTargetDir = (Compile / sourceManaged).value
+    val testTargetDir = (Test / sourceManaged).value
     val theVersion = version.value
     val theScalaVersion = scalaVersion.value
 
@@ -1583,8 +1583,8 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
 
   val genRegular4 = TaskKey[Unit]("genregular4", "Generate regular tests 4")
   val genRegularTask4 = genRegular4 := {
-    val mainTargetDir = (sourceManaged in Compile).value
-    val testTargetDir = (sourceManaged in Test).value
+    val mainTargetDir = (Compile / sourceManaged).value
+    val testTargetDir = (Test / sourceManaged).value
     val theVersion = version.value
     val theScalaVersion = scalaVersion.value
 
@@ -1593,8 +1593,8 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
 
   val genRegular5 = TaskKey[Unit]("genregular5", "Generate regular tests 5")
   val genRegularTask5 = genRegular5 := {
-    val mainTargetDir = (sourceManaged in Compile).value
-    val testTargetDir = (sourceManaged in Test).value
+    val mainTargetDir = (Compile / sourceManaged).value
+    val testTargetDir = (Test / sourceManaged).value
     val theVersion = version.value
     val theScalaVersion = scalaVersion.value
 
@@ -1603,8 +1603,8 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
 
   val genMustMatchers = TaskKey[Unit]("genmatchers", "Generate Must Matchers")
   val genMustMatchersTask = genMustMatchers := {
-    val mainTargetDir = (sourceManaged in Compile).value
-    val testTargetDir = (sourceManaged in Test).value
+    val mainTargetDir = (Compile / sourceManaged).value
+    val testTargetDir = (Test / sourceManaged).value
     val projName = name.value
     val theVersion = version.value
     val theScalaVersion = scalaVersion.value
@@ -1624,8 +1624,8 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
   }
   val genGen = TaskKey[Unit]("gengen", "Generate Property Checks")
   val genGenTask = genGen := {
-    val mainTargetDir = (sourceManaged in Compile).value
-    val testTargetDir = (sourceManaged in Test).value
+    val mainTargetDir = (Compile / sourceManaged).value
+    val testTargetDir = (Test / sourceManaged).value
     val projName = name.value
     val theVersion = version.value
     val theScalaVersion = scalaVersion.value
@@ -1640,8 +1640,8 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
 
   val genTables = TaskKey[Unit]("gentables", "Generate Tables")
   val genTablesTask = genTables := {
-    val mainTargetDir = (sourceManaged in Compile).value
-    val testTargetDir = (sourceManaged in Test).value
+    val mainTargetDir = (Compile / sourceManaged).value
+    val testTargetDir = (Test / sourceManaged).value
     val projName = name.value
     val theVersion = version.value
     val theScalaVersion = scalaVersion.value
@@ -1656,8 +1656,8 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
 
   val genTheyWord = TaskKey[Unit]("genthey", "Generate They Word tests")
   val genTheyWordTask = genTheyWord := {
-    val mainTargetDir = (sourceManaged in Compile).value
-    val testTargetDir = (sourceManaged in Test).value
+    val mainTargetDir = (Compile / sourceManaged).value
+    val testTargetDir = (Test / sourceManaged).value
     val theVersion = version.value
     val theScalaVersion = scalaVersion.value
 
@@ -1666,8 +1666,8 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
 
   val genInspectors = TaskKey[Unit]("geninspectors", "Generate Inspectors tests")
   val genInspectorsTask = genInspectors := {
-    val mainTargetDir = (sourceManaged in Compile).value
-    val testTargetDir = (sourceManaged in Test).value
+    val mainTargetDir = (Compile / sourceManaged).value
+    val testTargetDir = (Test / sourceManaged).value
     val theVersion = version.value
     val theScalaVersion = scalaVersion.value
 
@@ -1676,8 +1676,8 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
 
   val genInspectorsShorthands1 = TaskKey[Unit]("geninspectorsshorthands1", "Generate Inspectors Shorthands tests 1")
   val genInspectorsShorthandsTask1 = genInspectorsShorthands1 := {
-    val mainTargetDir = (sourceManaged in Compile).value
-    val testTargetDir = (sourceManaged in Test).value
+    val mainTargetDir = (Compile / sourceManaged).value
+    val testTargetDir = (Test / sourceManaged).value
     val theVersion = version.value
     val theScalaVersion = scalaVersion.value
 
@@ -1686,8 +1686,8 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
 
   val genInspectorsShorthands2 = TaskKey[Unit]("geninspectorsshorthands2", "Generate Inspectors Shorthands tests 2")
   val genInspectorsShorthandsTask2 = genInspectorsShorthands2 := {
-    val mainTargetDir = (sourceManaged in Compile).value
-    val testTargetDir = (sourceManaged in Test).value
+    val mainTargetDir = (Compile / sourceManaged).value
+    val testTargetDir = (Test / sourceManaged).value
     val theVersion = version.value
     val theScalaVersion = scalaVersion.value
 
@@ -1696,8 +1696,8 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
 
   val genFactories = TaskKey[Unit]("genfactories", "Generate Matcher Factories")
   val genFactoriesTask = genFactories := {
-    val mainTargetDir = (sourceManaged in Compile).value
-    val testTargetDir = (sourceManaged in Test).value
+    val mainTargetDir = (Compile / sourceManaged).value
+    val testTargetDir = (Test / sourceManaged).value
     val theVersion = version.value
     val theScalaVersion = scalaVersion.value
 
@@ -1706,8 +1706,8 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
 
   val genCompatibleClasses = TaskKey[Unit]("gencompcls", "Generate Compatible Classes for Java 6 & 7")
   val genCompatibleClassesTask = genCompatibleClasses := {
-    val mainTargetDir = (sourceManaged in Compile).value
-    val testTargetDir = (sourceManaged in Test).value
+    val mainTargetDir = (Compile / sourceManaged).value
+    val testTargetDir = (Test / sourceManaged).value
     val theVersion = version.value
     val theScalaVersion = scalaVersion.value
 
@@ -1716,8 +1716,8 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
 
   val genVersions = TaskKey[Unit]("genversions", "Generate Versions object")
   val genVersionsTask = genVersions := {
-    val mainTargetDir = (sourceManaged in Compile).value
-    val testTargetDir = (sourceManaged in Test).value
+    val mainTargetDir = (Compile / sourceManaged).value
+    val testTargetDir = (Test / sourceManaged).value
     val theVersion = version.value
     val theScalaVersion = scalaVersion.value
 
@@ -1726,8 +1726,8 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
 
   val genContain1 = TaskKey[Unit]("gencontain1", "Generate contain matcher tests 1")
   val genContainTask1 = genContain1 := {
-    val mainTargetDir = (sourceManaged in Compile).value
-    val testTargetDir = (sourceManaged in Test).value
+    val mainTargetDir = (Compile / sourceManaged).value
+    val testTargetDir = (Test / sourceManaged).value
     val theVersion = version.value
     val theScalaVersion = scalaVersion.value
 
@@ -1736,8 +1736,8 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
 
   val genContain2 = TaskKey[Unit]("gencontain2", "Generate contain matcher tests 2")
   val genContainTask2 = genContain2 := {
-    val mainTargetDir = (sourceManaged in Compile).value
-    val testTargetDir = (sourceManaged in Test).value
+    val mainTargetDir = (Compile / sourceManaged).value
+    val testTargetDir = (Test / sourceManaged).value
     val theVersion = version.value
     val theScalaVersion = scalaVersion.value
 
@@ -1746,8 +1746,8 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
 
   val genSorted = TaskKey[Unit]("gensorted", "Generate sorted matcher tests")
   val genSortedTask = genSorted := {
-    val mainTargetDir = (sourceManaged in Compile).value
-    val testTargetDir = (sourceManaged in Test).value
+    val mainTargetDir = (Compile / sourceManaged).value
+    val testTargetDir = (Test / sourceManaged).value
     val theVersion = version.value
     val theScalaVersion = scalaVersion.value
 
@@ -1756,8 +1756,8 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
 
   val genLoneElement = TaskKey[Unit]("genloneelement", "Generate lone element matcher tests")
   val genLoneElementTask = genLoneElement := {
-    val mainTargetDir = (sourceManaged in Compile).value
-    val testTargetDir = (sourceManaged in Test).value
+    val mainTargetDir = (Compile / sourceManaged).value
+    val testTargetDir = (Test / sourceManaged).value
     val theVersion = version.value
     val theScalaVersion = scalaVersion.value
 
@@ -1766,8 +1766,8 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
 
   val genEmpty = TaskKey[Unit]("genempty", "Generate empty matcher tests")
   val genEmptyTask = genEmpty := {
-    val mainTargetDir = (sourceManaged in Compile).value
-    val testTargetDir = (sourceManaged in Test).value
+    val mainTargetDir = (Compile / sourceManaged).value
+    val testTargetDir = (Test / sourceManaged).value
     val theVersion = version.value
     val theScalaVersion = scalaVersion.value
 
@@ -1776,8 +1776,8 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
 
   val genCode = TaskKey[Unit]("gencode", "Generate Code, includes Must Matchers and They Word tests.")
   val genCodeTask = genCode := {
-    val mainTargetDir = (sourceManaged in Compile).value
-    val testTargetDir = (sourceManaged in Test).value
+    val mainTargetDir = (Compile / sourceManaged).value
+    val testTargetDir = (Test / sourceManaged).value
     val theVersion = version.value
     val theScalaVersion = scalaVersion.value
 
@@ -1788,12 +1788,12 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
   }
 
   /*val genSafeStyles = TaskKey[Unit]("gensafestyles", "Generate safe style traits.")
-  val genSafeStylesTask = genSafeStyles <<= (sourceManaged in Compile, sourceManaged in Test, version, scalaVersion) map { (mainTargetDir: File, testTargetDir: File, theVersion: String, theScalaVersion: String) =>
+  val genSafeStylesTask = genSafeStyles <<= (Compile / sourceManaged, Test / sourceManaged, version, scalaVersion) map { (mainTargetDir: File, testTargetDir: File, theVersion: String, theScalaVersion: String) =>
     GenSafeStyles.genMain(new File(mainTargetDir, "scala/gensafestyles"), theVersion, theScalaVersion)
   }
 
   val genSafeStyleTestsTaskKey = TaskKey[Unit]("gensafestyletests", "Generate Safe Style tests")
-  val genSafeStyleTestsTask = genSafeStyleTestsTaskKey <<= (sourceManaged in Compile, sourceManaged in Test, version, scalaVersion) map { (mainTargetDir: File, testTargetDir: File, theVersion: String, theScalaVersion: String) =>
+  val genSafeStyleTestsTask = genSafeStyleTestsTaskKey <<= (Compile / sourceManaged, Test / sourceManaged, version, scalaVersion) map { (mainTargetDir: File, testTargetDir: File, theVersion: String, theScalaVersion: String) =>
     GenSafeStyles.genTest(new File(testTargetDir, "scala/gensafestyles"), theVersion, theScalaVersion)
   }*/
 
@@ -1804,7 +1804,7 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     s"https://github.com/scalatest/releases-source/blob/main/scalactic/$releaseVersion€{FILE_PATH}.scala"
 
   val scalatestDocScalacOptionsSetting =
-    scalacOptions in (Compile, doc) := {
+    Compile / doc / scalacOptions := {
       Seq[String](
         // -Ymacro-no-expand is not supported (or needed) under 2.13. In case we want
         // to run Scaladoc under 2.12 again, this is the line that is required:
@@ -1816,7 +1816,7 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     }
 
   val scalacticDocScalacOptionsSetting =
-    scalacOptions in (Compile, doc) :=
+    Compile / doc / scalacOptions :=
       Seq[String](
         // -Ymacro-no-expand is not supported (or needed) under 2.13. In case we want
         // to run Scaladoc under 2.12 again, this is the line that is required:
