@@ -44,12 +44,8 @@ class ShouldCompileSpec extends AnyFunSpec {
       }
       
       it("should throw TestFailedException with correct message and stack depth when parse failed") {
-        
-        // SKIP-DOTTY-START
         val errMsg = Resources.expectedNoErrorButGotParseError("", "")
-        // SKIP-DOTTY-END
-        //DOTTY-ONLY val errMsg = Resources.expectedNoErrorButGotTypeError("", "")
-
+        
         val e = intercept[TestFailedException] {
           "println(\"test)" should compile
         }
@@ -80,11 +76,7 @@ class ShouldCompileSpec extends AnyFunSpec {
       }
 
       it("should throw TestFailedException with correct message and stack depth when parse failed") {
-        
-        // SKIP-DOTTY-START
         val errMsg = Resources.expectedNoErrorButGotParseError("", "")
-        // SKIP-DOTTY-END
-        //DOTTY-ONLY val errMsg = Resources.expectedNoErrorButGotTypeError("", "")
         
         val e = intercept[TestFailedException] {
           """println("test)""" should compile
@@ -120,11 +112,8 @@ class ShouldCompileSpec extends AnyFunSpec {
       }
 
       it("should throw TestFailedException with correct message and stack depth when parse failed") {
-        // SKIP-DOTTY-START
         val errMsg = Resources.expectedNoErrorButGotParseError("", "")
-        // SKIP-DOTTY-END
-        //DOTTY-ONLY val errMsg = Resources.expectedNoErrorButGotTypeError("", "")
-
+        
         val e = intercept[TestFailedException] {
           """
             |println("test)
