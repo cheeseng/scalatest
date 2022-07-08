@@ -108,8 +108,15 @@ private[scalatest] object SuiteDiscoveryHelper {
       }
     }
 
+    val runPathToCheck = 
+      if (runpath.isEmpty && suffixes.nonEmpty) {
+        val suiteClazz = classOf[org.scalatest.Suite]
+        List(suiteClazz.getProtectionDomain().getCodeSource().getLocation().toString())
+      }
+      else runpath
+
     val listOfSets: List[Set[String]] = 
-      for (path <- runpath)
+      for (path <- runPathToCheck)
         yield {
           val urlOption =
             try {
