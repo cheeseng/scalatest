@@ -287,7 +287,69 @@ abstract class UnitPropCheckerAsserting {
             else
               new PropertyCheckResult.Exhausted(succeededCount, nextDiscardedCount, names, argsPassed, initSeed)
           case Failure(ex) =>
-            new PropertyCheckResult.Failure(succeededCount, Some(ex), names, argsPassed, initSeed)
+            @tailrec
+            def shrinkLoop(roseTreesRemaining: List[RoseTree[(A, B)]], mostRecentlyFailedRoseTree: RoseTree[(A, B)], mostRecentFailureException: Throwable, mostRecentSiblings: List[RoseTree[(A, B)]], shrinkLoopRnd: Randomizer, count: Int): PropertyCheckResult = {
+              // println()
+              // println()
+              println("---------------------------------------")
+              println(s"shrinkLoop $count: $roseTreesRemaining\n    $mostRecentlyFailedRoseTree\n   $mostRecentSiblings\n")
+              roseTreesRemaining match {
+                case Nil =>
+                  // println("shrinkLoop: case Nil")
+                  val (bestA, bestB) = mostRecentlyFailedRoseTree.value
+                  println(s"############ BEST A: $bestA")
+                  println(s"############ BEST B: $bestB")
+                  val shrunkArgsPassed = 
+                    List(
+                      if (names.isDefinedAt(0)) PropertyArgument(Some(names(0)), bestA) else PropertyArgument(None, bestA), 
+                      if (names.isDefinedAt(1)) PropertyArgument(Some(names(1)), bestB) else PropertyArgument(None, bestB)
+                    )
+                  println(s"############ SHRUNK ARGS PASSED: $shrunkArgsPassed")
+                  val theRes = new PropertyCheckResult.Failure(succeededCount, Some(mostRecentFailureException), names, shrunkArgsPassed, initSeed)
+                  println(s"############ THE RES: $theRes")
+                  theRes
+
+                case roseTreeHead :: roseTreeTail =>
+                  val (a, b) = roseTreeHead.value
+                  val result: Try[T] = Try { fun(a, b) }
+                  result match {
+                    case Success(_) =>
+                      // println("shrinkLoop: case roseTreeHead :: roseTreeTail SUCCESS!")
+                      // Back up and try next sibling of most recent failure
+                      shrinkLoop(mostRecentSiblings, mostRecentlyFailedRoseTree, mostRecentFailureException, Nil, shrinkLoopRnd, count + 1)
+                    case Failure(shrunkEx) =>
+                      // println("shrinkLoop: case roseTreeHead :: roseTreeTail FAILURE!")
+                      // Try going deeper into this one, replacing mostRecentlyFailed with this a.
+                      val (nextLevelRoseTrees, nextShrinkLoopRnd) = roseTreeHead.shrinks(shrinkLoopRnd)
+                      // println(s"shrinkLoop EXTRA roseTreeHead: $roseTreeHead\n           EXTRA: ${ roseTreeHead.getClass.getName }\n           EXTRA nextLevelRoseTrees: $nextLevelRoseTrees\n           EXTRA: ${ nextLevelRoseTrees.headOption.map(_.getClass.getName).getOrElse("<empty>") }")
+                      shrinkLoop(nextLevelRoseTrees, roseTreeHead, shrunkEx, roseTreeTail, nextShrinkLoopRnd, count + 1)
+                  }
+              }
+            }
+
+            val roseTreeOfAB = 
+              roseTreeOfA.flatMap { a => 
+                new RoseTree[(A, B)] {
+                  val value = (roseTreeOfA.value, roseTreeOfB.value)
+                  def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[(A, B)]], Randomizer) = {
+                    val (shrunkRtsOfA, nextRnd) = roseTreeOfA.shrinks(rndPassedToShrinks)
+                    val (shrunkRtsOfB, nextNextRnd) = roseTreeOfB.shrinks(nextRnd)
+                    (
+                      // Cartesian product!
+                      for {
+                        rtOfA <- shrunkRtsOfA
+                        rtOfB <- shrunkRtsOfB
+                      } yield rtOfA.map(a => (a, rtOfB.value)), 
+                      nextNextRnd
+                    )
+                  }
+                }
+              }
+            
+            println(s"JUST FAILED WITH ($roseTreeOfA, $roseTreeOfB)")
+            val (firstLevelRoseTrees, rnd4) = roseTreeOfAB.shrinks(rnd3)
+            println(s"ABOUT TO SHRINKLOOP WITH $firstLevelRoseTrees")
+            shrinkLoop(firstLevelRoseTrees, roseTreeOfAB, ex, Nil, rnd4, 0)
         }
       }
 
