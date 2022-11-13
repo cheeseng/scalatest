@@ -424,7 +424,6 @@ abstract class UnitPropCheckerAsserting {
               new PropertyCheckResult.Exhausted(succeededCount, nextDiscardedCount, names, argsPassed, initSeed)
           case Failure(ex) =>
             @tailrec
-            // TODO: Align space correctly first
             def shrinkLoop(roseTreesRemaining: List[RoseTree[(A, B, C)]], mostRecentlyFailedRoseTree: RoseTree[(A, B, C)], mostRecentFailureException: Throwable, mostRecentSiblings: List[RoseTree[(A, B, C)]], shrinkLoopRnd: Randomizer, count: Int): PropertyCheckResult = {
               // println()
               // println()
@@ -568,7 +567,76 @@ abstract class UnitPropCheckerAsserting {
             else
               new PropertyCheckResult.Exhausted(succeededCount, nextDiscardedCount, names, argsPassed, initSeed)
           case Failure(ex) =>
-            new PropertyCheckResult.Failure(succeededCount, Some(ex), names, argsPassed, initSeed)
+            @tailrec
+            def shrinkLoop(roseTreesRemaining: List[RoseTree[(A, B, C, D)]], mostRecentlyFailedRoseTree: RoseTree[(A, B, C, D)], mostRecentFailureException: Throwable, mostRecentSiblings: List[RoseTree[(A, B, C, D)]], shrinkLoopRnd: Randomizer, count: Int): PropertyCheckResult = {
+              // println()
+              // println()
+              println("---------------------------------------")
+              println(s"shrinkLoop $count: $roseTreesRemaining\n    $mostRecentlyFailedRoseTree\n   $mostRecentSiblings\n")
+              roseTreesRemaining match {
+                case Nil =>
+                  // println("shrinkLoop: case Nil")
+                  val (bestA, bestB, bestC, bestD) = mostRecentlyFailedRoseTree.value
+                  println(s"############ BEST A: $bestA")
+                  println(s"############ BEST B: $bestB")
+                  println(s"############ BEST C: $bestC")
+                  println(s"############ BEST D: $bestD")
+                  val shrunkArgsPassed = 
+                    List(
+                      if (names.isDefinedAt(0)) PropertyArgument(Some(names(0)), bestA) else PropertyArgument(None, bestA), 
+                      if (names.isDefinedAt(1)) PropertyArgument(Some(names(1)), bestB) else PropertyArgument(None, bestB), 
+                      if (names.isDefinedAt(2)) PropertyArgument(Some(names(2)), bestC) else PropertyArgument(None, bestC), 
+                      if (names.isDefinedAt(3)) PropertyArgument(Some(names(3)), bestD) else PropertyArgument(None, bestD)
+                    )
+                  println(s"############ SHRUNK ARGS PASSED: $shrunkArgsPassed")
+                  val theRes = new PropertyCheckResult.Failure(succeededCount, Some(mostRecentFailureException), names, shrunkArgsPassed, initSeed)
+                  println(s"############ THE RES: $theRes")
+                  theRes
+
+                case roseTreeHead :: roseTreeTail =>
+                  val (a, b, c, d) = roseTreeHead.value
+                  val result: Try[T] = Try { fun(a, b, c, d) }
+                  result match {
+                    case Success(_) =>
+                      // println("shrinkLoop: case roseTreeHead :: roseTreeTail SUCCESS!")
+                      // Back up and try next sibling of most recent failure
+                      shrinkLoop(mostRecentSiblings, mostRecentlyFailedRoseTree, mostRecentFailureException, Nil, shrinkLoopRnd, count + 1)
+                    case Failure(shrunkEx) =>
+                      // println("shrinkLoop: case roseTreeHead :: roseTreeTail FAILURE!")
+                      // Try going deeper into this one, replacing mostRecentlyFailed with this a.
+                      val (nextLevelRoseTrees, nextShrinkLoopRnd) = roseTreeHead.shrinks(shrinkLoopRnd)
+                      // println(s"shrinkLoop EXTRA roseTreeHead: $roseTreeHead\n           EXTRA: ${ roseTreeHead.getClass.getName }\n           EXTRA nextLevelRoseTrees: $nextLevelRoseTrees\n           EXTRA: ${ nextLevelRoseTrees.headOption.map(_.getClass.getName).getOrElse("<empty>") }")
+                      shrinkLoop(nextLevelRoseTrees, roseTreeHead, shrunkEx, roseTreeTail, nextShrinkLoopRnd, count + 1)
+                  }
+              }
+            }
+            val roseTreeOfABCD = 
+              roseTreeOfA.flatMap { a => 
+                new RoseTree[(A, B, C, D)] {
+                  val value = (roseTreeOfA.value, roseTreeOfB.value, roseTreeOfC.value, roseTreeOfD.value)
+                  def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[(A, B, C, D)]], Randomizer) = {
+                    val (shrunkRtsOfA, nextRnd) = roseTreeOfA.shrinks(rndPassedToShrinks)
+                    val (shrunkRtsOfB, nextRnd2) = roseTreeOfB.shrinks(nextRnd)
+                    val (shrunkRtsOfC, nextRnd3) = roseTreeOfC.shrinks(nextRnd2)
+                    val (shrunkRtsOfD, nextRnd4) = roseTreeOfD.shrinks(nextRnd3)
+                    (
+                      // Cartesian product!
+                      for {
+                        rtOfA <- shrunkRtsOfA
+                        rtOfB <- shrunkRtsOfB
+                        rtOfC <- shrunkRtsOfC
+                        rtOfD <- shrunkRtsOfD
+                      } yield rtOfA.map(a => (a, rtOfB.value, rtOfC.value, rtOfD.value)), 
+                      nextRnd4
+                    )
+                  }
+                }
+              }
+
+            println(s"JUST FAILED WITH ($roseTreeOfA, $roseTreeOfB, $roseTreeOfC, $roseTreeOfD)")
+            val (firstLevelRoseTrees, rnd4) = roseTreeOfABCD.shrinks(rnd3)
+            println(s"ABOUT TO SHRINKLOOP WITH $firstLevelRoseTrees")
+            shrinkLoop(firstLevelRoseTrees, roseTreeOfABCD, ex, Nil, rnd4, 0)
         }
       }
 
