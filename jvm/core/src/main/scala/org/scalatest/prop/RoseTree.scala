@@ -93,14 +93,19 @@ trait RoseTree[T] { thisRoseTreeOfT =>
   }
 
   def combineFirstDepthShrinks[E, U](fun: (T, U) => (Boolean, Option[E]), rnd: Randomizer, roseTreeOfU: RoseTree[U]): (List[RoseTree[(T, U)]], Option[E], Randomizer) = {
-    val (shrunkRtOfT, errOpt1, rnd2) = depthFirstShrinks(value => fun(value, roseTreeOfU.value), rnd)
+    /*val (shrunkRtOfT, errOpt1, rnd2) = depthFirstShrinks(value => fun(value, roseTreeOfU.value), rnd)
     val bestT = shrunkRtOfT.headOption.getOrElse(this)
     val bestTValue = bestT.value
     val (shrunkRtOfU, errOpt2, rnd3) = roseTreeOfU.depthFirstShrinks(value => fun(bestTValue, value), rnd2)
     val bestU = shrunkRtOfU.headOption.getOrElse(roseTreeOfU)
     val bestUValue = bestU.value
     val errOpt = List(errOpt1, errOpt2).flatten.lastOption
-    (List(bestT.map(t => (t, bestUValue))), errOpt, rnd3)
+    (List(bestT.map(t => (t, bestUValue))), errOpt, rnd3)*/
+    val rtOfTU: RoseTree[(T, U)] = 
+      map { v =>
+        (v, roseTreeOfU.value)
+      }
+    rtOfTU.depthFirstShrinks(v => fun(v._1, v._2), rnd)
   }
 
   def combineFirstDepthShrinksForFuture[E, U](fun: (T, U) => Future[(Boolean, Option[E])], rnd: Randomizer, roseTreeOfU: RoseTree[U])(implicit execContext: ExecutionContext): Future[(List[RoseTree[(T, U)]], Option[E], Randomizer)] = 
@@ -133,6 +138,13 @@ trait RoseTree[T] { thisRoseTreeOfT =>
         def roseTreeOfTToRoseTreeOfUFun(roseTreeOfT: RoseTree[T]): RoseTree[U] = roseTreeOfT.map(f)
         val (roseTrees, rnd2) = thisRoseTreeOfT.shrinks(rnd)
         (roseTrees.map(roseTreeOfTToRoseTreeOfUFun), rnd2)
+      }
+      override def depthFirstShrinks[E](fun: U => (Boolean, Option[E]), rnd: Randomizer): (List[RoseTree[U]], Option[E], Randomizer) = {
+        val (shrunkRtOfT, errOpt1, rnd2) = thisRoseTreeOfT.depthFirstShrinks(value => fun(f(value)), rnd)
+        val bestT = shrunkRtOfT.headOption.getOrElse(thisRoseTreeOfT)
+        val bestTValue = bestT.value
+        //val (shrunkRtOfU, errOpt2, rnd3) = roseTreeOfU.depthFirstShrinks(value => fun(bestTValue, value), rnd2)
+        ???
       }
     }
   }
