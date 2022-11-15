@@ -223,7 +223,7 @@ trait Generator[T] { thisGeneratorOfT =>
       def next(szp: SizeParam, edges: List[U], rnd: Randomizer): (RoseTree[U], List[U], Randomizer) = {
         edges match {
           case head :: tail =>
-            (Rose(head), tail, rnd)
+            (roseTree(head), tail, rnd)
           case _ =>
             val (nextRoseTreeOfT, _, nextRandomizer) = thisGeneratorOfT.next(szp, Nil, rnd)
             (nextRoseTreeOfT.map(f), Nil, nextRandomizer)
@@ -235,15 +235,15 @@ trait Generator[T] { thisGeneratorOfT =>
       }
       override def shrink(value: U, rnd: Randomizer): (RoseTree[U], Randomizer) = {
         val u: U = value
-        val roseTree =
+        val rt =
           new RoseTree[U] {
             val value: U = u
             def shrinks(rnd: Randomizer): (List[RoseTree[U]], Randomizer) = {
               val (it, rnd2) = canonicals(rnd)
-              (it.map(nxtU => Rose(nxtU)).toList, rnd2)
+              (it.map(nxtU => roseTree(nxtU)).toList, rnd2)
             }
           }
-        (roseTree, rnd)
+        (rt, rnd)
       }
     }
 
@@ -320,7 +320,7 @@ trait Generator[T] { thisGeneratorOfT =>
       def next(szp: SizeParam, edges: List[U], rnd: Randomizer): (RoseTree[U], List[U], Randomizer) = {
         edges match {
           case head :: tail =>
-            (Rose(head), tail, rnd)
+            (roseTree(head), tail, rnd)
           case _ =>
             val (nextRoseTreeOfT, _, nextRandomizer) = thisGeneratorOfT.next(szp, Nil, rnd)
             val genOfU: Generator[U] = f(nextRoseTreeOfT.value)
@@ -346,15 +346,15 @@ trait Generator[T] { thisGeneratorOfT =>
       // I can ensure still pass. After that, I'll rewrite to correctly compose the shrink methods.
       override def shrink(value: U, rnd: Randomizer): (RoseTree[U], Randomizer) = {
         val u = value
-        val roseTree =
+        val rt =
           new RoseTree[U] {
             val value: U = u
             def shrinks(rndPassedToShrink: Randomizer): (List[RoseTree[U]], Randomizer) = {
               val (it, rnd2) = canonicals(rndPassedToShrink)
-              (it.map(nxtU => Rose(nxtU)).toList, rnd2)
+              (it.map(nxtU => roseTree(nxtU)).toList, rnd2)
             }
           }
-        (roseTree, rnd)
+        (rt, rnd)
       }
     }
   }
@@ -444,6 +444,8 @@ trait Generator[T] { thisGeneratorOfT =>
     * @return a Tuple of the shrunk values and the next [[Randomizer]]
     */
   def shrink(value: T, rnd: Randomizer): (RoseTree[T], Randomizer) = (Rose(value), rnd)
+
+  def roseTree(t: T): RoseTree[T] = Rose(t)
 
   /**
     * Some simple, "ordinary" values of type [[T]].
@@ -634,6 +636,8 @@ object Generator {
   implicit val byteGenerator: Generator[Byte] =
     new Generator[Byte] {
 
+      override def roseTree(t: Byte): RoseTree[Byte] = NextRoseTree(t)
+
       case class NextRoseTree(value: Byte) extends RoseTree[Byte] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[Byte]], Randomizer) = {
           def shrinkLoop(n: Byte, acc: List[RoseTree[Byte]]): List[RoseTree[Byte]] = {
@@ -672,6 +676,8 @@ object Generator {
     */
   implicit val shortGenerator: Generator[Short] =
     new Generator[Short] {
+
+      override def roseTree(t: Short): RoseTree[Short] = NextRoseTree(t)
 
       case class NextRoseTree(value: Short) extends RoseTree[Short] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[Short]], Randomizer) = {
@@ -712,6 +718,8 @@ object Generator {
     */
   implicit val charGenerator: Generator[Char] =
     new Generator[Char] {
+
+      override def roseTree(t: Char): RoseTree[Char] = NextRoseTree(t)
 
       case class NextRoseTree(value: Char) extends RoseTree[Char] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[Char]], Randomizer) = {
@@ -759,6 +767,8 @@ object Generator {
   implicit val intGenerator: Generator[Int] =
     new Generator[Int] {
 
+      override def roseTree(t: Int): RoseTree[Int] = NextRoseTree(t)
+
       case class NextRoseTree(value: Int) extends RoseTree[Int] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[Int]], Randomizer) = {
           @tailrec
@@ -799,6 +809,8 @@ object Generator {
   implicit val longGenerator: Generator[Long] =
     new Generator[Long] {
 
+      override def roseTree(t: Long): RoseTree[Long] = NextRoseTree(t)
+
       case class NextRoseTree(value: Long) extends RoseTree[Long] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[Long]], Randomizer) = {
           @tailrec
@@ -838,6 +850,8 @@ object Generator {
     */
   implicit val floatGenerator: Generator[Float] =
     new Generator[Float] {
+
+      override def roseTree(t: Float): RoseTree[Float] = NextRoseTree(t)
 
       case class NextRoseTree(value: Float) extends RoseTree[Float] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[Float]], Randomizer) = {
@@ -913,6 +927,8 @@ object Generator {
     */
   implicit val doubleGenerator: Generator[Double] =
     new Generator[Double] {
+
+      override def roseTree(t: Double): RoseTree[Double] = NextRoseTree(t)
 
       case class NextRoseTree(value: Double) extends RoseTree[Double] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[Double]], Randomizer) = {
@@ -990,6 +1006,8 @@ object Generator {
   implicit val posIntGenerator: Generator[PosInt] =
     new Generator[PosInt] {
 
+      override def roseTree(t: PosInt): RoseTree[PosInt] = NextRoseTree(t)
+
       case class NextRoseTree(value: PosInt) extends RoseTree[PosInt] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[PosInt]], Randomizer) = {
           @tailrec
@@ -1029,6 +1047,8 @@ object Generator {
     */
   implicit val posZIntGenerator: Generator[PosZInt] =
     new Generator[PosZInt] {
+
+      override def roseTree(t: PosZInt): RoseTree[PosZInt] = NextRoseTree(t)
 
       case class NextRoseTree(value: PosZInt) extends RoseTree[PosZInt] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[PosZInt]], Randomizer) = {
@@ -1071,6 +1091,8 @@ object Generator {
   implicit val posLongGenerator: Generator[PosLong] =
     new Generator[PosLong] {
 
+      override def roseTree(t: PosLong): RoseTree[PosLong] = NextRoseTree(t)
+
       case class NextRoseTree(value: PosLong) extends RoseTree[PosLong] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[PosLong]], Randomizer) = {
           @tailrec
@@ -1111,6 +1133,8 @@ object Generator {
   implicit val posZLongGenerator: Generator[PosZLong] =
     new Generator[PosZLong] {
       
+      override def roseTree(t: PosZLong): RoseTree[PosZLong] = NextRoseTree(t)
+
       case class NextRoseTree(value: PosZLong) extends RoseTree[PosZLong] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[PosZLong]], Randomizer) = {
           @tailrec
@@ -1151,6 +1175,8 @@ object Generator {
     */
   implicit val posFloatGenerator: Generator[PosFloat] =
     new Generator[PosFloat] {
+
+      override def roseTree(t: PosFloat): RoseTree[PosFloat] = NextRoseTree(t)
 
       case class NextRoseTree(value: PosFloat) extends RoseTree[PosFloat] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[PosFloat]], Randomizer) = {
@@ -1203,6 +1229,8 @@ object Generator {
   implicit val posFiniteFloatGenerator: Generator[PosFiniteFloat] =
     new Generator[PosFiniteFloat] {
 
+      override def roseTree(t: PosFiniteFloat): RoseTree[PosFiniteFloat] = NextRoseTree(t)
+
       case class NextRoseTree(value: PosFiniteFloat) extends RoseTree[PosFiniteFloat] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[PosFiniteFloat]], Randomizer) = {
           @tailrec
@@ -1249,6 +1277,8 @@ object Generator {
     */
   implicit val finiteFloatGenerator: Generator[FiniteFloat] =
     new Generator[FiniteFloat] {
+
+      override def roseTree(t: FiniteFloat): RoseTree[FiniteFloat] = NextRoseTree(t)
 
       case class NextRoseTree(value: FiniteFloat) extends RoseTree[FiniteFloat] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[FiniteFloat]], Randomizer) = {
@@ -1302,6 +1332,8 @@ object Generator {
   implicit val finiteDoubleGenerator: Generator[FiniteDouble] =
     new Generator[FiniteDouble] {
 
+      override def roseTree(t: FiniteDouble): RoseTree[FiniteDouble] = NextRoseTree(t)
+
       case class NextRoseTree(value: FiniteDouble) extends RoseTree[FiniteDouble] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[FiniteDouble]], Randomizer) = {
           @tailrec
@@ -1353,6 +1385,8 @@ object Generator {
     */
   implicit val posZFloatGenerator: Generator[PosZFloat] =
     new Generator[PosZFloat] {
+
+      override def roseTree(t: PosZFloat): RoseTree[PosZFloat] = NextRoseTree(t)
 
       case class NextRoseTree(value: PosZFloat) extends RoseTree[PosZFloat] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[PosZFloat]], Randomizer) = {
@@ -1408,6 +1442,8 @@ object Generator {
   implicit val posZFiniteFloatGenerator: Generator[PosZFiniteFloat] =
     new Generator[PosZFiniteFloat] {
 
+      override def roseTree(t: PosZFiniteFloat): RoseTree[PosZFiniteFloat] = NextRoseTree(t)
+
       case class NextRoseTree(value: PosZFiniteFloat) extends RoseTree[PosZFiniteFloat] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[PosZFiniteFloat]], Randomizer) = {
           @tailrec
@@ -1457,6 +1493,8 @@ object Generator {
     */
   implicit val posDoubleGenerator: Generator[PosDouble] =
     new Generator[PosDouble] {
+
+      override def roseTree(t: PosDouble): RoseTree[PosDouble] = NextRoseTree(t)
 
       case class NextRoseTree(value: PosDouble) extends RoseTree[PosDouble] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[PosDouble]], Randomizer) = {
@@ -1509,6 +1547,8 @@ object Generator {
   implicit val posFiniteDoubleGenerator: Generator[PosFiniteDouble] =
     new Generator[PosFiniteDouble] {
 
+      override def roseTree(t: PosFiniteDouble): RoseTree[PosFiniteDouble] = NextRoseTree(t)
+
       case class NextRoseTree(value: PosFiniteDouble) extends RoseTree[PosFiniteDouble] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[PosFiniteDouble]], Randomizer) = {
           @tailrec
@@ -1555,6 +1595,8 @@ object Generator {
     */
   implicit val posZDoubleGenerator: Generator[PosZDouble] =
     new Generator[PosZDouble] {
+
+      override def roseTree(t: PosZDouble): RoseTree[PosZDouble] = NextRoseTree(t)
 
       case class NextRoseTree(value: PosZDouble) extends RoseTree[PosZDouble] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[PosZDouble]], Randomizer) = {
@@ -1610,6 +1652,8 @@ object Generator {
   implicit val posZFiniteDoubleGenerator: Generator[PosZFiniteDouble] =
     new Generator[PosZFiniteDouble] {
 
+      override def roseTree(t: PosZFiniteDouble): RoseTree[PosZFiniteDouble] = NextRoseTree(t)
+
       case class NextRoseTree(value: PosZFiniteDouble) extends RoseTree[PosZFiniteDouble] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[PosZFiniteDouble]], Randomizer) = {
           @tailrec
@@ -1659,6 +1703,8 @@ object Generator {
     */
   implicit val nonZeroDoubleGenerator: Generator[NonZeroDouble] =
     new Generator[NonZeroDouble] {
+
+      override def roseTree(t: NonZeroDouble): RoseTree[NonZeroDouble] = NextRoseTree(t)
 
       case class NextRoseTree(value: NonZeroDouble) extends RoseTree[NonZeroDouble] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[NonZeroDouble]], Randomizer) = {
@@ -1718,6 +1764,8 @@ object Generator {
   implicit val nonZeroFiniteDoubleGenerator: Generator[NonZeroFiniteDouble] =
     new Generator[NonZeroFiniteDouble] {
 
+      override def roseTree(t: NonZeroFiniteDouble): RoseTree[NonZeroFiniteDouble] = NextRoseTree(t)
+
       case class NextRoseTree(value: NonZeroFiniteDouble) extends RoseTree[NonZeroFiniteDouble] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[NonZeroFiniteDouble]], Randomizer) = {
           @tailrec
@@ -1769,6 +1817,8 @@ object Generator {
     */
   implicit val nonZeroFloatGenerator: Generator[NonZeroFloat] =
     new Generator[NonZeroFloat] {
+
+      override def roseTree(t: NonZeroFloat): RoseTree[NonZeroFloat] = NextRoseTree(t)
 
       case class NextRoseTree(value: NonZeroFloat) extends RoseTree[NonZeroFloat] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[NonZeroFloat]], Randomizer) = {
@@ -1829,6 +1879,8 @@ object Generator {
   implicit val nonZeroFiniteFloatGenerator: Generator[NonZeroFiniteFloat] =
     new Generator[NonZeroFiniteFloat] {
 
+      override def roseTree(t: NonZeroFiniteFloat): RoseTree[NonZeroFiniteFloat] = NextRoseTree(t)
+
       case class NextRoseTree(value: NonZeroFiniteFloat) extends RoseTree[NonZeroFiniteFloat] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[NonZeroFiniteFloat]], Randomizer) = {
           @tailrec
@@ -1881,6 +1933,8 @@ object Generator {
   implicit val nonZeroIntGenerator: Generator[NonZeroInt] =
     new Generator[NonZeroInt] {
 
+      override def roseTree(t: NonZeroInt): RoseTree[NonZeroInt] = NextRoseTree(t)
+
       case class NextRoseTree(value: NonZeroInt) extends RoseTree[NonZeroInt] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[NonZeroInt]], Randomizer) = {
           @tailrec
@@ -1918,6 +1972,8 @@ object Generator {
   implicit val nonZeroLongGenerator: Generator[NonZeroLong] =
     new Generator[NonZeroLong] {
 
+      override def roseTree(t: NonZeroLong): RoseTree[NonZeroLong] = NextRoseTree(t)
+
       case class NextRoseTree(value: NonZeroLong) extends RoseTree[NonZeroLong] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[NonZeroLong]], Randomizer) = {
           @tailrec
@@ -1954,6 +2010,8 @@ object Generator {
     */
   implicit val negDoubleGenerator: Generator[NegDouble] =
     new Generator[NegDouble] {
+
+      override def roseTree(t: NegDouble): RoseTree[NegDouble] = NextRoseTree(t)
 
       case class NextRoseTree(value: NegDouble) extends RoseTree[NegDouble] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[NegDouble]], Randomizer) = {
@@ -2006,6 +2064,8 @@ object Generator {
   implicit val negFiniteDoubleGenerator: Generator[NegFiniteDouble] =
     new Generator[NegFiniteDouble] {
 
+      override def roseTree(t: NegFiniteDouble): RoseTree[NegFiniteDouble] = NextRoseTree(t)
+
       case class NextRoseTree(value: NegFiniteDouble) extends RoseTree[NegFiniteDouble] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[NegFiniteDouble]], Randomizer) = {
           @tailrec
@@ -2052,6 +2112,8 @@ object Generator {
     */
   implicit val negFloatGenerator: Generator[NegFloat] =
     new Generator[NegFloat] {
+
+      override def roseTree(t: NegFloat): RoseTree[NegFloat] = NextRoseTree(t)
 
       case class NextRoseTree(value: NegFloat) extends RoseTree[NegFloat] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[NegFloat]], Randomizer) = {
@@ -2104,6 +2166,8 @@ object Generator {
   implicit val negFiniteFloatGenerator: Generator[NegFiniteFloat] =
     new Generator[NegFiniteFloat] {
 
+      override def roseTree(t: NegFiniteFloat): RoseTree[NegFiniteFloat] = NextRoseTree(t)
+
       case class NextRoseTree(value: NegFiniteFloat) extends RoseTree[NegFiniteFloat] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[NegFiniteFloat]], Randomizer) = {
           @tailrec
@@ -2151,6 +2215,8 @@ object Generator {
   implicit val negIntGenerator: Generator[NegInt] =
     new Generator[NegInt] {
 
+      override def roseTree(t: NegInt): RoseTree[NegInt] = NextRoseTree(t)
+
       case class NextRoseTree(value: NegInt) extends RoseTree[NegInt] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[NegInt]], Randomizer) = {
           @tailrec
@@ -2191,6 +2257,8 @@ object Generator {
   implicit val negLongGenerator: Generator[NegLong] =
     new Generator[NegLong] {
 
+      override def roseTree(t: NegLong): RoseTree[NegLong] = NextRoseTree(t)
+
       case class NextRoseTree(value: NegLong) extends RoseTree[NegLong] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[NegLong]], Randomizer) = {
           @tailrec
@@ -2230,6 +2298,8 @@ object Generator {
     */
   implicit val negZDoubleGenerator: Generator[NegZDouble] =
     new Generator[NegZDouble] {
+
+      override def roseTree(t: NegZDouble): RoseTree[NegZDouble] = NextRoseTree(t)
 
       case class NextRoseTree(value: NegZDouble) extends RoseTree[NegZDouble] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[NegZDouble]], Randomizer) = {
@@ -2286,6 +2356,8 @@ object Generator {
   implicit val negZFiniteDoubleGenerator: Generator[NegZFiniteDouble] =
     new Generator[NegZFiniteDouble] {
 
+      override def roseTree(t: NegZFiniteDouble): RoseTree[NegZFiniteDouble] = NextRoseTree(t)
+
       case class NextRoseTree(value: NegZFiniteDouble) extends RoseTree[NegZFiniteDouble] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[NegZFiniteDouble]], Randomizer) = {
           @tailrec
@@ -2335,6 +2407,8 @@ object Generator {
     */
   implicit val negZFloatGenerator: Generator[NegZFloat] =
     new Generator[NegZFloat] {
+
+      override def roseTree(t: NegZFloat): RoseTree[NegZFloat] = NextRoseTree(t)
 
       case class NextRoseTree(value: NegZFloat) extends RoseTree[NegZFloat] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[NegZFloat]], Randomizer) = {
@@ -2390,6 +2464,8 @@ object Generator {
   implicit val negZFiniteFloatGenerator: Generator[NegZFiniteFloat] =
     new Generator[NegZFiniteFloat] {
 
+      override def roseTree(t: NegZFiniteFloat): RoseTree[NegZFiniteFloat] = NextRoseTree(t)
+
       case class NextRoseTree(value: NegZFiniteFloat) extends RoseTree[NegZFiniteFloat] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[NegZFiniteFloat]], Randomizer) = {
           @tailrec
@@ -2440,6 +2516,8 @@ object Generator {
   implicit val negZIntGenerator: Generator[NegZInt] =
     new Generator[NegZInt] {
 
+      override def roseTree(t: NegZInt): RoseTree[NegZInt] = NextRoseTree(t)
+
       case class NextRoseTree(value: NegZInt) extends RoseTree[NegZInt] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[NegZInt]], Randomizer) = {
           @tailrec
@@ -2480,6 +2558,8 @@ object Generator {
     */
   implicit val negZLongGenerator: Generator[NegZLong] =
     new Generator[NegZLong] {
+
+      override def roseTree(t: NegZLong): RoseTree[NegZLong] = NextRoseTree(t)
 
       case class NextRoseTree(value: NegZLong) extends RoseTree[NegZLong] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[NegZLong]], Randomizer) = {
@@ -2522,6 +2602,8 @@ object Generator {
   implicit val numericCharGenerator: Generator[NumericChar] =
     new Generator[NumericChar] {
 
+      override def roseTree(t: NumericChar): RoseTree[NumericChar] = NextRoseTree(t)
+
       case class NextRoseTree(value: NumericChar) extends RoseTree[NumericChar] {
         def shrinks(rndPassedToShrinks: Randomizer): (List[RoseTree[NumericChar]], Randomizer) = {
           def shrinkLoop(i: NumericChar, acc: List[RoseTree[NumericChar]]): List[RoseTree[NumericChar]] = acc
@@ -2556,6 +2638,8 @@ object Generator {
   implicit val stringGenerator: Generator[String] =
     new Generator[String] {
       private val stringEdges = List("")
+
+      override def roseTree(t: String): RoseTree[String] = NextRoseTree(t)
 
       // TODO This only uses Roses. Check that we don't need RoseTrees.
       case class NextRoseTree(value: String) extends RoseTree[String] {
@@ -2634,6 +2718,8 @@ object Generator {
   implicit def listGenerator[T](implicit genOfT: Generator[T]): Generator[List[T]] with HavingLength[List[T]] =
     new Generator[List[T]] with HavingLength[List[T]] { outerGenOfListOfT =>
       private val listEdges = List(Nil)
+
+      override def roseTree(t: List[T]): RoseTree[List[T]] = NextRoseTree(t)
 
       // TODO This only uses Roses. Check that we don't need RoseTrees.
       case class NextRoseTree(value: List[T]) extends RoseTree[List[T]] {
