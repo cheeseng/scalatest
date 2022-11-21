@@ -714,12 +714,12 @@ class GeneratorSpec extends AnyFunSpec with Matchers {
                 Float.MinValue
               else fv
             if (n > 1.0f)
-              shrinks.head should be > 0.0f
+              shrinks.head should be < 0.0f
             else if (n < -1.0f)
               shrinks.head should be < 0.0f
             import org.scalatest.Inspectors._
             if (!n.isWhole) {
-              shrinks.head shouldEqual (if (n > 0.0f) n.floor else n.ceil)
+              shrinks.head shouldEqual (if (n > 0.0f) (-n).ceil else n.ceil)
             }
             val revShrinks = shrinks.reverse
             val pairs: LazyListOrStream[(Float, Float)] = revShrinks.zip(revShrinks.tail)
@@ -1033,7 +1033,7 @@ class GeneratorSpec extends AnyFunSpec with Matchers {
         import GeneratorDrivenPropertyChecks._
         forAll { (shrinkRoseTree: RoseTree[PosZInt]) =>
           val i = shrinkRoseTree.value
-          val shrinks: LazyListOrStream[PosZInt] = shrinkRoseTree.shrinks(Randomizer.default)._1.map(_.value)
+          val shrinks: List[PosZInt] = shrinkRoseTree.shrinks(Randomizer.default)._1.map(_.value).toList
           shrinks.distinct.length shouldEqual shrinks.length
           if (i.value == 0)
             shrinks shouldBe empty
@@ -3400,10 +3400,10 @@ class GeneratorSpec extends AnyFunSpec with Matchers {
           val i = shrinkRoseTree.value
           val shrinks: LazyListOrStream[List[Int]] = shrinkRoseTree.shrinks(Randomizer.default)._1.map(_.value)
           shrinks.distinct.length shouldEqual shrinks.length
-          if (i.isEmpty)
+          if (i.isEmpty || i.length == 1)
             shrinks shouldBe empty
           else {
-            shrinks should not be empty
+            shrinks should not be empty // This flickers
             inspectAll(shrinks) { s =>
               i should contain allElementsOf s
               s.length should be < i.length  
