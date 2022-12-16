@@ -363,6 +363,12 @@ class GeneratorSpec extends AnyFunSpec with Matchers {
           }
         }
       }
+      it("should produce shrinkees following constraint determined by filter method") {
+        val aGen= Generator.byteGenerator.filter(_ > 5)
+        val shrinkees = aGen.next(SizeParam(1, 0, 1), List(30.toByte), Randomizer.default)._1.shrinks.map(_.value)
+        shrinkees should not be empty
+        shrinkees.toList shouldBe List(-15.toByte, 15.toByte, -7.toByte, 7.toByte)
+      }
     }
     describe("for Shorts") {
       it("should produce the same Short values in the same order given the same Randomizer") {
