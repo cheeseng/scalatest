@@ -114,7 +114,7 @@ class DiagramsSpec extends AnyFunSpec with Matchers with Diagrams {
     val alice = "alice"
 
     describe("The assert(boolean) method") {
-      it("should do nothing when is used to check a == 3") {
+      /*it("should do nothing when is used to check a == 3") {
         assert(a == 3)
       }
 
@@ -2589,7 +2589,7 @@ class DiagramsSpec extends AnyFunSpec with Matchers with Diagrams {
           """
             |assert(java.math.BigInteger.ZERO == java.math.BigInteger.ZERO)
           """.stripMargin)
-      }
+      }*/
 
       it("should invoke future one time only") {
         var count = 0
@@ -2599,7 +2599,7 @@ class DiagramsSpec extends AnyFunSpec with Matchers with Diagrams {
 
     }
 
-    describe("The assert(boolean, clue) method") {
+    /*describe("The assert(boolean, clue) method") {
       it("should do nothing when is used to check a == 3") {
         assert(a == 3, "this is a clue")
       }
@@ -10007,6 +10007,6 @@ class DiagramsSpec extends AnyFunSpec with Matchers with Diagrams {
         assume(Await.result(Future { count = count + 1; 42 }, Duration(1, SECONDS)) == 42, "this is a clue")
         count shouldBe 1
       }
-    }
+    }*/
   }
 }
