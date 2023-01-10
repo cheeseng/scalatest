@@ -211,7 +211,7 @@ class DifferSpec extends funspec.AnyFunSpec {
         new Prettifier {
           override def apply(o: Any): String = Prettifier.default(o)
 
-          override def apply(left: Any, right: Any): PrettyPair = {
+          override def apply(left: Any, right: Any)(implicit differ: Differ): PrettyPair = {
             val prettyPair = AnyDiffer.difference(left, right, this)
             prettyPair.copy(
               left = ("\"**" + prettyPair.left.substring(1, prettyPair.left.length - 1) + "\""),

@@ -20,15 +20,17 @@ import org.scalactic.source.ObjectMeta
 // SKIP-SCALATESTNATIVE-END
 import scala.annotation.tailrec
 
-private[scalactic] trait Differ {
+trait Differ {
 
   def difference(a: Any, b: Any, prettifier: Prettifier): PrettyPair
 
 }
 
-private[scalactic] object Differ {
+object Differ {
 
-  def simpleClassName(v: Any): String = {
+  implicit val default: Differ = AnyDiffer
+
+  private[scalactic] def simpleClassName(v: Any): String = {
     val className = v.getClass.getName
     val lastIdxOfDot = className.lastIndexOf(".")
     val shortName =
@@ -48,7 +50,7 @@ private[scalactic] object Differ {
       shortName
   }
 
-  def prettifierLimit(prettifier: Prettifier): Option[Int] = 
+  private[scalactic] def prettifierLimit(prettifier: Prettifier): Option[Int] = 
     prettifier match {
       case tp: TruncatingPrettifier => Some(tp.sizeLimit.value)
       case _ => None
