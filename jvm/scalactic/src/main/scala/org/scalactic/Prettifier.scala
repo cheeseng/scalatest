@@ -121,13 +121,16 @@ import scala.util.Success
  * </p>
  */
 trait Prettifier extends Serializable { // I removed the extends (Any => String), now that we are making this implicit.
+
+  val differ: Differ = AnyDiffer
+
   /**
    * Prettifies the passed object.
    */
   def apply(o: Any): String
 
   def apply(left: Any, right: Any): PrettyPair = {
-    AnyDiffer.difference(left, right, this)
+    differ.difference(left, right, this)
   }
 }
 
@@ -314,6 +317,12 @@ object Prettifier {
       def apply(o: Any): String = fun(o)
     }
 
+  def apply(customDiffer: Differ)(fun: PartialFunction[Any, String]): Prettifier =
+    new Prettifier {
+      override val differ: Differ = customDiffer
+      def apply(o: Any): String = fun(o)
+    }  
+
   /**
    * A default `Prettifier`. 
    *
@@ -355,6 +364,11 @@ object Prettifier {
    * Create a default prettifier instance with collection size limit.
    */
   def truncateAt(limit: SizeLimit): Prettifier = new TruncatingPrettifier(limit)
+
+  def truncateAt(limit: SizeLimit, customDiffer: Differ): Prettifier = 
+    new TruncatingPrettifier(limit) {
+      override val differ = customDiffer
+    }
 
   /**
    * A basic `Prettifier`.
@@ -458,4 +472,9 @@ private[scalactic] class BasicPrettifier extends Prettifier {
       case wrappedArr: WrappedArray[_] => "Array(" + (wrappedArr map (a => prettifyArrays(a))).mkString(", ") + ")"
       case _ => if (o != null) o.toString else "null"
     }
+
+  def withDiffer(customDiffer: Differ): Prettifier = 
+    new BasicPrettifier {
+      override val differ = customDiffer
+    } 
 }

@@ -97,7 +97,8 @@ class PrettifierSpec extends funspec.AnyFunSpec with matchers.should.Matchers {
       Prettifier.basic(WrappedArray.make(Array("1", "2", "3"))) should be ("Array(1, 2, 3)")
     }
     it("should show null as \"null\"") {
-      Prettifier.basic(null) should be ("null")
+      val basicPrettifier = Prettifier.basic
+      basicPrettifier(null) should be ("null")
     }
     it("should clarify the Unit value") {
       Prettifier.basic(()) should be ("<(), the Unit value>")
@@ -185,6 +186,17 @@ class PrettifierSpec extends funspec.AnyFunSpec with matchers.should.Matchers {
     }
     it("should pretty print nested Many(String)") {
       Prettifier.basic(Many(Many("1", "2", "3"), Many("7", "8", "9"))) should be ("Many(Many(1, 2, 3), Many(7, 8, 9))")
+    }
+    it("should support custom Differ") {
+      val d = 
+        new Differ {
+          def difference(a: Any, b: Any, prettifier: Prettifier): PrettyPair = {
+            PrettyPair(a.toString, b.toString, None)
+          }
+        }
+      val p = Prettifier.basic.withDiffer(d)  
+      val pair = p("test 1", "test 2")
+      pair shouldBe PrettyPair("test 1", "test 2", None)
     }
     // SKIP-SCALATESTJS,NATIVE-START
     it("should pretty print Java List") {
