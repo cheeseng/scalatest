@@ -225,7 +225,6 @@ private[scalactic] class DefaultPrettifier extends Prettifier {
       case _: StackOverflowError => o.toString
     }
   }      
-
 }
 
 private[scalactic] class TruncatingPrettifier(private[scalactic] val sizeLimit: SizeLimit) extends DefaultPrettifier {
@@ -317,11 +316,16 @@ object Prettifier {
       def apply(o: Any): String = fun(o)
     }
 
-  def apply(customDiffer: Differ)(fun: PartialFunction[Any, String]): Prettifier =
+  /**
+   * Construct a new `Prettifier` with given <code>prettifier</code> and <code>customDiffer</code>.
+   * @param prettifier the base prettifer that the new prettifier will delegate apply(o: Any) to.
+   * @param fun a partial function with which to implement the apply method of the returned `Prettifier`.
+   */
+  def apply(prettifier: Prettifier, customDiffer: Differ): Prettifier = 
     new Prettifier {
       override val differ: Differ = customDiffer
-      def apply(o: Any): String = fun(o)
-    }  
+      def apply(o: Any): String = prettifier.apply(o)
+    }
 
   /**
    * A default `Prettifier`. 
@@ -364,11 +368,6 @@ object Prettifier {
    * Create a default prettifier instance with collection size limit.
    */
   def truncateAt(limit: SizeLimit): Prettifier = new TruncatingPrettifier(limit)
-
-  def truncateAt(limit: SizeLimit, customDiffer: Differ): Prettifier = 
-    new TruncatingPrettifier(limit) {
-      override val differ = customDiffer
-    }
 
   /**
    * A basic `Prettifier`.
@@ -472,9 +471,4 @@ private[scalactic] class BasicPrettifier extends Prettifier {
       case wrappedArr: WrappedArray[_] => "Array(" + (wrappedArr map (a => prettifyArrays(a))).mkString(", ") + ")"
       case _ => if (o != null) o.toString else "null"
     }
-
-  def withDiffer(customDiffer: Differ): Prettifier = 
-    new BasicPrettifier {
-      override val differ = customDiffer
-    } 
 }
