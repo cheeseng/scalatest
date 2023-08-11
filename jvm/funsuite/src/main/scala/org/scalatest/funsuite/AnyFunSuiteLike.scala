@@ -19,6 +19,8 @@ import org.scalactic.source
 import org.scalatest._
 import Suite.autoTagClassAnnotations
 
+//DOTTY-ONLY import scala.quoted._
+
 /**
   * Implementation trait for class <code>AnyFunSpec</code>, which
   * facilitates a &ldquo;behavior-driven&rdquo; style of development (BDD),
@@ -154,8 +156,8 @@ trait AnyFunSuiteLike extends TestSuite with TestRegistration with Informing wit
     testImpl(testName, testTags: _*)(testFun, pos)
   }
   // SKIP-DOTTY-END
-  //DOTTY-ONLY inline def test(testName: String, testTags: Tag*)(testFun: => Any /* Assertion */): Unit = {
-  //DOTTY-ONLY   ${ source.Position.withPosition[Unit]('{(pos: source.Position) => testImpl(testName, testTags: _*)(testFun, pos) }) } 
+  //DOTTY-ONLY inline def test(using pos: source.Position)(testName: String, testTags: Tag*)(testFun: => Any /* Assertion */): Unit = {
+  //DOTTY-ONLY   testImpl(testName, testTags: _*)(testFun, pos) 
   //DOTTY-ONLY }
 
   private final def ignoreImpl(testName: String, testTags: Tag*)(testFun: => Any /* Assertion */, pos: source.Position): Unit = {
