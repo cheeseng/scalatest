@@ -24,7 +24,7 @@ import javax.xml.transform.TransformerFactoryConfigurationError
 import org.scalactic.Prettifier
 import org.scalatest.prop.TableDrivenPropertyChecks
 import scala.annotation.tailrec
-import scala.collection.GenTraversable
+import scala.collection.Iterable
 import FailureMessages.decorateToStringValue
 import org.scalatest.CompatParColls.Converters._
 import org.scalatest.funspec.AnyFunSpec
@@ -35,7 +35,7 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
   private val prettifier = Prettifier.default
   
   def examples =
-    Table[Set[Int] => GenTraversable[Int]](
+    Table[Set[Int] => Iterable[Int]](
       ("Fun"), 
       ((set: Set[Int]) => set), 
       ((set: Set[Int]) => set.toList), 
@@ -43,16 +43,6 @@ class InspectorsSpec extends AnyFunSpec with Inspectors with TableDrivenProperty
       ((set: Set[Int]) => set.toArray), 
       ((set: Set[Int]) => set.toIndexedSeq), 
       ((set: Set[Int]) => Vector.empty ++ set),
-      // SKIP-SCALATESTJS,NATIVE-START
-      ((set: Set[Int]) => set.par), 
-      ((set: Set[Int]) => set.toList.par), 
-      ((set: Set[Int]) => set.toSeq.par), 
-      ((set: Set[Int]) => set.toIndexedSeq.par),
-      ((set: Set[Int]) => (mutable.Set.empty ++ set).par),
-      ((set: Set[Int]) => (new mutable.ListBuffer() ++ set).par),
-      ((set: Set[Int]) => (mutable.Seq.empty ++ set).par),
-      ((set: Set[Int]) => (mutable.IndexedSeq.empty ++ set).par),
-      // SKIP-SCALATESTJS,NATIVE-END
       ((set: Set[Int]) => mutable.Set.empty ++ set), 
       ((set: Set[Int]) => new mutable.ListBuffer() ++ set), 
       ((set: Set[Int]) => mutable.Seq.empty ++ set), 

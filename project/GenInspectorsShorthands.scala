@@ -310,7 +310,7 @@ trait GenInspectorsShorthandsBase {
         "val emptyMatcher = new EmptyBePropertyMatcher()\n" +
         "def plength(expectedValue: Int) = new StringLengthMatcher(expectedValue)\n" +
         "val theInstance = \"2\"\n" +
-        "def arrayToString(xs: GenTraversable[_]): String = FailureMessages.decorateToStringValue(prettifier, xs)\n" +
+        "def arrayToString(xs: Iterable[_]): String = FailureMessages.decorateToStringValue(prettifier, xs)\n" +
         "def checkErrorAndCause(e: exceptions.TestFailedException, assertLineNumber: Int, fileName: String, errorMessage: String, causeErrorMessage: String) {\n" +
         "  assert(e.failedCodeFileName == Some(fileName), e.failedCodeFileName + \" did not equal \" + Some(fileName))\n" +
         "  assert(e.failedCodeLineNumber == Some(assertLineNumber), e.failedCodeLineNumber + \" did not equal \" + Some(assertLineNumber))\n" +
@@ -558,8 +558,8 @@ trait GenInspectorsShorthandsBase {
       case "indexElementSizeNotEqual[(Int, Int)]" => _.size != right
       case "indexElementSizeEqual[Int, Int]" => _.size == right
       case "indexElementSizeNotEqual[Int, Int]" => _.size != right
-      case "indexElementSizeEqualGenTraversable[String]" => _.size == right
-      case "indexElementSizeNotEqualGenTraversable[String]" => _.size != right
+      case "indexElementSizeEqualIterable[String]" => _.size == right
+      case "indexElementSizeNotEqualIterable[String]" => _.size != right
     }
   }
 
@@ -593,12 +593,12 @@ trait GenInspectorsShorthandsBase {
 
   def getTraversableFun(funString: String, right: Any): List[String] => Boolean = {
     funString match {
-      case "indexElementSizeEqualGenTraversable[String]" => _.size == right
-      case "indexElementSizeNotEqualGenTraversable[String]" => _.size != right
+      case "indexElementSizeEqualIterable[String]" => _.size == right
+      case "indexElementSizeNotEqualIterable[String]" => _.size != right
       //case s: String if s.startsWith("_.exists") => _.exists(_ == right)
       //case s: String if s.startsWith("!_.exists") => !_.exists(_ == right)
-      case "indexElementContainGenTraversable[String]" => _.contains(right)
-      case "indexElementNotContainGenTraversable[String]" => !_.contains(right)
+      case "indexElementContainIterable[String]" => _.contains(right)
+      case "indexElementNotContainIterable[String]" => !_.contains(right)
     }
   }
 
@@ -709,18 +709,18 @@ trait GenInspectorsShorthandsBase {
 
   def stdTraversablePropertyCheckTypes(leftTemplateFun: (String, String, String) => Template, errorFunPrefix: String, autoQuoteString: Boolean = true) =
     List(
-      ("'traversable should be symbol' failed", " should be ('empty)", "SizeEqualGenTraversable[String]", errorFunPrefix + "SizeNotEqualGenTraversable[String]", "0", (colType: String, errorFun: String, errorValue: String) => new WasNotMessageTemplate(leftTemplateFun(colType, errorFun, errorValue), empty, autoQuoteString)),
-      ("'traversable should not be symbol' failed", " should not be 'empty", "SizeNotEqualGenTraversable[String]", errorFunPrefix + "SizeEqualGenTraversable[String]", "0", (colType: String, errorFun: String, errorValue: String) => new WasMessageTemplate(leftTemplateFun(colType, errorFun, errorValue), empty, autoQuoteString))
+      ("'traversable should be symbol' failed", " should be ('empty)", "SizeEqualIterable[String]", errorFunPrefix + "SizeNotEqualIterable[String]", "0", (colType: String, errorFun: String, errorValue: String) => new WasNotMessageTemplate(leftTemplateFun(colType, errorFun, errorValue), empty, autoQuoteString)),
+      ("'traversable should not be symbol' failed", " should not be 'empty", "SizeNotEqualIterable[String]", errorFunPrefix + "SizeEqualIterable[String]", "0", (colType: String, errorFun: String, errorValue: String) => new WasMessageTemplate(leftTemplateFun(colType, errorFun, errorValue), empty, autoQuoteString))
     )
 
   def stdTraversableCheckTypes(leftTemplateFun: (String, String, String) => Template, leftLengthTemplateFun: (String, String, String) => Template, size: Int, notSize: Int, containText: String, errorFunPrefix: String, autoQuoteString: Boolean = true) =
     List(
-      ("'traversable should have size' failed", " should have size " + size, "SizeEqualGenTraversable[String]", errorFunPrefix + "SizeNotEqualGenTraversable[String]", "" + size, size, (colType: String, errorFun: String, errorValue: String) => new HadSizeInsteadOfExpectedSizeMessageTemplate(leftTemplateFun(colType, errorFun, errorValue), leftLengthTemplateFun(colType, errorFun, errorValue), 0, autoQuoteString)),
-      ("'traversable should not have size' failed", " should not have size (" + notSize +")", "SizeNotEqualGenTraversable[String]", errorFunPrefix + "SizeEqualGenTraversable[String]", "" + notSize, notSize, (colType: String, errorFun: String, errorValue: String) => new HadSizeMessageTemplate(leftTemplateFun(colType, errorFun, errorValue), 1, autoQuoteString)),
-      ("'traversable should have length' failed", " should have length " + size, "SizeEqualGenTraversable[String]", errorFunPrefix + "SizeNotEqualGenTraversable[String]", "" + size, size, (colType: String, errorFun: String, errorValue: String) => new HadLengthInsteadOfExpectedLengthMessageTemplate(leftTemplateFun(colType, errorFun, errorValue), leftLengthTemplateFun(colType, errorFun, errorValue), 0, autoQuoteString)),
-      ("'traversable should not have length' failed", " should not have length (" + notSize + ")", "SizeNotEqualGenTraversable[String]", errorFunPrefix + "SizeEqualGenTraversable[String]", "" + notSize, notSize, (colType: String, errorFun: String, errorValue: String) => new HadLengthMessageTemplate(leftTemplateFun(colType, errorFun, errorValue), 1, autoQuoteString)),
-      ("'traversable should contain' failed", " should contain (\"" + containText + "\")", "ContainGenTraversable[String]", errorFunPrefix + "NotContainGenTraversable[String]", "\"" + containText + "\"", containText, (colType: String, errorFun: String, errorValue: String) => new DidNotContainElementMessageTemplate(leftTemplateFun(colType, errorFun, errorValue), "hi", autoQuoteString)),
-      ("'traversable should not contain' failed", " should not contain \"" + containText + "\"", "NotContainGenTraversable[String]", errorFunPrefix + "ContainGenTraversable[String]", "\"" + containText + "\"", containText, (colType: String, errorFun: String, errorValue: String) => new ContainedElementMessageTemplate(leftTemplateFun(colType, errorFun, errorValue), "hi", autoQuoteString))
+      ("'traversable should have size' failed", " should have size " + size, "SizeEqualIterable[String]", errorFunPrefix + "SizeNotEqualIterable[String]", "" + size, size, (colType: String, errorFun: String, errorValue: String) => new HadSizeInsteadOfExpectedSizeMessageTemplate(leftTemplateFun(colType, errorFun, errorValue), leftLengthTemplateFun(colType, errorFun, errorValue), 0, autoQuoteString)),
+      ("'traversable should not have size' failed", " should not have size (" + notSize +")", "SizeNotEqualIterable[String]", errorFunPrefix + "SizeEqualIterable[String]", "" + notSize, notSize, (colType: String, errorFun: String, errorValue: String) => new HadSizeMessageTemplate(leftTemplateFun(colType, errorFun, errorValue), 1, autoQuoteString)),
+      ("'traversable should have length' failed", " should have length " + size, "SizeEqualIterable[String]", errorFunPrefix + "SizeNotEqualIterable[String]", "" + size, size, (colType: String, errorFun: String, errorValue: String) => new HadLengthInsteadOfExpectedLengthMessageTemplate(leftTemplateFun(colType, errorFun, errorValue), leftLengthTemplateFun(colType, errorFun, errorValue), 0, autoQuoteString)),
+      ("'traversable should not have length' failed", " should not have length (" + notSize + ")", "SizeNotEqualIterable[String]", errorFunPrefix + "SizeEqualIterable[String]", "" + notSize, notSize, (colType: String, errorFun: String, errorValue: String) => new HadLengthMessageTemplate(leftTemplateFun(colType, errorFun, errorValue), 1, autoQuoteString)),
+      ("'traversable should contain' failed", " should contain (\"" + containText + "\")", "ContainIterable[String]", errorFunPrefix + "NotContainIterable[String]", "\"" + containText + "\"", containText, (colType: String, errorFun: String, errorValue: String) => new DidNotContainElementMessageTemplate(leftTemplateFun(colType, errorFun, errorValue), "hi", autoQuoteString)),
+      ("'traversable should not contain' failed", " should not contain \"" + containText + "\"", "NotContainIterable[String]", errorFunPrefix + "ContainIterable[String]", "\"" + containText + "\"", containText, (colType: String, errorFun: String, errorValue: String) => new ContainedElementMessageTemplate(leftTemplateFun(colType, errorFun, errorValue), "hi", autoQuoteString))
     )
 
   def stdMapCheckTypes(leftTemplateFun: (String, String, String) => Template, errorFunPrefix: String, autoQuoteString: Boolean = true) =
@@ -1003,19 +1003,19 @@ trait GenInspectorsShorthandsBase {
         }) ++
         (traversablePropertyCheckCol flatMap { case (colText, xsText) =>
           traversablePropertyCheckTypes map { case (condition, assertText, okFun, errorFun, errorValue, messageFun) =>
-            val colType = if (colText.startsWith("Array")) "Array[String]" else "GenTraversable[String]"
+            val colType = if (colText.startsWith("Array")) "Array[String]" else "Iterable[String]"
             (colText, condition, allColText + assertText, colType, okFun, errorFun, errorValue, messageFun(colType, errorFun, errorValue).toString, xsText, true)
           }
         }).filter { case (colText, condition, _, _, _, _, _, _, _, _) => filterArraySymbol(colText, condition) } ++
         (traversableCheckCol flatMap { case (colText, xsText) =>
           filterScala213ParColLength(colText, traversableCheckTypes, scalaVersion) map { case (condition, assertText, okFun, errorFun, errorValue, right, messageFun) =>
-            val colType = if (colText.startsWith("Array")) "Array[String]" else "GenTraversable[String]"
+            val colType = if (colText.startsWith("Array")) "Array[String]" else "Iterable[String]"
             (colText, condition, allColText + assertText, colType, okFun, errorFun, errorValue, messageFun(colType, errorFun, errorValue).toString, xsText, true)
           }
         }).filter { case (colText, condition, _, _, _, _, _, _, _, _) => filterSetLength(colText, condition) } ++
         (mapCheckCol flatMap { case (colText, xsText) =>
           mapCheckTypes map { case (condition, assertText, okFun, errorFun, errorValue, right, messageFun) =>
-            val colType = "GenMap[String, String]"
+            val colType = "Map[String, String]"
             (colText, condition, allColText + assertText, colType, okFun, errorFun, errorValue, messageFun(colType, errorFun, errorValue).toString, xsText, true)
           }
         }) ++
@@ -1060,8 +1060,8 @@ trait GenInspectorsShorthandsBase {
               "SharedHelpers._",
               "FailureMessages.decorateToStringValue",
               "org.scalatest.matchers.{BePropertyMatcher, BePropertyMatchResult, HavePropertyMatcher, HavePropertyMatchResult}",
-              "collection.GenTraversable",
-              "collection.GenMap",
+              "collection.Iterable",
+              "collection.Map",
               "org.scalatest.refspec.RefSpec",
               "org.scalatest.CompatParColls.Converters._",
               "org.scalactic.ArrayHelper.deep"
@@ -1099,8 +1099,8 @@ trait GenInspectorsShorthandsBase {
                 "SharedHelpers._",
                 "FailureMessages.decorateToStringValue",
                 "org.scalatest.matchers.{BePropertyMatcher, BePropertyMatchResult, HavePropertyMatcher, HavePropertyMatchResult}",
-                "collection.GenTraversable",
-                "collection.GenMap",
+                "collection.Iterable",
+                "collection.Map",
                 "org.scalatest.refspec.RefSpec",
                 "org.scalatest.CompatParColls.Converters._",
                 "org.scalactic.ArrayHelper.deep"
@@ -1142,8 +1142,8 @@ trait GenInspectorsShorthandsBase {
               "SharedHelpers._",
               "FailureMessages.decorateToStringValue",
               "org.scalatest.matchers.{BePropertyMatcher, BePropertyMatchResult, HavePropertyMatcher, HavePropertyMatchResult}",
-              "collection.GenTraversable",
-              "collection.GenMap",
+              "collection.Iterable",
+              "collection.Map",
               "org.scalatest.refspec.RefSpec",
               "org.scalatest.CompatParColls.Converters._",
               "org.scalactic.ArrayHelper.deep"
@@ -1278,7 +1278,7 @@ trait GenInspectorsShorthandsBase {
         }) ++
         (traversablePropertyCheckCol flatMap { case (colText, xsText) =>
           traversablePropertyCheckTypes map { case (condition, assertText, okFun, errorFun, errorValue, messageFun) =>
-            val colType = if (colText.startsWith("Array")) "Array[String]" else "GenTraversable[String]"
+            val colType = if (colText.startsWith("Array")) "Array[String]" else "Iterable[String]"
             val errorAssertFun = getSizeFun(errorFun, 0)
             val passedCount = 3 - List("hi", "boom!", "").filter(errorAssertFun).length
             (colText, condition, atLeast2ColText + assertText, colType, okFun, errorFun, errorValue, passedCount, messageFun(colType, errorFun, errorValue).toString, xsText, true)
@@ -1286,7 +1286,7 @@ trait GenInspectorsShorthandsBase {
         }).filter { case (colText, condition, _, _, _, _, _, _, _, _, _) => filterArraySymbol(colText, condition) } ++
         (traversableCheckCol flatMap { case (colText, xsText) =>
           filterScala213ParColLength(colText, traversableCheckTypes, scalaVersion) map { case (condition, assertText, okFun, errorFun, errorValue, right, messageFun) =>
-            val colType = if (colText.startsWith("Array")) "Array[String]" else "GenTraversable[String]"
+            val colType = if (colText.startsWith("Array")) "Array[String]" else "Iterable[String]"
             val errorAssertFun = getTraversableFun(errorFun, right)
             val passedCount = 3 - List(List("hi"), List("boom!"), List("hello")).filter(errorAssertFun).length
             (colText, condition, atLeast2ColText + assertText, colType, okFun, errorFun, errorValue, passedCount, messageFun(colType, errorFun, errorValue).toString, xsText, true)
@@ -1294,7 +1294,7 @@ trait GenInspectorsShorthandsBase {
         }).filter { case (colText, condition, _, _, _, _, _, _, _, _, _) => filterSetLength(colText, condition) } ++
         (mapCheckCol flatMap { case (colText, xsText) =>
           mapCheckTypes map { case (condition, assertText, okFun, errorFun, errorValue, right, messageFun) =>
-            val colType = "GenMap[String, String]"
+            val colType = "Map[String, String]"
             val errorAssertFun = getMapFun(errorFun, right)
             val passedCount = 3 - List(Map("1" -> "one", "2" -> "two", "3" -> "three"),
               Map("4" -> "four", "5" -> "five", "6" -> "six"),
@@ -1362,8 +1362,8 @@ trait GenInspectorsShorthandsBase {
                 "SharedHelpers._",
                 "FailureMessages.decorateToStringValue",
                 "org.scalatest.matchers.{BePropertyMatcher, BePropertyMatchResult, HavePropertyMatcher, HavePropertyMatchResult}",
-                "collection.GenTraversable",
-                "collection.GenMap",
+                "collection.Iterable",
+                "collection.Map",
                 "org.scalatest.refspec.RefSpec",
                 "org.scalatest.CompatParColls.Converters._",
                 "org.scalactic.ArrayHelper.deep"
@@ -1404,8 +1404,8 @@ trait GenInspectorsShorthandsBase {
               "SharedHelpers._",
               "FailureMessages.decorateToStringValue",
               "org.scalatest.matchers.{BePropertyMatcher, BePropertyMatchResult, HavePropertyMatcher, HavePropertyMatchResult}",
-              "collection.GenTraversable",
-              "collection.GenMap",
+              "collection.Iterable",
+              "collection.Map",
               "org.scalatest.refspec.RefSpec",
               "org.scalatest.CompatParColls.Converters._",
               "org.scalactic.ArrayHelper.deep"
@@ -1541,7 +1541,7 @@ trait GenInspectorsShorthandsBase {
         }) ++
         (traversablePropertyCheckCol flatMap { case (colText, xsText) =>
           traversablePropertyCheckTypes map { case (condition, assertText, okFun, errorFun, errorValue, messageFun) =>
-            val colType = if (colText.startsWith("Array")) "Array[String]" else "GenTraversable[String]"
+            val colType = if (colText.startsWith("Array")) "Array[String]" else "Iterable[String]"
             val errorAssertFun = getSizeFun(errorFun, 0)
             val passedCount = 3 - List("hi", "boom!", "").filter(errorAssertFun).length
             (colText, condition, everyColText + assertText, colType, okFun, errorFun, errorValue, passedCount, messageFun(colType, errorFun, errorValue).toString, xsText, true)
@@ -1549,7 +1549,7 @@ trait GenInspectorsShorthandsBase {
         }).filter { case (colText, condition, _, _, _, _, _, _, _, _, _) => filterArraySymbol(colText, condition) } ++
         (traversableCheckCol flatMap { case (colText, xsText) =>
           filterScala213ParColLength(colText, traversableCheckTypes, scalaVersion) map { case (condition, assertText, okFun, errorFun, errorValue, right, messageFun) =>
-            val colType = if (colText.startsWith("Array")) "Array[String]" else "GenTraversable[String]"
+            val colType = if (colText.startsWith("Array")) "Array[String]" else "Iterable[String]"
             val errorAssertFun = getTraversableFun(errorFun, right)
             val passedCount = 3 - List(List("hi"), List("boom!"), List("hello")).filter(errorAssertFun).length
             (colText, condition, everyColText + assertText, colType, okFun, errorFun, errorValue, passedCount, messageFun(colType, errorFun, errorValue).toString, xsText, true)
@@ -1579,7 +1579,7 @@ trait GenInspectorsShorthandsBase {
         }) ++
         (mapCheckCol flatMap { case (colText, xsText) =>
           mapCheckTypes map { case (condition, assertText, okFun, errorFun, errorValue, right, messageFun) =>
-            val colType = "GenMap[String, String]"
+            val colType = "Map[String, String]"
             val errorAssertFun = getMapFun(errorFun, right)
             val passedCount = 3 - List(Map("1" -> "one", "2" -> "two", "3" -> "three"),
               Map("4" -> "four", "5" -> "five", "6" -> "six"),
@@ -1625,8 +1625,8 @@ trait GenInspectorsShorthandsBase {
                 "SharedHelpers._",
                 "FailureMessages.decorateToStringValue",
                 "org.scalatest.matchers.{BePropertyMatcher, BePropertyMatchResult, HavePropertyMatcher, HavePropertyMatchResult}",
-                "collection.GenTraversable",
-                "collection.GenMap",
+                "collection.Iterable",
+                "collection.Map",
                 "org.scalatest.refspec.RefSpec",
                 "org.scalatest.CompatParColls.Converters._",
                 "org.scalactic.ArrayHelper.deep"
@@ -1667,8 +1667,8 @@ trait GenInspectorsShorthandsBase {
               "SharedHelpers._",
               "FailureMessages.decorateToStringValue",
               "org.scalatest.matchers.{BePropertyMatcher, BePropertyMatchResult, HavePropertyMatcher, HavePropertyMatchResult}",
-              "collection.GenTraversable",
-              "collection.GenMap",
+              "collection.Iterable",
+              "collection.Map",
               "org.scalatest.refspec.RefSpec",
               "org.scalatest.CompatParColls.Converters._",
               "org.scalactic.ArrayHelper.deep"
@@ -1805,7 +1805,7 @@ trait GenInspectorsShorthandsBase {
         }) ++
         (traversablePropertyCheckCol flatMap { case (colText, xsText) =>
           traversablePropertyCheckTypes map { case (condition, assertText, okFun, errorFun, errorValue, messageFun) =>
-            val colType = if (colText.startsWith("Array")) "Array[String]" else "GenTraversable[String]"
+            val colType = if (colText.startsWith("Array")) "Array[String]" else "Iterable[String]"
             val errorAssertFun = getSizeFun(errorFun, 0)
             val passedCount = 3 - List("hi", "boom!", "").filter(errorAssertFun).length
             (colText, condition, exactly3ColText + assertText, colType, okFun, errorFun, errorValue, passedCount, messageFun(colType, errorFun, errorValue).toString, xsText, true)
@@ -1813,7 +1813,7 @@ trait GenInspectorsShorthandsBase {
         }).filter { case (colText, condition, _, _, _, _, _, _, _, _, _) => filterArraySymbol(colText, condition) } ++
         (traversableCheckCol flatMap { case (colText, xsText) =>
           filterScala213ParColLength(colText, traversableCheckTypes, scalaVersion) map { case (condition, assertText, okFun, errorFun, errorValue, right, messageFun) =>
-            val colType = if (colText.startsWith("Array")) "Array[String]" else "GenTraversable[String]"
+            val colType = if (colText.startsWith("Array")) "Array[String]" else "Iterable[String]"
             val errorAssertFun = getTraversableFun(errorFun, right)
             val passedCount = 3 - List(List("hi"), List("boom!"), List("hello")).filter(errorAssertFun).length
             (colText, condition, exactly3ColText + assertText, colType, okFun, errorFun, errorValue, passedCount, messageFun(colType, errorFun, errorValue).toString, xsText, true)
@@ -1843,7 +1843,7 @@ trait GenInspectorsShorthandsBase {
         }) ++
         (mapCheckCol flatMap { case (colText, xsText) =>
           mapCheckTypes map { case (condition, assertText, okFun, errorFun, errorValue, right, messageFun) =>
-            val colType = "GenMap[String, String]"
+            val colType = "Map[String, String]"
             val errorAssertFun = getMapFun(errorFun, right)
             val passedCount = 3 - List(Map("1" -> "one", "2" -> "two", "3" -> "three"),
               Map("4" -> "four", "5" -> "five", "6" -> "six"),
@@ -1889,8 +1889,8 @@ trait GenInspectorsShorthandsBase {
                 "SharedHelpers._",
                 "FailureMessages.decorateToStringValue",
                 "org.scalatest.matchers.{BePropertyMatcher, BePropertyMatchResult, HavePropertyMatcher, HavePropertyMatchResult}",
-                "collection.GenTraversable",
-                "collection.GenMap",
+                "collection.Iterable",
+                "collection.Map",
                 "org.scalatest.refspec.RefSpec",
                 "org.scalatest.CompatParColls.Converters._",
                 "org.scalactic.ArrayHelper.deep"
@@ -1931,8 +1931,8 @@ trait GenInspectorsShorthandsBase {
               "SharedHelpers._",
               "FailureMessages.decorateToStringValue",
               "org.scalatest.matchers.{BePropertyMatcher, BePropertyMatchResult, HavePropertyMatcher, HavePropertyMatchResult}",
-              "collection.GenTraversable",
-              "collection.GenMap",
+              "collection.Iterable",
+              "collection.Map",
               "org.scalatest.refspec.RefSpec",
               "org.scalatest.CompatParColls.Converters._",
               "org.scalactic.ArrayHelper.deep"
@@ -2067,7 +2067,7 @@ trait GenInspectorsShorthandsBase {
         }) ++
         (traversablePropertyCheckCol flatMap { case (colText, xsText) =>
           traversablePropertyCheckTypes map { case (condition, assertText, okFun, errorFun, errorValue, messageFun) =>
-            val colType = if (colText.startsWith("Array")) "Array[String]" else "GenTraversable[String]"
+            val colType = if (colText.startsWith("Array")) "Array[String]" else "Iterable[String]"
             val errorAssertFun = getSizeFun(errorFun, 0)
             val passedCount = 3 - List("hi", "boom!", "").filter(errorAssertFun).length
             (colText, condition, noColText + assertText, colType, okFun, errorFun, errorValue, passedCount, messageFun(colType, errorFun, errorValue).toString, xsText, true)
@@ -2075,7 +2075,7 @@ trait GenInspectorsShorthandsBase {
         }).filter { case (colText, condition, _, _, _, _, _, _, _, _, _) => filterArraySymbol(colText, condition) } ++
         (traversableCheckCol flatMap { case (colText, xsText) =>
           filterScala213ParColLength(colText, traversableCheckTypes, scalaVersion) map { case (condition, assertText, okFun, errorFun, errorValue, right, messageFun) =>
-            val colType = if (colText.startsWith("Array")) "Array[String]" else "GenTraversable[String]"
+            val colType = if (colText.startsWith("Array")) "Array[String]" else "Iterable[String]"
             val errorAssertFun = getTraversableFun(errorFun, right)
             val passedCount = 3 - List(List("hi"), List("boom!"), List("hello")).filter(errorAssertFun).length
             (colText, condition, noColText + assertText, colType, okFun, errorFun, errorValue, passedCount, messageFun(colType, errorFun, errorValue).toString, xsText, true)
@@ -2105,7 +2105,7 @@ trait GenInspectorsShorthandsBase {
         }) ++
         (mapCheckCol flatMap { case (colText, xsText) =>
           mapCheckTypes map { case (condition, assertText, okFun, errorFun, errorValue, right, messageFun) =>
-            val colType = "GenMap[String, String]"
+            val colType = "Map[String, String]"
             val errorAssertFun = getMapFun(errorFun, right)
             val passedCount = 3 - List(Map("1" -> "one", "2" -> "two", "3" -> "three"),
               Map("4" -> "four", "5" -> "five", "6" -> "six"),
@@ -2151,8 +2151,8 @@ trait GenInspectorsShorthandsBase {
                 "SharedHelpers._",
                 "FailureMessages.decorateToStringValue",
                 "org.scalatest.matchers.{BePropertyMatcher, BePropertyMatchResult, HavePropertyMatcher, HavePropertyMatchResult}",
-                "collection.GenTraversable",
-                "collection.GenMap",
+                "collection.Iterable",
+                "collection.Map",
                 "org.scalatest.refspec.RefSpec",
                 "org.scalatest.CompatParColls.Converters._",
                 "org.scalactic.ArrayHelper.deep"
@@ -2193,8 +2193,8 @@ trait GenInspectorsShorthandsBase {
               "SharedHelpers._",
               "FailureMessages.decorateToStringValue",
               "org.scalatest.matchers.{BePropertyMatcher, BePropertyMatchResult, HavePropertyMatcher, HavePropertyMatchResult}",
-              "collection.GenTraversable",
-              "collection.GenMap",
+              "collection.Iterable",
+              "collection.Map",
               "org.scalatest.refspec.RefSpec",
               "org.scalatest.CompatParColls.Converters._",
               "org.scalactic.ArrayHelper.deep"
@@ -2331,7 +2331,7 @@ trait GenInspectorsShorthandsBase {
         }) ++
         (traversablePropertyCheckCol flatMap { case (colText, xsText) =>
           traversablePropertyCheckTypes map { case (condition, assertText, okFun, errorFun, errorValue, messageFun) =>
-            val colType = if (colText.startsWith("Array")) "Array[String]" else "GenTraversable[String]"
+            val colType = if (colText.startsWith("Array")) "Array[String]" else "Iterable[String]"
             val errorAssertFun = getSizeFun(errorFun, 0)
             val passedCount = 3 - List("hi", "boom!", "").filter(errorAssertFun).length
             (colText, condition, betweenColText + assertText, colType, okFun, errorFun, errorValue, passedCount, messageFun(colType, errorFun, errorValue).toString, xsText, true)
@@ -2339,7 +2339,7 @@ trait GenInspectorsShorthandsBase {
         }).filter { case (colText, condition, _, _, _, _, _, _, _, _, _) => filterArraySymbol(colText, condition) } ++
         (traversableCheckCol flatMap { case (colText, xsText) =>
           filterScala213ParColLength(colText, traversableCheckTypes, scalaVersion) map { case (condition, assertText, okFun, errorFun, errorValue, right, messageFun) =>
-            val colType = if (colText.startsWith("Array")) "Array[String]" else "GenTraversable[String]"
+            val colType = if (colText.startsWith("Array")) "Array[String]" else "Iterable[String]"
             val errorAssertFun = getTraversableFun(errorFun, right)
             val passedCount = 3 - List(List("hi"), List("boom!"), List("hello")).filter(errorAssertFun).length
             (colText, condition, betweenColText + assertText, colType, okFun, errorFun, errorValue, passedCount, messageFun(colType, errorFun, errorValue).toString, xsText, true)
@@ -2369,7 +2369,7 @@ trait GenInspectorsShorthandsBase {
         }) ++
         (mapCheckCol flatMap { case (colText, xsText) =>
           mapCheckTypes map { case (condition, assertText, okFun, errorFun, errorValue, right, messageFun) =>
-            val colType = "GenMap[String, String]"
+            val colType = "Map[String, String]"
             val errorAssertFun = getMapFun(errorFun, right)
             val passedCount = 3 - List(Map("1" -> "one", "2" -> "two", "3" -> "three"),
               Map("4" -> "four", "5" -> "five", "6" -> "six"),
@@ -2415,8 +2415,8 @@ trait GenInspectorsShorthandsBase {
                 "SharedHelpers._",
                 "FailureMessages.decorateToStringValue",
                 "org.scalatest.matchers.{BePropertyMatcher, BePropertyMatchResult, HavePropertyMatcher, HavePropertyMatchResult}",
-                "collection.GenTraversable",
-                "collection.GenMap",
+                "collection.Iterable",
+                "collection.Map",
                 "org.scalatest.refspec.RefSpec",
                 "org.scalatest.CompatParColls.Converters._",
                 "org.scalactic.ArrayHelper.deep"
@@ -2457,8 +2457,8 @@ trait GenInspectorsShorthandsBase {
               "SharedHelpers._",
               "FailureMessages.decorateToStringValue",
               "org.scalatest.matchers.{BePropertyMatcher, BePropertyMatchResult, HavePropertyMatcher, HavePropertyMatchResult}",
-              "collection.GenTraversable",
-              "collection.GenMap",
+              "collection.Iterable",
+              "collection.Map",
               "org.scalatest.refspec.RefSpec",
               "org.scalatest.CompatParColls.Converters._",
               "org.scalactic.ArrayHelper.deep"
@@ -2618,14 +2618,14 @@ trait GenInspectorsShorthandsBase {
         }) ++
         (traversablePropertyCheckCol flatMap { case (colText, xsText) =>
           traversablePropertyCheckTypes map { case (condition, assertText, okFun, errorFun, errorValue, messageFun) =>
-            val colType = if (colText.startsWith("Array")) "Array[String]" else "GenTraversable[String]"
+            val colType = if (colText.startsWith("Array")) "Array[String]" else "Iterable[String]"
             val passedCount = 2
             (colText, condition, atMostColText + assertText, colType, okFun, errorFun, errorValue, passedCount, messageFun(colType, errorFun, errorValue).toString, xsText, true)
           }
         }).filter { case (colText, condition, _, _, _, _, _, _, _, _, _) => filterArraySymbol(colText, condition) } ++
         (traversableCheckCol flatMap { case (colText, xsText) =>
           filterScala213ParColLength(colText, traversableCheckTypes, scalaVersion) map { case (condition, assertText, okFun, errorFun, errorValue, right, messageFun) =>
-            val colType = if (colText.startsWith("Array")) "Array[String]" else "GenTraversable[String]"
+            val colType = if (colText.startsWith("Array")) "Array[String]" else "Iterable[String]"
             val passedCount = 2
             (colText, condition, atMostColText + assertText, colType, okFun, errorFun, errorValue, passedCount, messageFun(colType, errorFun, errorValue).toString, xsText, true)
           }
@@ -2651,7 +2651,7 @@ trait GenInspectorsShorthandsBase {
         }) ++
         (mapCheckCol flatMap { case (colText, xsText) =>
           mapCheckTypes map { case (condition, assertText, okFun, errorFun, errorValue, right, messageFun) =>
-            val colType = "GenMap[String, String]"
+            val colType = "Map[String, String]"
             val passedCount = 2
             (colText, condition, atMostColText + assertText, colType, okFun, errorFun, errorValue, passedCount, messageFun(colType, errorFun, errorValue).toString, xsText, true)
           }
@@ -2689,8 +2689,8 @@ trait GenInspectorsShorthandsBase {
                 "SharedHelpers._",
                 "FailureMessages.decorateToStringValue",
                 "org.scalatest.matchers.{BePropertyMatcher, BePropertyMatchResult, HavePropertyMatcher, HavePropertyMatchResult}",
-                "collection.GenTraversable",
-                "collection.GenMap",
+                "collection.Iterable",
+                "collection.Map",
                 "org.scalatest.refspec.RefSpec",
                 "org.scalatest.CompatParColls.Converters._",
                 "org.scalactic.ArrayHelper.deep"

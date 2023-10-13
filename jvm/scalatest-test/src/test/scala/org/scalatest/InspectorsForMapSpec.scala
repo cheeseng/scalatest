@@ -16,7 +16,7 @@
 package org.scalatest
 
 import org.scalatest.prop.TableDrivenPropertyChecks
-import scala.collection.GenTraversable
+import scala.collection.Iterable
 import scala.annotation.tailrec
 import collection._
 import SharedHelpers._
@@ -31,7 +31,7 @@ class InspectorsForMapSpec extends AnyFunSpec with Inspectors with TableDrivenPr
   private val prettifier = Prettifier.default
 
   def examples =
-    Table[Map[Int, String] => collection.GenMap[Int, String]](
+    Table[Map[Int, String] => collection.Map[Int, String]](
       ("Fun"),
       // SKIP-SCALATESTJS,NATIVE-START
       ((map: Map[Int, String]) => map.par),
