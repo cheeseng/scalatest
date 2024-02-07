@@ -278,6 +278,52 @@ class ResultOfContainWord[L](left: L, shouldBeTrue: Boolean, prettifier: Prettif
    * This method enables the following syntax: 
    *
    * <pre class="stHighlight">
+   * xs should contain onlyElementsOf (1, 2)
+   *                   ^
+   * </pre>
+   **/
+  //DOTTY-ONLY infix def only(right: Any*)(implicit aggregating: Aggregating[L]): Assertion = {
+  // SKIP-DOTTY-START 
+  def onlyElementsOf(elements: Iterable[_])(implicit aggregating: Aggregating[L]): Assertion = {
+  // SKIP-DOTTY-END
+    val right = elements.toList  
+    val withFriendlyReminder = right.size == 1 && (right(0).isInstanceOf[Iterable[_]] || right(0).isInstanceOf[Every[_]])
+    if (aggregating.containsOnly(left, right) != shouldBeTrue) {
+      indicateFailure(
+        if (shouldBeTrue)
+          if (withFriendlyReminder)
+            FailureMessages.didNotContainOnlyElementsWithFriendlyReminder(prettifier, left, elements)
+          else
+            FailureMessages.didNotContainOnlyElementsOf(prettifier, left, elements)
+        else
+          if (withFriendlyReminder)
+            FailureMessages.containedOnlyElementsWithFriendlyReminder(prettifier, left, elements)
+          else
+            FailureMessages.containedOnlyElementsOf(prettifier, left, elements),
+        None,
+        pos
+      )
+    }
+    else
+      indicateSuccess(
+        if (shouldBeTrue)
+          if (withFriendlyReminder)
+            FailureMessages.containedOnlyElementsWithFriendlyReminder(prettifier, left, elements)
+          else
+            FailureMessages.containedOnlyElementsOf(prettifier, left, elements)
+        else
+          if (withFriendlyReminder)
+            FailureMessages.didNotContainOnlyElementsWithFriendlyReminder(prettifier, left, elements)
+          else
+            FailureMessages.didNotContainOnlyElementsOf(prettifier, left, elements)
+
+      )
+  }
+
+  /**
+   * This method enables the following syntax: 
+   *
+   * <pre class="stHighlight">
    * xs should contain inOrderOnly (1, 2)
    *                   ^
    * </pre>
