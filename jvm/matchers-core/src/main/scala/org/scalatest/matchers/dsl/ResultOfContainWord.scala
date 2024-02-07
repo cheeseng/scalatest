@@ -292,12 +292,12 @@ class ResultOfContainWord[L](left: L, shouldBeTrue: Boolean, prettifier: Prettif
       indicateFailure(
         if (shouldBeTrue)
           if (withFriendlyReminder)
-            FailureMessages.didNotContainOnlyElementsWithFriendlyReminder(prettifier, left, elements)
+            FailureMessages.didNotContainOnlyElementsOfWithFriendlyReminder(prettifier, left, elements)
           else
             FailureMessages.didNotContainOnlyElementsOf(prettifier, left, elements)
         else
           if (withFriendlyReminder)
-            FailureMessages.containedOnlyElementsWithFriendlyReminder(prettifier, left, elements)
+            FailureMessages.containedOnlyElementsOfWithFriendlyReminder(prettifier, left, elements)
           else
             FailureMessages.containedOnlyElementsOf(prettifier, left, elements),
         None,
@@ -308,12 +308,12 @@ class ResultOfContainWord[L](left: L, shouldBeTrue: Boolean, prettifier: Prettif
       indicateSuccess(
         if (shouldBeTrue)
           if (withFriendlyReminder)
-            FailureMessages.containedOnlyElementsWithFriendlyReminder(prettifier, left, elements)
+            FailureMessages.containedOnlyElementsOfWithFriendlyReminder(prettifier, left, elements)
           else
             FailureMessages.containedOnlyElementsOf(prettifier, left, elements)
         else
           if (withFriendlyReminder)
-            FailureMessages.didNotContainOnlyElementsWithFriendlyReminder(prettifier, left, elements)
+            FailureMessages.didNotContainOnlyElementsOfWithFriendlyReminder(prettifier, left, elements)
           else
             FailureMessages.didNotContainOnlyElementsOf(prettifier, left, elements)
 
