@@ -157,11 +157,11 @@ class EveryShouldContainOnlyLogicalAndSpec extends AnyFunSpec {
         val e1 = intercept[TestFailedException] {
           fumList should (contain only Many("happy", "birthday", "to", "you") and contain only ("fee", "fie", "foe", "fum"))
         }
-        checkMessageStackDepth(e1, Resources.didNotContainOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Many("happy", "birthday", "to", "you"))), fileName, thisLineNumber - 2)
+        checkMessageStackDepth(e1, Resources.didNotContainOnlyWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Many("happy", "birthday", "to", "you"))), fileName, thisLineNumber - 2)
         val e2 = intercept[TestFailedException] {
           fumList should (contain only ("fee", "fie", "foe", "fum") and contain only Many("happy", "birthday", "to", "you"))
         }
-        checkMessageStackDepth(e2, Resources.containedOnly(decorateToStringValue(prettifier, fumList), "\"fee\", \"fie\", \"foe\", \"fum\"") + ", but " + Resources.didNotContainOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Many("happy", "birthday", "to", "you"))), fileName, thisLineNumber - 2)
+        checkMessageStackDepth(e2, Resources.containedOnly(decorateToStringValue(prettifier, fumList), "\"fee\", \"fie\", \"foe\", \"fum\"") + ", but " + Resources.didNotContainOnlyWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Many("happy", "birthday", "to", "you"))), fileName, thisLineNumber - 2)
       }
     }
 
@@ -236,7 +236,7 @@ class EveryShouldContainOnlyLogicalAndSpec extends AnyFunSpec {
         val e1 = intercept[TestFailedException] {
           fumList should (equal (fumList) and contain only Many("happy", "birthday", "to", "you"))
         }
-        checkMessageStackDepth(e1, Resources.equaled(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, fumList)) + ", but " + Resources.didNotContainOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Many("happy", "birthday", "to", "you"))), fileName, thisLineNumber - 2)
+        checkMessageStackDepth(e1, Resources.equaled(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, fumList)) + ", but " + Resources.didNotContainOnlyWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Many("happy", "birthday", "to", "you"))), fileName, thisLineNumber - 2)
       }
     }
 
@@ -311,7 +311,7 @@ class EveryShouldContainOnlyLogicalAndSpec extends AnyFunSpec {
         val e2 = intercept[TestFailedException] {
           fumList should (be (fumList) and contain only Many("happy", "birthday", "to", "you"))
         }
-        checkMessageStackDepth(e2, Resources.wasEqualTo(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, fumList)) + ", but " + Resources.didNotContainOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Many("happy", "birthday", "to", "you"))), fileName, thisLineNumber - 2)
+        checkMessageStackDepth(e2, Resources.wasEqualTo(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, fumList)) + ", but " + Resources.didNotContainOnlyWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Many("happy", "birthday", "to", "you"))), fileName, thisLineNumber - 2)
       }
     }
 
@@ -386,7 +386,7 @@ class EveryShouldContainOnlyLogicalAndSpec extends AnyFunSpec {
         val e1 = intercept[TestFailedException] {
           fumList should (contain only Many("happy", "birthday", "to", "you") and be (fumList))
         }
-        checkMessageStackDepth(e1, Resources.didNotContainOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Many("happy", "birthday", "to", "you"))), fileName, thisLineNumber - 2)
+        checkMessageStackDepth(e1, Resources.didNotContainOnlyWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Many("happy", "birthday", "to", "you"))), fileName, thisLineNumber - 2)
       }
     }
 
@@ -466,11 +466,11 @@ class EveryShouldContainOnlyLogicalAndSpec extends AnyFunSpec {
         val e1 = intercept[TestFailedException] {
           One(Many("fee", "fie", "foe", "fum")) should (not contain only (Many("fee", "fie", "foe", "fum")) and not contain only ("happy", "birthday", "to", "you"))
         }
-        checkMessageStackDepth(e1, Resources.containedOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, One(Many("fee", "fie", "foe", "fum"))), decorateToStringValue(prettifier, Many("fee", "fie", "foe", "fum"))), fileName, thisLineNumber - 2)
+        checkMessageStackDepth(e1, Resources.containedOnlyWithFriendlyReminder(decorateToStringValue(prettifier, One(Many("fee", "fie", "foe", "fum"))), decorateToStringValue(prettifier, Many("fee", "fie", "foe", "fum"))), fileName, thisLineNumber - 2)
         val e2 = intercept[TestFailedException] {
           One(Many("fee", "fie", "foe", "fum")) should (not contain only (Many("happy", "birthday", "to", "you")) and not contain only (Many("fee", "fie", "foe", "fum")))
         }
-        checkMessageStackDepth(e2, Resources.didNotContainOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, One(Many("fee", "fie", "foe", "fum"))), decorateToStringValue(prettifier, Many("happy", "birthday", "to", "you"))) + ", but " + Resources.containedOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, One(Many("fee", "fie", "foe", "fum"))), decorateToStringValue(prettifier, Many("fee", "fie", "foe", "fum"))), fileName, thisLineNumber - 2)
+        checkMessageStackDepth(e2, Resources.didNotContainOnlyWithFriendlyReminder(decorateToStringValue(prettifier, One(Many("fee", "fie", "foe", "fum"))), decorateToStringValue(prettifier, Many("happy", "birthday", "to", "you"))) + ", but " + Resources.containedOnlyWithFriendlyReminder(decorateToStringValue(prettifier, One(Many("fee", "fie", "foe", "fum"))), decorateToStringValue(prettifier, Many("fee", "fie", "foe", "fum"))), fileName, thisLineNumber - 2)
       }
     }
 
@@ -536,7 +536,7 @@ class EveryShouldContainOnlyLogicalAndSpec extends AnyFunSpec {
         val e1 = intercept[TestFailedException] {
           One(Many("fee", "fie", "foe", "fum")) should (not equal (toList) and not contain only (Many("fee", "fie", "foe", "fum")))
         }
-        checkMessageStackDepth(e1, Resources.didNotEqual(decorateToStringValue(prettifier, One(Many("fee", "fie", "foe", "fum"))), decorateToStringValue(prettifier, toList)) + ", but " + Resources.containedOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, One(Many("fee", "fie", "foe", "fum"))), decorateToStringValue(prettifier, Many("fee", "fie", "foe", "fum"))), fileName, thisLineNumber - 2)
+        checkMessageStackDepth(e1, Resources.didNotEqual(decorateToStringValue(prettifier, One(Many("fee", "fie", "foe", "fum"))), decorateToStringValue(prettifier, toList)) + ", but " + Resources.containedOnlyWithFriendlyReminder(decorateToStringValue(prettifier, One(Many("fee", "fie", "foe", "fum"))), decorateToStringValue(prettifier, Many("fee", "fie", "foe", "fum"))), fileName, thisLineNumber - 2)
       }
     }
 
@@ -602,7 +602,7 @@ class EveryShouldContainOnlyLogicalAndSpec extends AnyFunSpec {
         val e1 = intercept[TestFailedException] {
           One(Many("fee", "fie", "foe", "fum")) should (not be (toList) and not contain only (Many("fee", "fie", "foe", "fum")))
         }
-        checkMessageStackDepth(e1, Resources.wasNotEqualTo(decorateToStringValue(prettifier, One(Many("fee", "fie", "foe", "fum"))), decorateToStringValue(prettifier, toList)) + ", but " + Resources.containedOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, One(Many("fee", "fie", "foe", "fum"))), decorateToStringValue(prettifier, Many("fee", "fie", "foe", "fum"))), fileName, thisLineNumber - 2)
+        checkMessageStackDepth(e1, Resources.wasNotEqualTo(decorateToStringValue(prettifier, One(Many("fee", "fie", "foe", "fum"))), decorateToStringValue(prettifier, toList)) + ", but " + Resources.containedOnlyWithFriendlyReminder(decorateToStringValue(prettifier, One(Many("fee", "fie", "foe", "fum"))), decorateToStringValue(prettifier, Many("fee", "fie", "foe", "fum"))), fileName, thisLineNumber - 2)
       }
     }
 

@@ -113,7 +113,7 @@ class EveryShouldContainOnlySpec extends AnyFunSpec {
         }
         e1.failedCodeFileName.get should be ("EveryShouldContainOnlySpec.scala")
         e1.failedCodeLineNumber.get should be (thisLineNumber - 3)
-        e1.message.get should be (Resources.didNotContainOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Many("happy", "birthday", "to", "you"))))
+        e1.message.get should be (Resources.didNotContainOnlyWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Many("happy", "birthday", "to", "you"))))
       }
     }
 
@@ -177,7 +177,7 @@ class EveryShouldContainOnlySpec extends AnyFunSpec {
         }
         e1.failedCodeFileName.get should be ("EveryShouldContainOnlySpec.scala")
         e1.failedCodeLineNumber.get should be (thisLineNumber - 3)
-        e1.message.get should be (Resources.didNotContainOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Many("happy", "birthday", "to", "you"))))
+        e1.message.get should be (Resources.didNotContainOnlyWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Many("happy", "birthday", "to", "you"))))
       }
     }
 
@@ -231,7 +231,7 @@ class EveryShouldContainOnlySpec extends AnyFunSpec {
         }
         e1.failedCodeFileName.get should be ("EveryShouldContainOnlySpec.scala")
         e1.failedCodeLineNumber.get should be (thisLineNumber - 3)
-        e1.message.get should be (Resources.containedOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, One(Many("happy", "birthday", "to", "you"))), decorateToStringValue(prettifier, Many("happy", "birthday", "to", "you"))))
+        e1.message.get should be (Resources.containedOnlyWithFriendlyReminder(decorateToStringValue(prettifier, One(Many("happy", "birthday", "to", "you"))), decorateToStringValue(prettifier, Many("happy", "birthday", "to", "you"))))
       }
     }
 
@@ -285,7 +285,7 @@ class EveryShouldContainOnlySpec extends AnyFunSpec {
         }
         e1.failedCodeFileName.get should be ("EveryShouldContainOnlySpec.scala")
         e1.failedCodeLineNumber.get should be (thisLineNumber - 3)
-        e1.message.get should be (Resources.containedOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, One(Many("happy", "birthday", "to", "you"))), decorateToStringValue(prettifier, Many("happy", "birthday", "to", "you"))))
+        e1.message.get should be (Resources.containedOnlyWithFriendlyReminder(decorateToStringValue(prettifier, One(Many("happy", "birthday", "to", "you"))), decorateToStringValue(prettifier, Many("happy", "birthday", "to", "you"))))
       }
     }
 
@@ -349,7 +349,7 @@ class EveryShouldContainOnlySpec extends AnyFunSpec {
         }
         e1.failedCodeFileName.get should be ("EveryShouldContainOnlySpec.scala")
         e1.failedCodeLineNumber.get should be (thisLineNumber - 3)
-        e1.message.get should be (Resources.containedOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, One(Many("happy", "birthday", "to", "you"))), decorateToStringValue(prettifier, Many("happy", "birthday", "to", "you"))))
+        e1.message.get should be (Resources.containedOnlyWithFriendlyReminder(decorateToStringValue(prettifier, One(Many("happy", "birthday", "to", "you"))), decorateToStringValue(prettifier, Many("happy", "birthday", "to", "you"))))
       }
     }
 
@@ -412,7 +412,7 @@ class EveryShouldContainOnlySpec extends AnyFunSpec {
         }
         e1.failedCodeFileName.get should be ("EveryShouldContainOnlySpec.scala")
         e1.failedCodeLineNumber.get should be (thisLineNumber - 3)
-        e1.message.get should be (Resources.containedOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, One(Many("happy", "birthday", "to", "you"))), decorateToStringValue(prettifier, Many("happy", "birthday", "to", "you"))))
+        e1.message.get should be (Resources.containedOnlyWithFriendlyReminder(decorateToStringValue(prettifier, One(Many("happy", "birthday", "to", "you"))), decorateToStringValue(prettifier, Many("happy", "birthday", "to", "you"))))
       }
     }
   }

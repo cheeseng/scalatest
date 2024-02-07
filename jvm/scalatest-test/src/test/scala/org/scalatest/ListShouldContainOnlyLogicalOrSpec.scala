@@ -153,7 +153,7 @@ class ListShouldContainOnlyLogicalOrSpec extends AnyFunSpec {
         val e1 = intercept[TestFailedException] {
           fumList should (contain only Vector("fee", "fie", "foe", "fam") or contain only Vector("happy", "birthday", "to", "you"))
         }
-        checkMessageStackDepth(e1, Resources.didNotContainOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Vector("fee", "fie", "foe", "fam"))) + ", and " + Resources.didNotContainOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Vector("happy", "birthday", "to", "you"))), fileName, thisLineNumber - 2)
+        checkMessageStackDepth(e1, Resources.didNotContainOnlyWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Vector("fee", "fie", "foe", "fam"))) + ", and " + Resources.didNotContainOnlyWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Vector("happy", "birthday", "to", "you"))), fileName, thisLineNumber - 2)
       }
     }
     
@@ -222,7 +222,7 @@ class ListShouldContainOnlyLogicalOrSpec extends AnyFunSpec {
         val e1 = intercept[TestFailedException] {
           fumList should (equal (toList) or contain only Vector("happy", "birthday", "to", "you"))
         }
-        checkMessageStackDepth(e1, Resources.didNotEqual(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, toList)) + ", and " + Resources.didNotContainOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Vector("happy", "birthday", "to", "you"))), fileName, thisLineNumber - 2)
+        checkMessageStackDepth(e1, Resources.didNotEqual(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, toList)) + ", and " + Resources.didNotContainOnlyWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Vector("happy", "birthday", "to", "you"))), fileName, thisLineNumber - 2)
       }
     }
     
@@ -291,7 +291,7 @@ class ListShouldContainOnlyLogicalOrSpec extends AnyFunSpec {
         val e1 = intercept[TestFailedException] {
           fumList should (be (toList) or contain only Vector("fie", "fee", "fam", "foe"))
         }
-        checkMessageStackDepth(e1, Resources.wasNotEqualTo(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, toList)) + ", and " + Resources.didNotContainOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Vector("fie", "fee", "fam", "foe"))), fileName, thisLineNumber - 2)
+        checkMessageStackDepth(e1, Resources.wasNotEqualTo(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, toList)) + ", and " + Resources.didNotContainOnlyWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Vector("fie", "fee", "fam", "foe"))), fileName, thisLineNumber - 2)
       }
     }
 
@@ -360,7 +360,7 @@ class ListShouldContainOnlyLogicalOrSpec extends AnyFunSpec {
         val e1 = intercept[TestFailedException] {
           fumList should (contain only Vector("fee", "fie", "foe", "fam") or be (toList))
         }
-        checkMessageStackDepth(e1, Resources.didNotContainOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Vector("fee", "fie", "foe", "fam"))) + ", and " + Resources.wasNotEqualTo(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, toList)), fileName, thisLineNumber - 2)
+        checkMessageStackDepth(e1, Resources.didNotContainOnlyWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Vector("fee", "fie", "foe", "fam"))) + ", and " + Resources.wasNotEqualTo(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, toList)), fileName, thisLineNumber - 2)
       }
     }
     
@@ -434,7 +434,7 @@ class ListShouldContainOnlyLogicalOrSpec extends AnyFunSpec {
         val e1 = intercept[TestFailedException] {
           Vector(Vector("fee", "fie", "foe", "fum")) should (not contain only (Vector("fee", "fie", "foe", "fum")) or not contain only (Vector("fee", "fie", "foe", "fum")))
         }
-        checkMessageStackDepth(e1, Resources.containedOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, Vector(Vector("fee", "fie", "foe", "fum"))), decorateToStringValue(prettifier, Vector("fee", "fie", "foe", "fum"))) + ", and " + Resources.containedOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, Vector(Vector("fee", "fie", "foe", "fum"))), decorateToStringValue(prettifier, Vector("fee", "fie", "foe", "fum"))), fileName, thisLineNumber - 2)
+        checkMessageStackDepth(e1, Resources.containedOnlyWithFriendlyReminder(decorateToStringValue(prettifier, Vector(Vector("fee", "fie", "foe", "fum"))), decorateToStringValue(prettifier, Vector("fee", "fie", "foe", "fum"))) + ", and " + Resources.containedOnlyWithFriendlyReminder(decorateToStringValue(prettifier, Vector(Vector("fee", "fie", "foe", "fum"))), decorateToStringValue(prettifier, Vector("fee", "fie", "foe", "fum"))), fileName, thisLineNumber - 2)
       }
     }
     
@@ -494,7 +494,7 @@ class ListShouldContainOnlyLogicalOrSpec extends AnyFunSpec {
         val e1 = intercept[TestFailedException] {
           Vector(Vector("fee", "fie", "foe", "fum")) should (not equal (Vector(Vector("fee", "fie", "foe", "fum"))) or not contain only (Vector("fee", "fie", "foe", "fum")))
         }
-        checkMessageStackDepth(e1, Resources.equaled(decorateToStringValue(prettifier, Vector(Vector("fee", "fie", "foe", "fum"))), decorateToStringValue(prettifier, Vector(Vector("fee", "fie", "foe", "fum")))) + ", and " + Resources.containedOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, Vector(Vector("fee", "fie", "foe", "fum"))), decorateToStringValue(prettifier, Vector("fee", "fie", "foe", "fum"))), fileName, thisLineNumber - 2)
+        checkMessageStackDepth(e1, Resources.equaled(decorateToStringValue(prettifier, Vector(Vector("fee", "fie", "foe", "fum"))), decorateToStringValue(prettifier, Vector(Vector("fee", "fie", "foe", "fum")))) + ", and " + Resources.containedOnlyWithFriendlyReminder(decorateToStringValue(prettifier, Vector(Vector("fee", "fie", "foe", "fum"))), decorateToStringValue(prettifier, Vector("fee", "fie", "foe", "fum"))), fileName, thisLineNumber - 2)
       }
     }
     
@@ -554,7 +554,7 @@ class ListShouldContainOnlyLogicalOrSpec extends AnyFunSpec {
         val e1 = intercept[TestFailedException] {
           Vector(Vector("fee", "fie", "foe", "fum")) should (not be (Vector(Vector("fee", "fie", "foe", "fum"))) or not contain only (Vector("fee", "fie", "foe", "fum")))
         }
-        checkMessageStackDepth(e1, Resources.wasEqualTo(decorateToStringValue(prettifier, Vector(Vector("fee", "fie", "foe", "fum"))), decorateToStringValue(prettifier, Vector(Vector("fee", "fie", "foe", "fum")))) + ", and " + Resources.containedOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, Vector(Vector("fee", "fie", "foe", "fum"))), decorateToStringValue(prettifier, Vector("fee", "fie", "foe", "fum"))), fileName, thisLineNumber - 2)
+        checkMessageStackDepth(e1, Resources.wasEqualTo(decorateToStringValue(prettifier, Vector(Vector("fee", "fie", "foe", "fum"))), decorateToStringValue(prettifier, Vector(Vector("fee", "fie", "foe", "fum")))) + ", and " + Resources.containedOnlyWithFriendlyReminder(decorateToStringValue(prettifier, Vector(Vector("fee", "fie", "foe", "fum"))), decorateToStringValue(prettifier, Vector("fee", "fie", "foe", "fum"))), fileName, thisLineNumber - 2)
       }
     }
     

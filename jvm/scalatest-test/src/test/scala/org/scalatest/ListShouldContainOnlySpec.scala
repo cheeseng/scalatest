@@ -114,7 +114,7 @@ class ListShouldContainOnlySpec extends AnyFunSpec {
         }
         e1.failedCodeFileName.get should be ("ListShouldContainOnlySpec.scala")
         e1.failedCodeLineNumber.get should be (thisLineNumber - 3)
-        e1.message.get should be (Resources.didNotContainOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Vector("happy", "birthday", "to", "you"))))
+        e1.message.get should be (Resources.didNotContainOnlyWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Vector("happy", "birthday", "to", "you"))))
       }
 
       it("should throw TestFailedException when used to check Vector(2, 3) should contain only (1, 2, 3)") {
@@ -198,7 +198,7 @@ class ListShouldContainOnlySpec extends AnyFunSpec {
         }
         e1.failedCodeFileName.get should be ("ListShouldContainOnlySpec.scala")
         e1.failedCodeLineNumber.get should be (thisLineNumber - 3)
-        e1.message.get should be (Resources.didNotContainOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Vector("happy", "birthday", "to", "you"))))
+        e1.message.get should be (Resources.didNotContainOnlyWithFriendlyReminder(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, Vector("happy", "birthday", "to", "you"))))
       }
     }
 
@@ -252,7 +252,7 @@ class ListShouldContainOnlySpec extends AnyFunSpec {
         }
         e1.failedCodeFileName.get should be ("ListShouldContainOnlySpec.scala")
         e1.failedCodeLineNumber.get should be (thisLineNumber - 3)
-        e1.message.get should be (Resources.containedOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, Vector(Vector("happy", "birthday", "to", "you"))), decorateToStringValue(prettifier, Vector("happy", "birthday", "to", "you"))))
+        e1.message.get should be (Resources.containedOnlyWithFriendlyReminder(decorateToStringValue(prettifier, Vector(Vector("happy", "birthday", "to", "you"))), decorateToStringValue(prettifier, Vector("happy", "birthday", "to", "you"))))
       }
     }
 
@@ -306,7 +306,7 @@ class ListShouldContainOnlySpec extends AnyFunSpec {
         }
         e1.failedCodeFileName.get should be ("ListShouldContainOnlySpec.scala")
         e1.failedCodeLineNumber.get should be (thisLineNumber - 3)
-        e1.message.get should be (Resources.containedOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, Vector(Vector("happy", "birthday", "to", "you"))), decorateToStringValue(prettifier, Vector("happy", "birthday", "to", "you"))))
+        e1.message.get should be (Resources.containedOnlyWithFriendlyReminder(decorateToStringValue(prettifier, Vector(Vector("happy", "birthday", "to", "you"))), decorateToStringValue(prettifier, Vector("happy", "birthday", "to", "you"))))
       }
     }
     
@@ -370,7 +370,7 @@ class ListShouldContainOnlySpec extends AnyFunSpec {
         }
         e1.failedCodeFileName.get should be ("ListShouldContainOnlySpec.scala")
         e1.failedCodeLineNumber.get should be (thisLineNumber - 3)
-        e1.message.get should be (Resources.containedOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, Vector(Vector("happy", "birthday", "to", "you"))), decorateToStringValue(prettifier, Vector("happy", "birthday", "to", "you"))))
+        e1.message.get should be (Resources.containedOnlyWithFriendlyReminder(decorateToStringValue(prettifier, Vector(Vector("happy", "birthday", "to", "you"))), decorateToStringValue(prettifier, Vector("happy", "birthday", "to", "you"))))
       }
     }
 
@@ -433,7 +433,7 @@ class ListShouldContainOnlySpec extends AnyFunSpec {
         }
         e1.failedCodeFileName.get should be ("ListShouldContainOnlySpec.scala")
         e1.failedCodeLineNumber.get should be (thisLineNumber - 3)
-        e1.message.get should be (Resources.containedOnlyElementsWithFriendlyReminder(decorateToStringValue(prettifier, Vector(Vector("happy", "birthday", "to", "you"))), decorateToStringValue(prettifier, Vector("happy", "birthday", "to", "you"))))
+        e1.message.get should be (Resources.containedOnlyWithFriendlyReminder(decorateToStringValue(prettifier, Vector(Vector("happy", "birthday", "to", "you"))), decorateToStringValue(prettifier, Vector("happy", "birthday", "to", "you"))))
       }
     }
   }

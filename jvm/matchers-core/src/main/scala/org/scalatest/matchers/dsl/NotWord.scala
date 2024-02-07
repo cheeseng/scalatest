@@ -1282,8 +1282,8 @@ final class NotWord {
 
             MatchResult(
               !aggregating.containsOnly(left, right),
-              if (withFriendlyReminder) Resources.rawContainedOnlyElementsWithFriendlyReminder else Resources.rawContainedOnly,
-              if (withFriendlyReminder) Resources.rawDidNotContainOnlyElementsWithFriendlyReminder else Resources.rawDidNotContainOnly,
+              if (withFriendlyReminder) Resources.rawContainedOnlyWithFriendlyReminder else Resources.rawContainedOnly,
+              if (withFriendlyReminder) Resources.rawDidNotContainOnlyWithFriendlyReminder else Resources.rawDidNotContainOnly,
               Vector(left, UnquotedString(right.map(r => FailureMessages.decorateToStringValue(prettifier, r)).mkString(", ")))
             )
           }
