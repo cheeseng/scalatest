@@ -65,6 +65,23 @@ class ListShouldContainOnlyElementsOfSpec extends AnyFunSpec {
         e1.failedCodeLineNumber.get should be (thisLineNumber - 3)
         e1.message.get should be (Resources.didNotContainOnlyElementsOf(decorateToStringValue(prettifier, fumList), decorateToStringValue(prettifier, List("happy", "birthday", "to", "you"))))
       }
+      it("should use the implicit Equality in scope") {
+        implicit val ise = upperCaseStringEquality
+        fumList should contain onlyElementsOf List("FEE", "FIE", "FOE", "FUM")
+        intercept[TestFailedException] {
+          fumList should contain onlyElementsOf List("fee", "fie", "foe")
+        }
+      }
+      it("should use an explicitly provided Equality") {
+        (fumList should contain onlyElementsOf List("FEE", "FIE", "FOE", "FUM")) (decided by upperCaseStringEquality)
+        intercept[TestFailedException] {
+          (fumList should contain onlyElementsOf List("fee", "fie", "foe")) (decided by upperCaseStringEquality)
+        }
+        intercept[TestFailedException] {
+          fumList should contain onlyElementsOf List(" FEE ", " FIE ", " FOE ", " FUM ")
+        }
+        (fumList should contain onlyElementsOf List(" FEE ", " FIE ", " FOE ", " FUM ")) (after being lowerCased and trimmed)
+      }
     }
 
   }
