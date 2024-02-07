@@ -4094,21 +4094,21 @@ trait Matchers extends Assertions with Tolerance with ShouldVerb with MatcherWor
               if (withFriendlyReminder)
                 FailureMessages.didNotContainOnlyElementsWithFriendlyReminder(prettifier, e, UnquotedString(right.map(r => FailureMessages.decorateToStringValue(prettifier, r)).mkString(", ")))
               else
-                FailureMessages.didNotContainOnlyElements(prettifier, e, UnquotedString(right.map(r => FailureMessages.decorateToStringValue(prettifier, r)).mkString(", ")))
+                FailureMessages.didNotContainOnly(prettifier, e, UnquotedString(right.map(r => FailureMessages.decorateToStringValue(prettifier, r)).mkString(", ")))
 
             else
               if (withFriendlyReminder)
                 FailureMessages.containedOnlyElementsWithFriendlyReminder(prettifier, e, UnquotedString(right.map(r => FailureMessages.decorateToStringValue(prettifier, r)).mkString(", ")))
               else
-                FailureMessages.containedOnlyElements(prettifier, e, UnquotedString(right.map(r => FailureMessages.decorateToStringValue(prettifier, r)).mkString(", "))),
+                FailureMessages.containedOnly(prettifier, e, UnquotedString(right.map(r => FailureMessages.decorateToStringValue(prettifier, r)).mkString(", "))),
             None,
             pos
           )
         }
         else indicateSuccess(
           shouldBeTrue,
-          FailureMessages.containedOnlyElements(prettifier, e, UnquotedString(right.map(r => FailureMessages.decorateToStringValue(prettifier, r)).mkString(", "))),
-          FailureMessages.didNotContainOnlyElements(prettifier, e, UnquotedString(right.map(r => FailureMessages.decorateToStringValue(prettifier, r)).mkString(", ")))
+          FailureMessages.containedOnly(prettifier, e, UnquotedString(right.map(r => FailureMessages.decorateToStringValue(prettifier, r)).mkString(", "))),
+          FailureMessages.didNotContainOnly(prettifier, e, UnquotedString(right.map(r => FailureMessages.decorateToStringValue(prettifier, r)).mkString(", ")))
         )
       }
     }
@@ -4952,12 +4952,12 @@ trait Matchers extends Assertions with Tolerance with ShouldVerb with MatcherWor
               if (withFriendlyReminder)
                 FailureMessages.didNotContainOnlyElementsWithFriendlyReminder(prettifier, e, UnquotedString(right.map(r => FailureMessages.decorateToStringValue(prettifier, r)).mkString(", ")))
               else
-                FailureMessages.didNotContainOnlyElements(prettifier, e, UnquotedString(right.map(r => FailureMessages.decorateToStringValue(prettifier, r)).mkString(", ")))
+                FailureMessages.didNotContainOnly(prettifier, e, UnquotedString(right.map(r => FailureMessages.decorateToStringValue(prettifier, r)).mkString(", ")))
             else
               if (withFriendlyReminder)
                 FailureMessages.containedOnlyElementsWithFriendlyReminder(prettifier, e, UnquotedString(right.map(r => FailureMessages.decorateToStringValue(prettifier, r)).mkString(", ")))
               else
-                FailureMessages.containedOnlyElements(prettifier, e, UnquotedString(right.map(r => FailureMessages.decorateToStringValue(prettifier, r)).mkString(", "))),
+                FailureMessages.containedOnly(prettifier, e, UnquotedString(right.map(r => FailureMessages.decorateToStringValue(prettifier, r)).mkString(", "))),
             None,
             pos
           )
@@ -4965,8 +4965,8 @@ trait Matchers extends Assertions with Tolerance with ShouldVerb with MatcherWor
         else
           indicateSuccess(
             shouldBeTrue,
-            FailureMessages.containedOnlyElements(prettifier, e, UnquotedString(right.map(r => FailureMessages.decorateToStringValue(prettifier, r)).mkString(", "))),
-            FailureMessages.didNotContainOnlyElements(prettifier, e, UnquotedString(right.map(r => FailureMessages.decorateToStringValue(prettifier, r)).mkString(", ")))
+            FailureMessages.containedOnly(prettifier, e, UnquotedString(right.map(r => FailureMessages.decorateToStringValue(prettifier, r)).mkString(", "))),
+            FailureMessages.didNotContainOnly(prettifier, e, UnquotedString(right.map(r => FailureMessages.decorateToStringValue(prettifier, r)).mkString(", ")))
           )
       }
     }

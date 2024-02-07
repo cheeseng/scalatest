@@ -64,7 +64,7 @@ class ListShouldContainOnlySpec extends AnyFunSpec {
         }
         e1.failedCodeFileName.get should be ("ListShouldContainOnlySpec.scala")
         e1.failedCodeLineNumber.get should be (thisLineNumber - 3)
-        e1.message.get should be (Resources.didNotContainOnlyElements(decorateToStringValue(prettifier, fumList), "\"happy\", \"birthday\", \"to\", \"you\""))
+        e1.message.get should be (Resources.didNotContainOnly(decorateToStringValue(prettifier, fumList), "\"happy\", \"birthday\", \"to\", \"you\""))
       }
       it("should use the implicit Equality in scope") {
         implicit val ise = upperCaseStringEquality
@@ -148,7 +148,7 @@ class ListShouldContainOnlySpec extends AnyFunSpec {
         }
         e1.failedCodeFileName.get should be ("ListShouldContainOnlySpec.scala")
         e1.failedCodeLineNumber.get should be (thisLineNumber - 3)
-        e1.message.get should be (Resources.didNotContainOnlyElements(decorateToStringValue(prettifier, fumList), "\"happy\", \"birthday\", \"to\", \"you\""))
+        e1.message.get should be (Resources.didNotContainOnly(decorateToStringValue(prettifier, fumList), "\"happy\", \"birthday\", \"to\", \"you\""))
       }
       it("should use the implicit Equality in scope") {
         implicit val ise = upperCaseStringEquality
@@ -211,7 +211,7 @@ class ListShouldContainOnlySpec extends AnyFunSpec {
         }
         e1.failedCodeFileName.get should be ("ListShouldContainOnlySpec.scala")
         e1.failedCodeLineNumber.get should be (thisLineNumber - 3)
-        e1.message.get should be (Resources.containedOnlyElements(decorateToStringValue(prettifier, toList), "\"happy\", \"birthday\", \"to\", \"you\""))
+        e1.message.get should be (Resources.containedOnly(decorateToStringValue(prettifier, toList), "\"happy\", \"birthday\", \"to\", \"you\""))
       }
       it("should use the implicit Equality in scope") {
         implicit val ise = upperCaseStringEquality
@@ -265,7 +265,7 @@ class ListShouldContainOnlySpec extends AnyFunSpec {
         }
         e1.failedCodeFileName.get should be ("ListShouldContainOnlySpec.scala")
         e1.failedCodeLineNumber.get should be (thisLineNumber - 3)
-        e1.message.get should be (Resources.containedOnlyElements(decorateToStringValue(prettifier, toList), "\"happy\", \"birthday\", \"to\", \"you\""))
+        e1.message.get should be (Resources.containedOnly(decorateToStringValue(prettifier, toList), "\"happy\", \"birthday\", \"to\", \"you\""))
       }
       it("should use the implicit Equality in scope") {
         implicit val ise = upperCaseStringEquality
@@ -319,7 +319,7 @@ class ListShouldContainOnlySpec extends AnyFunSpec {
         }
         e1.failedCodeFileName.get should be ("ListShouldContainOnlySpec.scala")
         e1.failedCodeLineNumber.get should be (thisLineNumber - 3)
-        e1.message.get should be (Resources.containedOnlyElements(decorateToStringValue(prettifier, toList), "\"happy\", \"birthday\", \"to\", \"you\""))
+        e1.message.get should be (Resources.containedOnly(decorateToStringValue(prettifier, toList), "\"happy\", \"birthday\", \"to\", \"you\""))
       }
       it("should use the implicit Equality in scope") {
         implicit val ise = upperCaseStringEquality
@@ -383,7 +383,7 @@ class ListShouldContainOnlySpec extends AnyFunSpec {
         }
         e1.failedCodeFileName.get should be ("ListShouldContainOnlySpec.scala")
         e1.failedCodeLineNumber.get should be (thisLineNumber - 3)
-        e1.message.get should be (Resources.containedOnlyElements(decorateToStringValue(prettifier, toList), "\"happy\", \"birthday\", \"to\", \"you\""))
+        e1.message.get should be (Resources.containedOnly(decorateToStringValue(prettifier, toList), "\"happy\", \"birthday\", \"to\", \"you\""))
       }
       it("should use the implicit Equality in scope") {
         implicit val ise = upperCaseStringEquality

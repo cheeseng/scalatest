@@ -441,8 +441,8 @@ final class ContainWord {
             val withFriendlyReminder = right.size == 1 && (right(0).isInstanceOf[Iterable[_]] || right(0).isInstanceOf[Every[_]])
             MatchResult(
               aggregating.containsOnly(left, right),
-              if (withFriendlyReminder) Resources.rawDidNotContainOnlyElementsWithFriendlyReminder else Resources.rawDidNotContainOnlyElements,
-              if (withFriendlyReminder) Resources.rawContainedOnlyElementsWithFriendlyReminder else Resources.rawContainedOnlyElements,
+              if (withFriendlyReminder) Resources.rawDidNotContainOnlyElementsWithFriendlyReminder else Resources.rawDidNotContainOnly,
+              if (withFriendlyReminder) Resources.rawContainedOnlyElementsWithFriendlyReminder else Resources.rawContainedOnly,
               Vector(left, UnquotedString(right.map(r => FailureMessages.decorateToStringValue(prettifier, r)).mkString(", ")))
             )
           }
