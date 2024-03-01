@@ -112,7 +112,7 @@ private[scalatest] trait Doc extends Suite { thisDoc =>
   final override lazy val nestedSuites: collection.immutable.IndexedSeq[Suite] = 
     snippets.collect {
       case IncludedSuite(suite) => suite
-    } //  for (IncludedSuite(suite) <- snippets) yield suite
+    }
 /*
 println("^^^^^^^^^^^")
 println(body.text)
