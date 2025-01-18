@@ -18,7 +18,6 @@ package org.scalactic
 import scala.util.Try
 import scala.util.Success
 import scala.util.Failure
-import scala.util.control.NonFatal
 import scala.collection.GenTraversableOnce
 import scala.collection.generic.CanBuildFrom
 import scala.collection.mutable.Builder

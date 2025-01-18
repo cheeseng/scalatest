@@ -26,7 +26,6 @@ import scala.collection.mutable.Builder
 import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
-import scala.util.control.NonFatal
 
 trait AccumulationLowPriorityImplicits {
 
