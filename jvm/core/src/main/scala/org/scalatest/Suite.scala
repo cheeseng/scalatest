@@ -58,6 +58,7 @@ import org.scalactic.Prettifier
 import org.scalatest.time.{Seconds, Span}
 import scala.collection.immutable.TreeSet
 import scala.util.control.NonFatal
+import scala.util.Try
 import org.scalatest.exceptions.StackDepthExceptionHelper._
 import Suite.formatterForSuiteAborted
 import Suite.formatterForSuiteCompleted
@@ -1609,6 +1610,25 @@ used for test events like succeeded/failed, etc.
       e.getMessage
     else
       Resources.exceptionThrown(e.getClass.getName) // Say something like, "java.lang.Exception was thrown."
+
+  def enhanceExceptionIfNeeded(e: Throwable, classLoader: ClassLoader): Throwable = 
+    e match {
+      case nsme: NoSuchMethodError =>
+        Try {
+          val message = nsme.getMessage
+          val lastIndexOfDot = message.lastIndexOf('.')
+          val className = message.take(lastIndexOfDot).split(' ').last
+          val clazz = classLoader.loadClass(className)
+          val pd = clazz.getProtectionDomain()
+          val cs = pd.getCodeSource()
+          Option(cs).map { cs =>
+            // Include the location of the loaded .class file
+            val newMessage = Resources.noSuchMethodError(message, cs.getLocation().toString())
+            new NoSuchMethodError(newMessage)
+          }.getOrElse(e)
+        }.getOrElse(e)
+      case other: Throwable => other
+    }    
 
   def indentation(level: Int) = "  " * level
   

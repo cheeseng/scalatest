@@ -37,6 +37,7 @@ import Suite.formatterForSuiteCompleted
 import Suite.formatterForSuiteStarting
 import Suite.mergeMap
 import Suite.getSuiteClassName
+import Suite.enhanceExceptionIfNeeded
 // import org.scalatest.prop.Randomizer
 import org.scalatest.prop.Seed
 
@@ -362,7 +363,7 @@ class Framework extends SbtFramework {
         }
 
         if (!NonFatal(e))
-          throw e
+          throw enhanceExceptionIfNeeded(e, loader)
       }
     }
     finally {

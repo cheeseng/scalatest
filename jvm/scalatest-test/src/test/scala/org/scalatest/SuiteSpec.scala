@@ -583,6 +583,27 @@ class SuiteSpec extends AnyFunSpec {
       assert(rep.suiteAbortedEventsReceived.length == 1)
     }
 
+    it("should fire SuiteAborted event when NoSuchMethodError is thrown in the test body, with enhanced error message") {
+
+      class NestedSuite extends AnyFunSuite {
+        test("test 1") {
+          org.scalatest.test.myMethod()
+        }
+      }
+
+      class ExampleSuite extends Suite {
+        override def nestedSuites = Vector(new NestedSuite)
+      }
+
+      val suite = new NestedSuite
+      val rep = new EventRecordingReporter
+      suite.run(None, Args(rep))
+
+      assert(rep.suiteStartingEventsReceived.length == 1)
+      assert(rep.suiteCompletedEventsReceived.length == 0)
+      assert(rep.suiteAbortedEventsReceived.length == 1)
+    }
+
   }
 }
 
