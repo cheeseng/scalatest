@@ -37,6 +37,7 @@ import Suite.formatterForSuiteCompleted
 import Suite.formatterForSuiteStarting
 import Suite.mergeMap
 import Suite.getSuiteClassName
+import Suite.allNestedSuiteIds
 // import org.scalatest.prop.Randomizer
 import org.scalatest.prop.Seed
 
@@ -301,8 +302,13 @@ class Framework extends SbtFramework {
 
         // Only exclude nested suites when using -s XXX -t XXXX, same behaviour with Runner.
         val excludeNestedSuites = hasTest && !hasNested
+        // If no test and nested selector specified, we need to include nested suites as well.
+        if (!hasTest && !hasNested) 
+          allNestedSuiteIds(suite).foreach { nestedSuiteId =>
+            suiteTags = mergeMap[String, Set[String]](List(suiteTags, Map(nestedSuiteId -> Set(SELECTED_TAG)))) { _ ++ _ }
+          }
         // For suiteTags, we need to remove them if there's entry in testTags already, because testTags is more specific.
-        Filter(if (tagsToInclude.isEmpty) Some(Set(SELECTED_TAG)) else Some(tagsToInclude + SELECTED_TAG), tagsToExclude, false, new DynaTags(suiteTags.filter(s => !testTags.contains(s._1)).toMap, testTags.toMap))
+        Filter(if (tagsToInclude.isEmpty) Some(Set(SELECTED_TAG)) else Some(tagsToInclude + SELECTED_TAG), tagsToExclude, excludeNestedSuites, new DynaTags(suiteTags.filter(s => !testTags.contains(s._1)).toMap, testTags.toMap))
       }
 
     if (!suite.isInstanceOf[DistributedTestRunnerSuite])

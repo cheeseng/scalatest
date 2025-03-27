@@ -332,6 +332,36 @@ class SuiteSuite extends RefSpec with SeveredStackTraces {
       (new ExampleSpec).execute()
     }
   }
+
+  // Simple stub Suite for testing
+  class DummySuite(val id: String, nested: => IndexedSeq[Suite]) extends Suite {
+    override def suiteId: String = id
+    override def nestedSuites: IndexedSeq[Suite] = nested
+  }
+
+  def `Suite.allNestedSuiteIds collects all nested suite IDs without repeating or looping infinitely` = {
+    // Create nested suites
+    lazy val leaf1 = new DummySuite("leaf1", IndexedSeq())
+    lazy val leaf2 = new DummySuite("leaf2", IndexedSeq())
+    lazy val mid1 = new DummySuite("mid1", IndexedSeq(leaf1, leaf2))
+    lazy val mid2 = new DummySuite("mid2", IndexedSeq(leaf2)) // shares leaf2
+    lazy val root  = new DummySuite("root", IndexedSeq(mid1, mid2))
+
+    val ids = Suite.allNestedSuiteIds(root)
+    assert(ids.toSet == Set("mid1", "mid2", "leaf1", "leaf2"))
+  }
+
+  def `Suite.allNestedSuiteIds handles cycles without infinite loop` = {
+    var loopSuite = new DummySuite("loop", IndexedSeq()) // placeholder
+
+    // Creates a cycle: A → B → A
+    lazy val suiteA = new DummySuite("A", IndexedSeq(loopSuite))
+    lazy val suiteB = new DummySuite("B", IndexedSeq(suiteA))
+    loopSuite = new DummySuite("loop", IndexedSeq(suiteB)) // closes the cycle
+
+    val ids = Suite.allNestedSuiteIds(loopSuite)
+    assert(ids.toSet == Set("B", "A"))
+  }
 }
 
 @DoNotDiscover

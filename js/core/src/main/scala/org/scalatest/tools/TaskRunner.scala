@@ -64,7 +64,6 @@ final class TaskRunner(task: TaskDef,
     implicit val execCtx = JSExecutionContext.queue
     val future = executionFuture(eventHandler, loggers)
     future.recover { case t =>
-println("GOT TO THIS RECOVER CALL")
       loggers.foreach(_.trace(t))
     }.onComplete{ _ =>
       continuation(Array.empty)
@@ -133,8 +132,13 @@ println("GOT TO THIS RECOVER CALL")
 
         // Only exclude nested suites when using -s XXX -t XXXX, same behaviour with Runner.
         val excludeNestedSuites = hasTest && !hasNested
+        // If no test and nested selector specified, we need to include nested suites as well.
+        if (!hasTest && !hasNested) 
+          allNestedSuiteIds(suite).foreach { nestedSuiteId =>
+            suiteTags = mergeMap[String, Set[String]](List(suiteTags, Map(nestedSuiteId -> Set(SELECTED_TAG)))) { _ ++ _ }
+          }
         // For suiteTags, we need to remove them if there's entry in testTags already, because testTags is more specific.
-        Filter(if (tagsToInclude.isEmpty) Some(Set(SELECTED_TAG)) else Some(tagsToInclude + SELECTED_TAG), tagsToExclude, false, new DynaTags(suiteTags.filter(s => !testTags.contains(s._1)).toMap, testTags.toMap))
+        Filter(if (tagsToInclude.isEmpty) Some(Set(SELECTED_TAG)) else Some(tagsToInclude + SELECTED_TAG), tagsToExclude, excludeNestedSuites, new DynaTags(suiteTags.filter(s => !testTags.contains(s._1)).toMap, testTags.toMap))
       }
 
     val formatter = Suite.formatterForSuiteStarting(suite)

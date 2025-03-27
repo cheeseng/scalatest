@@ -2136,6 +2136,16 @@ used for test events like succeeded/failed, etc.
     result
   }
   // SKIP-SCALATESTJS-END
+
+  def allNestedSuiteIds(suite: Suite): Seq[String] = {
+    def loop(current: Suite, visited: Set[Suite]): Seq[String] = {
+      current.nestedSuites.flatMap { nested =>
+        if (visited.contains(nested)) Seq.empty
+        else Seq(nested.suiteId) ++ loop(nested, visited + nested)
+      }
+    }
+    loop(suite, Set(suite))
+  }
 }
 
 
