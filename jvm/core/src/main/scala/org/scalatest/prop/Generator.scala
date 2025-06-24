@@ -29,110 +29,108 @@ import org.scalactic.ColCompatHelper.LazyListOrStream
 /**
   * Base type for all Generators.
   *
-  * A Generator produces a stream of values of a particular type. This is usually a mix of
-  * randomly-created values (generally built using a [[Randomizer]]), as well as some well-known
-  * ''edge cases'' that tend to cause bugs in real-world code.
+  * A `Generator` produces a stream of values of a particular type `T`. These values are typically a mix of
+  * randomly-created values (generated using a [[Randomizer]]) and well-known ''edge cases'' that are prone to
+  * causing bugs in real-world code.
   *
-  * For example, consider an ''intGenerator'' that produces a sequence of Ints. Some of these will be taken from
-  * [[Randomizer.nextInt]], which may result in any possible Int, so the values will be a very random
-  * mix of numbers. But it will also produce the known edge cases of Int:
+  * For instance, an `intGenerator` produces a sequence of `Int`s. While many values are derived from
+  * [[Randomizer.nextInt]] (covering the full range of `Int`s), it also includes critical edge cases such as:
   *
-  *   - [[Int.MinValue]], the smallest possible Int
-  *   - [[Int.MaxValue]], the largest possible Int
+  *   - [[Int.MinValue]]: the smallest possible `Int`
+  *   - [[Int.MaxValue]]: the largest possible `Int`
   *   - -1
   *   - 0
   *   - 1
   *
-  * The list of appropriate edge cases will vary from type to type, but they should be chosen so as
-  * to exercise the type broadly, and at extremes.
+  * The specific edge cases vary by type, but they are chosen to broadly and thoroughly test the type's extremes.
   *
-  * ==Creating Your Own Generators==
+  * ==Creating Custom Generators==
   *
-  * [[Generator.intGenerator]], and Generators for many other basic types, are already built into the
-  * system, so you can just use them. You can (and should) define Generators for your own types, as well.
+  * ScalaTest provides built-in `Generator`s for many basic types, such as [[Generator.intGenerator]].
+  * You are encouraged to define `Generator`s for your own custom types.
   *
-  * In most cases, you do not need to write Generators from scratch -- Generators for most non-primitive
-  * types can be composed using for comprehensions, as described in the section ''Composing Your Own
-  * Generators'' in the documentation for the [[org.scalatest.prop]] package. You can also often create
-  * them using the [[CommonGenerators.instancesOf]] method. You should only need to write a Generator
-  * from scratch for relatively primitive types, that aren't composed of other types.
+  * In most scenarios, you won't need to implement a `Generator` from scratch. `Generator`s for complex,
+  * non-primitive types can often be composed using Scala's for-comprehensions, as detailed in the
+  * "Composing Your Own Generators" section of the [[org.scalatest.prop]] package documentation.
+  * Alternatively, the [[CommonGenerators.instancesOf]] method can often simplify their creation.
+  * Direct implementation of a `Generator` from scratch is generally only necessary for relatively
+  * primitive types that are not composed of other types.
   *
-  * If you decide that you ''do'' need to build a Generator from scratch, here is a rough outline
-  * of how to go about it.
-  *
-  * First, look at the source code for some of the Generators in the [[Generator]] companion object.
-  * These follow a pretty standard pattern, that you will likely want to follow.
+  * If you determine that a custom `Generator` implementation is required, you can follow the
+  * standard pattern observed in the `Generator` companion object's source code.
   *
   * ===Size===
   *
-  * Your Generator may optionally have a concept of '''size'''. What this means varies from type to type:
-  * for a String it might be the number of characters, whereas for a List it might be the number of
-  * elements. The test system will try using the Generator with a variety of sizes; you can control
-  * the maximum and minimum sizes via [[Configuration]].
+  * Your `Generator` may optionally incorporate a concept of '''size'''. The meaning of "size" is type-dependent:
+  * for a `String`, it might refer to the number of characters; for a `List`, it could be the number of elements.
+  * The property testing system will attempt to use the `Generator` with varying sizes. You can control
+  * the minimum and maximum sizes via [[Configuration]].
   *
-  * Decide whether the concept of ''size'' is relevant for your type. If it is relevant, you should mix the
-  * [[HavingSize]] or [[HavingLength]] trait into your Generator, and you'll want to take
-  * it into account in your `next` and `shrink` functions.
+  * If the concept of "size" is relevant for your type, you should mix in the [[HavingSize]] or [[HavingLength]]
+  * trait into your `Generator`. This will require you to account for size in your `next` and `shrink` functions.
   *
   * ===Randomization===
   *
-  * The Generator should do all of its '''"random" data generation''' using the [[Randomizer]] instance passed
-  * in to it, and should return the next Randomizer with its results. [[Randomizer]] produces intentionally
-  * pseudo-random data: it ''looks'' reasonably random, but is actually entirely deterministic based on the
-  * seed used to initialize it. By consistently using Randomizer, the Generator can be re-run, producing the
-  * same values, when given an identically-seeded Randomizer. This can often make debugging much easier,
-  * since it allows you to reproduce your "random" failures.
+  * A `Generator` should perform all its '''"random" data generation''' using the [[Randomizer]] instance
+  * provided to it, and should return the updated `Randomizer` along with its results. [[Randomizer]] produces
+  * intentionally pseudo-random data that appears random but is entirely deterministic based on its initial seed.
+  * By consistently using `Randomizer`, your `Generator` can be re-run with the same values when given an
+  * identically-seeded `Randomizer`. This determinism greatly simplifies debugging by allowing you to
+  * reliably reproduce "random" failures.
   *
-  * So figure out how to create a pseudo-random value of your type using [[Randomizer]]. This will
-  * likely involve writing a function similar to the various `nextT()` functions inside of
-  * Randomizer itself.
+  * Therefore, when implementing a custom `Generator`, focus on creating pseudo-random values of your type
+  * by leveraging [[Randomizer]]'s methods, similar to the `nextT()` functions found within `Randomizer` itself.
   *
-  * ===next()===
+  * ===`nextImpl()`===
   *
-  * Using this randomization function, write a first draft of your Generator, filling in the
-  * `next()` method. This is the only required method, and should be sufficient to start using
-  * your Generator. Once this is working, you have a useful Generator.
+  * The `nextImpl` method is the core of a `Generator` and is the only method you are required to implement.
+  * It generates the next value of type `T` along with an updated `Randomizer`. Once `nextImpl` is working,
+  * your `Generator` is functional.
   *
   * ===Edges===
   *
-  * The '''edges''' are the edge cases for this type. You may have as many or as few edge cases as seem
-  * appropriate, but most types involve at least a few. Edges are generally values that are particularly
-  * big/full, or particularly small/empty. The test system will prioritize applying the edge cases to
-  * the property, since they are assumed to be the values most likely to cause failures.
+  * '''Edges''' are specific edge-case values for a given type. You can define as many or as few edge cases
+  * as appropriate, though most types benefit from at least a few. Edges typically represent values that are
+  * particularly large/full or small/empty. The property testing system prioritizes applying these edge cases
+  * to properties, as they are often the most likely to expose bugs.
   *
-  * Figure out some appropriate edge cases for your type. Override `initEdges()` to return
-  * those, and enhance `next()` to produce them before the random values. Identifying these will tend to make
-  * your property checks more effective, by catching these edge cases early.
+  * Identify suitable edge cases for your type and override the `initEdges()` method to return them.
+  * Incorporating these into your `Generator` will make your property checks more effective by catching
+  * common failure points early.
   *
   * ===Canonicals===
   *
-  * Now figure out some canonical values for your type -- a few common, ordinary values that
-  * are frequently worth testing. These will be used when shrinking your type in higher-order
-  * Generators, so it is helpful to have some. Override the `canonicals()` method to return
-  * these.
+  * '''Canonicals''' are a set of common, "ordinary" values for your type that are frequently useful for testing.
+  * These values are primarily used by higher-order `Generator`s during the [[shrink]] process. For example,
+  * when the system attempts to simplify a `List[T]`, it will try inserting canonical values of `T` into the
+  * simplified list to see if the property still fails.
   *
-  * Canonicals should always be in order from "largest" to "smallest", in the shrinking sense.
-  * This is ''not'' the same thing as starting with the largest number and ending with the smallest
-  * numerically, though! For example, the canonicals for [[Generator.byteGenerator]] are:
+  * Canonicals should be ordered from "largest" to "smallest" in the shrinking sense, meaning from less
+  * simplified to more simplified. This is not necessarily numerical order. For example, the canonicals
+  * for [[Generator.byteGenerator]] are:
   * {{{
   * private val byteCanonicals: LazyListOrStream[Byte] = LazyListOrStream(-3, 3, -2, 2, -1, 1, 0)
   * }}}
-  * Zero is "smallest" -- the most-shrunk Byte, because it is the simplest for humans. Shrinking
-  * should really be called simplifying.
+  * Here, `0` is considered the "smallest" or most-shrunk `Byte` because it is the simplest for human
+  * comprehension. The term "shrinking" is often better understood as "simplifying."
+  *
+  * You are not required to provide canonicals for a `Generator`; by default, `canonicals()` returns an
+  * empty [[LazyListOrStream]].
   *
   * ===Shrinking===
   *
-  * Optionally but preferably, your Generator can have a concept of '''shrinking'''. This starts with a value
-  * that is known to cause the property evaluation to fail, and produces a list of smaller/simpler
-  * values, to see if those also fail. So for example, if a String of length 15 causes a failure, its
-  * Generator could try Strings of length 3, and then 1, and then 0, to see if those also cause failure.
+  * Optionally, but highly recommended, your `Generator` can support '''shrinking'''. When a property evaluation
+  * fails due to a specific value, shrinking attempts to produce a list of smaller or simpler values that also
+  * cause the failure. For example, if a `String` of length 15 causes a failure, its `Generator` might try
+  * `String`s of length 3, then 1, then 0, to identify the simplest failing input.
   *
-  * You do ''not'' have to implement the [[Generator.shrink]] method, but it is helpful to do so when it makes sense;
-  * the test system will use that to produce smaller, easier-to-debug examples when something fails.
+  * While implementing the [[Generator.shrinksForValue]] method is not mandatory, it is very beneficial.
+  * The test system uses this method to provide smaller, easier-to-debug examples when a property fails.
   *
-  * One important rule: the values returned from `shrink` must always be smaller than -- not equal to --
-  * the values passed in. Otherwise, an infinite loop can result. Also, similar to Canonicals, the
-  * "largest" shrunken values should be returned at the front of this LazyListOrStream, with more shrunken values later.
+  * A crucial rule for `shrink` implementations is that the values returned must always be strictly smaller
+  * (or simpler) than the input value to prevent infinite loops. Additionally, similar to canonicals, the
+  * "largest" (least simplified) shrunken values should appear earlier in the returned [[LazyListOrStream]],
+  * followed by progressively more shrunken values.
   *
   * @tparam T the type that this Generator produces
   */
@@ -5338,5 +5336,3 @@ object Generator {
       override def shrinksForValue(valueToShrink: SortedMap[K, V]): Option[LazyListOrStream[RoseTree[SortedMap[K, V]]]] = Some(NextRoseTree(valueToShrink, SizeParam(0, 0, 0), isValid).shrinks)
     }
 }
-
-
