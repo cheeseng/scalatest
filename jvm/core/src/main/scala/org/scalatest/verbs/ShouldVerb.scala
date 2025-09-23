@@ -103,17 +103,104 @@ trait ShouldVerb {
 
   import ShouldVerb.StringShouldWrapperForVerb
 
+  // SKIP-DOTTY-START
   import scala.language.implicitConversions
+  // SKIP-DOTTY-END
 
   /**
+  // SKIP-DOTTY-START
    * Implicitly converts an object of type <code>String</code> to a <code>StringShouldWrapperForVerb</code>,
+  // SKIP-DOTTY-END 
+  //DOTTY-ONLY   * Converts an object of type <code>String</code> to a <code>StringShouldWrapperForVerb</code>,
    * to enable <code>should</code> methods to be invokable on that object.
    */
+  // SKIP-DOTTY-START 
   implicit def convertToStringShouldWrapperForVerb(o: String)(implicit position: source.Position): StringShouldWrapperForVerb =
+  // SKIP-DOTTY-END
+  //DOTTY-ONLY def convertToStringShouldWrapperForVerb(o: String)(using position: source.Position): StringShouldWrapperForVerb =
     new StringShouldWrapperForVerb {
       val leftSideString = o.trim
       val pos = position
     }
+
+  //DOTTY-ONLY   /**
+  //DOTTY-ONLY    * Extension method to support test registration in <code>FlatSpec</code> and <code>fixture.FlatSpec</code>.
+  //DOTTY-ONLY    *
+  //DOTTY-ONLY    * <p>
+  //DOTTY-ONLY    * For example, this method enables syntax such as the following in <code>FlatSpec</code>
+  //DOTTY-ONLY    * and <code>fixture.FlatSpec</code>:
+  //DOTTY-ONLY    * </p>
+  //DOTTY-ONLY    *
+  //DOTTY-ONLY    * <pre class="stHighlight">
+  //DOTTY-ONLY    * "A Stack (when empty)" should "be empty" in { ... }
+  //DOTTY-ONLY    *                        ^
+  //DOTTY-ONLY    * </pre>
+  //DOTTY-ONLY    *
+  //DOTTY-ONLY    * <p>
+  //DOTTY-ONLY    * <code>FlatSpec</code> passes in a StringVerbStringInvocation via the implicit parameter that takes
+  //DOTTY-ONLY    * three strings and results in a <code>ResultOfStringPassedToVerb</code>. This method
+  //DOTTY-ONLY    * simply invokes this function, passing in leftSideString, the verb string
+  //DOTTY-ONLY    * <code>"should"</code>, and right, and returns the result.
+  //DOTTY-ONLY    * </p>
+  //DOTTY-ONLY    */
+  //DOTTY-ONLY   extension (leftSideString: String)(using position: source.Position) infix def should(right: String)(implicit svsi: StringVerbStringInvocation): ResultOfStringPassedToVerb = convertToStringShouldWrapperForVerb(leftSideString)(using position).should(right)(using svsi)
+  //DOTTY-ONLY 
+  //DOTTY-ONLY   /**
+  //DOTTY-ONLY    * Extension method to support shared test registration in <code>FlatSpec</code> and <code>fixture.FlatSpec</code>.
+  //DOTTY-ONLY    *
+  //DOTTY-ONLY    * <p>
+  //DOTTY-ONLY    * For example, this method enables syntax such as the following in <code>FlatSpec</code>
+  //DOTTY-ONLY    * and <code>fixture.FlatSpec</code>:
+  //DOTTY-ONLY    * </p>
+  //DOTTY-ONLY    * <pre class="stHighlight">
+  //DOTTY-ONLY    * "A Stack (with one item)" should behave like nonEmptyStack(stackWithOneItem, lastValuePushed)
+  //DOTTY-ONLY    *                           ^
+  //DOTTY-ONLY    * </pre>
+  //DOTTY-ONLY    * <p>
+  //DOTTY-ONLY    * <code>FlatSpec</code> and <code>fixture.FlatSpec</code> passes in a function via the implicit parameter that takes
+  //DOTTY-ONLY    * a string and results in a <code>BehaveWord</code>. This method
+  //DOTTY-ONLY    * simply invokes this function, passing in leftSideString, and returns the result.
+  //DOTTY-ONLY    * </p>
+  //DOTTY-ONLY    */
+  //DOTTY-ONLY   extension (leftSideString: String)(using position: source.Position) infix def should(right: BehaveWord)(implicit svbli: StringVerbBehaveLikeInvocation): BehaveWord = convertToStringShouldWrapperForVerb(leftSideString)(using position).should(right)(using svbli)
+  //DOTTY-ONLY 
+  //DOTTY-ONLY   /**
+  //DOTTY-ONLY    * Extension method to support the registration of subject descriptions in <code>WordSpec</code>
+  //DOTTY-ONLY    * and <code>fixture.WordSpec</code>.
+  //DOTTY-ONLY    *
+  //DOTTY-ONLY    * <p>
+  //DOTTY-ONLY    * For example, this method enables syntax such as the following in <code>WordSpec</code>
+  //DOTTY-ONLY    * and <code>fixture.WordSpec</code>:
+  //DOTTY-ONLY    * </p>
+  //DOTTY-ONLY    * <pre class="stHighlight">
+  //DOTTY-ONLY    * "A Stack (when empty)" should { ...
+  //DOTTY-ONLY    *                        ^
+  //DOTTY-ONLY    * </pre>
+  //DOTTY-ONLY    * <p>
+  //DOTTY-ONLY    * <code>WordSpec</code> passes in a function via the implicit parameter of type <code>StringVerbBlockRegistration</code>,
+  //DOTTY-ONLY    * a function that takes two strings and a no-arg function and results in <code>Unit</code>. This method
+  //DOTTY-ONLY    * simply invokes this function, passing in leftSideString, and returns the result.
+  //DOTTY-ONLY    * </p>
+  //DOTTY-ONLY    */
+  //DOTTY-ONLY   extension (leftSideString: String)(using position: source.Position) infix def should(right: => Unit)(implicit fun: StringVerbBlockRegistration): Unit = convertToStringShouldWrapperForVerb(leftSideString)(using position).should(right)(using fun)
+  //DOTTY-ONLY 
+  //DOTTY-ONLY   /**
+  //DOTTY-ONLY    * For example, this method enables syntax such as the following in <code>WordSpec</code>
+  //DOTTY-ONLY    * and <code>fixture.WordSpec</code>:
+  //DOTTY-ONLY    * </p>
+  //DOTTY-ONLY    * <pre class="stHighlight">
+  //DOTTY-ONLY    *    def provide = afterWord("provide")
+  //DOTTY-ONLY    *   "The ScalaTest Matchers DSL" should provide {
+  //DOTTY-ONLY    *                                ^
+  //DOTTY-ONLY    * </pre>
+  //DOTTY-ONLY    * <p>
+  //DOTTY-ONLY    * <code>WordSpec</code> passes in a function via the implicit parameter that takes
+  //DOTTY-ONLY    * two strings and a <code>ResultOfAfterWordApplication</code> and results in <code>Unit</code>. This method
+  //DOTTY-ONLY    * simply invokes this function, passing in leftSideString, the verb string
+  //DOTTY-ONLY    * <code>"should"</code>, and the <code>ResultOfAfterWordApplication</code> passed to <code>should</code>.
+  //DOTTY-ONLY    * </p>
+  //DOTTY-ONLY    */
+  //DOTTY-ONLY   extension (leftSideString: String)(using position: source.Position) infix def should(resultOfAfterWordApplication: ResultOfAfterWordApplication)(implicit swawr: SubjectWithAfterWordRegistration): Unit = convertToStringShouldWrapperForVerb(leftSideString)(using position).should(resultOfAfterWordApplication)(using swawr)
 }
 
 object ShouldVerb extends ShouldVerb {
