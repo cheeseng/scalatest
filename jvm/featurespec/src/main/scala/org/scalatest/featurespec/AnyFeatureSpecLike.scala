@@ -106,8 +106,8 @@ trait AnyFeatureSpecLike extends TestSuite with Informing with Notifying with Al
     registerTestImpl(testText, testTags: _*)(testFun, pos)
   }
   // SKIP-DOTTY-END
-  //DOTTY-ONLY inline def registerTest(testText: String, testTags: Tag*)(testFun: => Any /* Assertion */)(implicit pos: source.Position): Unit = {
-  //DOTTY-ONLY   ${ source.Position.withPosition[Unit]('{(pos: source.Position) => registerTestImpl(testText, testTags: _*)(testFun, pos) }) } 
+  //DOTTY-ONLY def registerTest(testText: String, testTags: Tag*)(testFun: => Any /* Assertion */)(using pos: source.ParentPosition): Unit = {
+  //DOTTY-ONLY   registerTestImpl(testText, testTags: _*)(testFun, pos)
   //DOTTY-ONLY }
 
   private final def registerIgnoredTestImpl(testText: String, testTags: Tag*)(testFun: => Any /* Assertion */, pos: source.Position): Unit = {
