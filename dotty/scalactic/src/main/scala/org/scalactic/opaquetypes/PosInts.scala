@@ -86,16 +86,7 @@ object PosInts {
       * @return a [[PosZInt]] representing the given non-negative literal
       * @throws a compile-time error if the literal is negative or not a literal
       */
-    inline def apply[I <: Int & Singleton](inline i: I): PosZInt =
-      inline constValueOpt[I] match {
-        case Some(v: Int) =>
-          inline if v < 0 then
-            error("PosZInt cannot be instantiated with a negative integer literal")
-          else
-            v.asInstanceOf[PosZInt]
-        case None =>
-          error("PosZInt.apply requires an integer literal")
-      }
+    inline def apply[I <: Int & Singleton](inline i: I): PosZInt = ${ PosIntsMacro.posZIntApply('i) }
 
     /** Construct a [[PosZInt]] from a runtime Int if it is non-negative.
       *
@@ -391,16 +382,7 @@ object PosInts {
       * overload validates and throws for negative values.
       */
     given Conversion[Int, PosZInt] with {
-      inline def apply[I <: Int & Singleton](inline x: I): PosZInt =
-        inline constValueOpt[I] match {
-          case Some(v: Int) =>
-            inline if v < 0 then
-              error("PosZInt cannot be instantiated with a negative integer literal")
-            else
-              v.asInstanceOf[PosZInt]
-          case None =>
-            error("PosZInt conversion requires an integer literal")
-        }
+      inline def apply[I <: Int & Singleton](inline x: I): PosZInt = ${ PosIntsMacro.posZIntConversion('x) }
       def apply(x: Int): PosZInt = PosZInt.ensuringValid(x)
     }
   
