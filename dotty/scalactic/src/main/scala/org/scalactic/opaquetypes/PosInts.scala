@@ -381,10 +381,12 @@ object PosInts {
       * The inline overload checks integer literals at compile time; the runtime
       * overload validates and throws for negative values.
       */
-    given Conversion[Int, PosZInt] with {
+    /*given Conversion[Int, PosZInt] with {
       inline def apply[I <: Int & Singleton](inline x: I): PosZInt = ${ PosIntsMacro.posZIntConversion('x) }
       def apply(x: Int): PosZInt = PosZInt.ensuringValid(x)
-    }
+    }*/
+
+    inline implicit def apply(value: => Int): PosZInt = ${ PosIntsMacro.posZIntConversion('value) }
   
     /** Ordering instance for PosZInt that orders by numeric value. */
     given Ordering[PosZInt] with {
