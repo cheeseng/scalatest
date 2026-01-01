@@ -38,10 +38,6 @@ object PosInts {
     * conflict resolution in the presence of other numeric conversions.
     */
   trait PosZIntConversionsLowPriority {
-    /** Convert a [[PosZInt]] to a [[PosZLong]] with the same numeric value. */
-    given Conversion[PosZInt, PosZLong] with {
-      def apply(pos: PosZInt): PosZLong = PosZLong.ensuringValid(pos.toLong)
-    }
     /** Convert a [[PosZInt]] to a [[PosZDouble]] with the same numeric value. */
     given Conversion[PosZInt, PosZDouble] with {
       def apply(pos: PosZInt): PosZDouble = PosZDouble.ensuringValid(pos.toDouble)
@@ -312,6 +308,9 @@ object PosInts {
 
       /** Convert to Double preserving its numeric value. */
       def toDouble: Double = x.toDouble
+
+      /** Convert to PosZLong preserving its numeric value. */
+      def toPosZLong: PosZLong = x.toLong
 
       /**
         * Create an inclusive <code>Range</code> from this <code>PosZInt</code> value
