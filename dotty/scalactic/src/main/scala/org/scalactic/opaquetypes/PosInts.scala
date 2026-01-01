@@ -38,10 +38,6 @@ object PosInts {
     * conflict resolution in the presence of other numeric conversions.
     */
   trait PosZIntConversionsLowPriority {
-    /** Convert a [[PosZInt]] to a plain Long with the same numeric value. */
-    given Conversion[PosZInt, Long] with {
-      def apply(pos: PosZInt): Long = pos.toLong
-    }
     /** Convert a [[PosZInt]] to a Double preserving its numeric value. */
     given Conversion[PosZInt, Double] with {
       def apply(pos: PosZInt): Double = pos.toDouble
@@ -314,6 +310,9 @@ object PosInts {
 
       /** Return the unsigned octal string representation of the underlying Int. */
       def toOctalString: String = java.lang.Integer.toOctalString(x)
+
+      /** Convert to Long preserving its numeric value. */
+      def toLong: Long = x.toLong
 
       /**
         * Create an inclusive <code>Range</code> from this <code>PosZInt</code> value
