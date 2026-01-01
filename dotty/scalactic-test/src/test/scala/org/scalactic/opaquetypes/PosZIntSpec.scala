@@ -357,6 +357,13 @@ class PosZIntSpec extends funspec.AnyFunSpec with matchers.should.Matchers with 
       }
     }
 
+    it("should offer a toDouble method that is consistent with Int") {
+      forAll { (pzint: PosZInt) =>
+        def widen(value: Double): Double = value
+        widen(pzint.toDouble) shouldEqual widen(pzint.toDouble)
+      }
+    }
+
     it("should offer widening methods for basic types that are consistent with Int") {
       forAll { (pzint: PosZInt) =>
         def widen(value: Int): Int = value
@@ -366,10 +373,6 @@ class PosZIntSpec extends funspec.AnyFunSpec with matchers.should.Matchers with 
         def widen(value: Float): Float = value
         "widen(pzint) shouldEqual widen(pzint.toInt)" shouldNot compile
         succeed
-      }
-      forAll { (pzint: PosZInt) =>
-        def widen(value: Double): Double = value
-        widen(pzint) shouldEqual widen(pzint.toInt)
       }
       forAll { (pzint: PosZInt) =>
         def widen(value: PosZLong): PosZLong = value
