@@ -295,7 +295,7 @@ class PosZFiniteFloatSpec extends funspec.AnyFunSpec with matchers.should.Matche
     it("should offer 'round', 'ceil', and 'floor' methods that are consistent with Float") {
       forAll { (pzfloat: PosZFiniteFloat) =>
         // SKIP-SCALATESTJS,NATIVE-START
-        pzfloat.round.toFloat shouldEqual pzfloat.toFloat.round
+        pzfloat.round shouldEqual pzfloat.toFloat.round
         // SKIP-SCALATESTJS,NATIVE-END
         pzfloat.ceil.toFloat shouldEqual pzfloat.toFloat.ceil
         pzfloat.floor.toFloat shouldEqual pzfloat.toFloat.floor

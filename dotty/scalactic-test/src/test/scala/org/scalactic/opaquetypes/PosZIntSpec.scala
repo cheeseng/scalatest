@@ -186,7 +186,7 @@ class PosZIntSpec extends funspec.AnyFunSpec with matchers.should.Matchers with 
     }
     describe("when specified as a plain-old Int") {
 
-      def takesPosZInt(pos: PosZInt): Int = pos
+      def takesPosZInt(pos: PosZInt): Int = pos.value
 
       it("should compile when 8 is passed in") {
         "takesPosZInt(8)" should compile
@@ -209,125 +209,125 @@ class PosZIntSpec extends funspec.AnyFunSpec with matchers.should.Matchers with 
 
     it("should offer a unary ~ method that is consistent with Int") {
       forAll { (pzint: PosZInt) =>
-        (~pzint) shouldEqual (~(pzint.toInt))
+        (~pzint) shouldEqual (~(pzint.value))
       }
     }
 
     it("should offer a unary + method that is consistent with Int") {
       forAll { (p: PosZInt) =>
-        (+p).toInt shouldEqual (+(p.toInt))
+        (+p).value shouldEqual (+(p.value))
       }
     }
 
     it("should offer a unary - method that returns NegZInt") {
       forAll { (p: PosZInt) =>
-        (-p) shouldEqual (NegZInt.ensuringValid(-(p.toInt)))
+        (-p) shouldEqual (NegZInt.ensuringValid(-(p.value)))
       }
     }
 
     it("should offer << methods that are consistent with Int") {
       forAll { (pzint: PosZInt, shift: Int) =>
-        pzint << shift shouldEqual pzint.toInt << shift
+        pzint << shift shouldEqual pzint.value << shift
       }
       forAll { (pzint: PosZInt, shift: Long) =>
-        pzint << shift shouldEqual pzint.toInt << shift
+        pzint << shift shouldEqual pzint.value << shift
       }
     }
 
     it("should offer >>> methods that are consistent with Int") {
       forAll { (pzint: PosZInt, shift: Int) =>
-        pzint >>> shift shouldEqual pzint.toInt >>> shift
+        pzint >>> shift shouldEqual pzint.value >>> shift
       }
       forAll { (pzint: PosZInt, shift: Long) =>
-        pzint >>> shift shouldEqual pzint.toInt >>> shift
+        pzint >>> shift shouldEqual pzint.value >>> shift
       }
     }
 
     it("should offer >> methods that are consistent with Int") {
       forAll { (pzint: PosZInt, shift: Int) =>
-        pzint >> shift shouldEqual pzint.toInt >> shift
+        pzint >> shift shouldEqual pzint.value >> shift
       }
       forAll { (pzint: PosZInt, shift: Long) =>
-        pzint >> shift shouldEqual pzint.toInt >> shift
+        pzint >> shift shouldEqual pzint.value >> shift
       }
     }
 
     it("should offer a '|' method that is consistent with Int") {
       forAll { (pzint: PosZInt, byte: Byte) =>
-        (pzint | byte) shouldEqual (pzint.toInt | byte)
+        (pzint | byte) shouldEqual (pzint.value | byte)
       }
       forAll { (pzint: PosZInt, short: Short) =>
-        (pzint | short) shouldEqual (pzint.toInt | short)
+        (pzint | short) shouldEqual (pzint.value | short)
       }
       forAll { (pzint: PosZInt, char: Char) =>
-        (pzint | char) shouldEqual (pzint.toInt | char)
+        (pzint | char) shouldEqual (pzint.value | char)
       }
       forAll { (pzint: PosZInt, int: Int) =>
-        (pzint | int) shouldEqual (pzint.toInt | int)
+        (pzint | int) shouldEqual (pzint.value | int)
       }
       forAll { (pzint: PosZInt, long: Long) =>
-        (pzint | long) shouldEqual (pzint.toInt | long)
+        (pzint | long) shouldEqual (pzint.value | long)
       }
     }
 
     it("should offer an '&' method that is consistent with Int") {
       forAll { (pzint: PosZInt, byte: Byte) =>
-        (pzint & byte) shouldEqual (pzint.toInt & byte)
+        (pzint & byte) shouldEqual (pzint.value & byte)
       }
       forAll { (pzint: PosZInt, short: Short) =>
-        (pzint & short) shouldEqual (pzint.toInt & short)
+        (pzint & short) shouldEqual (pzint.value & short)
       }
       forAll { (pzint: PosZInt, char: Char) =>
-        (pzint & char) shouldEqual (pzint.toInt & char)
+        (pzint & char) shouldEqual (pzint.value & char)
       }
       forAll { (pzint: PosZInt, int: Int) =>
-        (pzint & int) shouldEqual (pzint.toInt & int)
+        (pzint & int) shouldEqual (pzint.value & int)
       }
       forAll { (pzint: PosZInt, long: Long) =>
-        (pzint & long) shouldEqual (pzint.toInt & long)
+        (pzint & long) shouldEqual (pzint.value & long)
       }
     }
 
     it("should offer an '^' method that is consistent with Int") {
       forAll { (pzint: PosZInt, byte: Byte) =>
-        (pzint ^ byte) shouldEqual (pzint.toInt ^ byte)
+        (pzint ^ byte) shouldEqual (pzint.value ^ byte)
       }
       forAll { (pzint: PosZInt, char: Char) =>
-        (pzint ^ char) shouldEqual (pzint.toInt ^ char)
+        (pzint ^ char) shouldEqual (pzint.value ^ char)
       }
       forAll { (pzint: PosZInt, short: Short) =>
-        (pzint ^ short) shouldEqual (pzint.toInt ^ short)
+        (pzint ^ short) shouldEqual (pzint.value ^ short)
       }
       forAll { (pzint: PosZInt, int: Int) =>
-        (pzint ^ int) shouldEqual (pzint.toInt ^ int)
+        (pzint ^ int) shouldEqual (pzint.value ^ int)
       }
       forAll { (pzint: PosZInt, long: Long) =>
-        (pzint ^ long) shouldEqual (pzint.toInt ^ long)
+        (pzint ^ long) shouldEqual (pzint.value ^ long)
       }
     }
 
     it("should offer 'min' and 'max' methods that are consistent with Int") {
       forAll { (pzint1: PosZInt, pzint2: PosZInt) =>
-        pzint1.max(pzint2).toInt shouldEqual pzint1.toInt.max(pzint2.toInt)
-        pzint1.min(pzint2).toInt shouldEqual pzint1.toInt.min(pzint2.toInt)
+        pzint1.max(pzint2).value shouldEqual pzint1.value.max(pzint2.value)
+        pzint1.min(pzint2).value shouldEqual pzint1.value.min(pzint2.value)
       }
     }
 
     it("should offer a 'toBinaryString' method that is consistent with Int") {
       forAll { (pzint: PosZInt) =>
-        pzint.toBinaryString shouldEqual pzint.toInt.toBinaryString
+        pzint.toBinaryString shouldEqual pzint.value.toBinaryString
       }
     }
 
     it("should offer a 'toHexString' method that is consistent with Int") {
       forAll { (pzint: PosZInt) =>
-        pzint.toHexString shouldEqual pzint.toInt.toHexString
+        pzint.toHexString shouldEqual pzint.value.toHexString
       }
     }
 
     it("should offer a 'toOctalString' method that is consistent with Int") {
       forAll { (pzint: PosZInt) =>
-        pzint.toOctalString shouldEqual pzint.toInt.toOctalString
+        pzint.toOctalString shouldEqual pzint.value.toOctalString
       }
     }
 
@@ -343,10 +343,10 @@ class PosZIntSpec extends funspec.AnyFunSpec with matchers.should.Matchers with 
           range
         }
 
-        Try(ensuringValid(pzint.to(end))) shouldEqual Try(ensuringValid(pzint.toInt.to(end)))
-        Try(ensuringValid(pzint.to(end, step))) shouldEqual Try(ensuringValid(pzint.toInt.to(end, step)))
-        Try(ensuringValid(pzint.until(end))) shouldEqual Try(ensuringValid(pzint.toInt.until(end)))
-        Try(ensuringValid(pzint.until(end, step))) shouldEqual Try(ensuringValid(pzint.toInt.until(end, step)))
+        Try(ensuringValid(pzint.to(end))) shouldEqual Try(ensuringValid(pzint.value.to(end)))
+        Try(ensuringValid(pzint.to(end, step))) shouldEqual Try(ensuringValid(pzint.value.to(end, step)))
+        Try(ensuringValid(pzint.until(end))) shouldEqual Try(ensuringValid(pzint.value.until(end)))
+        Try(ensuringValid(pzint.until(end, step))) shouldEqual Try(ensuringValid(pzint.value.until(end, step)))
       }
     }
 
@@ -367,30 +367,17 @@ class PosZIntSpec extends funspec.AnyFunSpec with matchers.should.Matchers with 
     it("should offer a toPosZLong method that is consistent with Int's toLong") {
       forAll { (pzint: PosZInt) =>
         def widen(value: PosZLong): PosZLong = value
-        widen(pzint.toPosZLong) shouldEqual widen((pzint.toLong))
+        widen(pzint.toPosZLong) shouldEqual widen(PosZLong.from(pzint.toLong).get)
       }
     }
 
-    it("should offer widening methods for basic types that are consistent with Int") {
-      forAll { (pzint: PosZInt) =>
-        def widen(value: Int): Int = value
-        widen(pzint) shouldEqual widen(pzint.toInt)
-      }
-      forAll { (pzint: PosZInt) =>
-        def widen(value: Float): Float = value
-        "widen(pzint) shouldEqual widen(pzint.toInt)" shouldNot compile
-        succeed
-      }
-      forAll { (pzint: PosZInt) =>
-        def widen(value: PosZFloat): PosZFloat = value
-        "widen(pzint) shouldEqual widen(PosZFloat.from(pzint.toInt).get)" shouldNot compile
-        succeed
-      }
+    it("should offer a toPosZDouble method that is consistent with Int's toDouble") {
       forAll { (pzint: PosZInt) =>
         def widen(value: PosZDouble): PosZDouble = value
-        widen(pzint) shouldEqual widen(PosZDouble.from(pzint.toInt).get)
+        widen(pzint.toPosZDouble) shouldEqual widen(PosZDouble.from(pzint.toDouble).get)
       }
     }
+
     it("should offer an ensuringValid method that takes an Int => Int, throwing AssertionError if the result is invalid") {
       PosZInt(33).ensuringValid(_ + 1) shouldEqual PosZInt(34)
       an [AssertionError] should be thrownBy { PosZInt.MaxValue.ensuringValid(_ + 1) }
