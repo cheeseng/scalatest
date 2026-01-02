@@ -25,8 +25,6 @@ import OptionValues.*
 
 import scala.util.{Failure, Success, Try}
 
-//import org.scalactic.StrictCheckedEquality
-
 trait PosZIntSpecSupport {
 
   implicit def tryEquality[T]: Equality[Try[T]] = new Equality[Try[T]] {

@@ -20,9 +20,7 @@ import org.scalactic.Equality
 import org.scalactic.{Pass, Fail}
 import org.scalactic.{Good, Bad}
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
-// SKIP-SCALATESTJS,NATIVE-START
 import scala.collection.immutable.NumericRange
-// SKIP-SCALATESTJS,NATIVE-END
 import scala.collection.mutable.WrappedArray
 import OptionValues.*
 
@@ -32,8 +30,6 @@ import PosLongs.PosZLong
 import NegLongs.NegZLong
 import PosFloats.PosZFloat
 import PosDoubles.PosZDouble
-
-//import org.scalactic.StrictCheckedEquality
 
 trait PosZLongSpecSupport {
 
@@ -348,7 +344,6 @@ class PosZLongSpec extends funspec.AnyFunSpec with matchers.should.Matchers with
       }
     }
 
-    // SKIP-SCALATESTJS,NATIVE-START
     it("should offer 'to' and 'until' method that is consistent with Long") {
       def rangeEqual[T](a: NumericRange[T], b: NumericRange[T]): Boolean =
         a.start == b.start && a.end == b.end && a.step == b.step
@@ -360,8 +355,7 @@ class PosZLongSpec extends funspec.AnyFunSpec with matchers.should.Matchers with
         rangeEqual(pzlong.to(end, step), pzlong.toLong.to(end, step)) shouldBe true
       }
     }
-    // SKIP-SCALATESTJS,NATIVE-END
-
+    
     it("should not offer widening methods for basic types that are consistent with Long") {
       forAll { (pzlong: PosZLong) =>
         def widen(value: Long): Long = value
