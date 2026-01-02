@@ -317,9 +317,7 @@ specifying floats so long as it is in the valid range for floats.
 
     it("should offer 'round', 'ceil', and 'floor' methods that are consistent with Float") {
       forAll { (pfloat: PosFloat) =>
-        // SKIP-SCALATESTJS,NATIVE-START
         pfloat.round shouldEqual pfloat.toFloat.round
-        // SKIP-SCALATESTJS,NATIVE-END
         pfloat.ceil.toFloat shouldEqual pfloat.toFloat.ceil
         pfloat.floor.toFloat shouldEqual pfloat.toFloat.floor
       }
