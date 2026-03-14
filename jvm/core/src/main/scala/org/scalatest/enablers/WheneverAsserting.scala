@@ -67,7 +67,7 @@ abstract class UnitWheneverAsserting {
           fun
     }
   }
-  //DOTTY-ONLY given [T]: WheneverAsserting[T] { type Result = Unit } = assertingNatureOfT
+  //DOTTY-ONLY given [T]: WheneverAsserting[T] = assertingNatureOfT
 }
 
 /**
@@ -88,7 +88,7 @@ abstract class ExpectationWheneverAsserting extends UnitWheneverAsserting {
          fun
     }
   }
-  //DOTTY-ONLY given WheneverAsserting[Expectation] { type Result = Expectation } = assertingNatureOfExpectation
+  //DOTTY-ONLY given WheneverAsserting[Expectation] = assertingNatureOfExpectation
   // SKIP-DOTTY-START
   implicit def assertingNatureOfFutureAssertion: WheneverAsserting[Future[Assertion]] { type Result = Future[Assertion] } = {
   // SKIP-DOTTY-END
@@ -102,7 +102,7 @@ abstract class ExpectationWheneverAsserting extends UnitWheneverAsserting {
           fun
     }
   }
-  //DOTTY-ONLY given WheneverAsserting[Future[Assertion]] { type Result = Future[Assertion] } = assertingNatureOfFutureAssertion
+  //DOTTY-ONLY given WheneverAsserting[Future[Assertion]] = assertingNatureOfFutureAssertion
 }
 
 /**
@@ -123,5 +123,5 @@ object WheneverAsserting extends ExpectationWheneverAsserting {
           fun
     }
   }
-  //DOTTY-ONLY given WheneverAsserting[Assertion] { type Result = Assertion } = assertingNatureOfAssertion
+  //DOTTY-ONLY given WheneverAsserting[Assertion] = assertingNatureOfAssertion
 }

@@ -130,6 +130,87 @@ abstract class ExpectationPropCheckerAsserting {
 
   import PropCheckerAsserting.PropCheckerAssertingImpl
 
+  // Helper methods moved here to ensure proper resolution in Scala 3.8.2+
+  protected[enablers] def calcSizes(minSize: PosZInt, maxSize: PosZInt, initRndm: Randomizer): (List[PosZInt], Randomizer) = {
+    @tailrec
+    def sizesLoop(sizes: List[PosZInt], count: Int, rndm: Randomizer): (List[PosZInt], Randomizer) = {
+      sizes match {
+        case Nil => sizesLoop(List(minSize), 1, rndm)
+        case szs if count < 10 =>
+          val (nextSize, nextRndm) = rndm.choosePosZInt(minSize, maxSize)
+          sizesLoop(nextSize :: sizes, count + 1, nextRndm)
+        case _ => (sizes.sorted, rndm)
+      }
+    }
+    sizesLoop(Nil, 0, initRndm)
+  }
+
+  protected[enablers] def argsAndLabels(result: PropertyCheckResult): (List[PropertyArgument], List[String]) = {
+    val (args: List[PropertyArgument], labels: List[String]) =
+      result match {
+        case PropertyCheckResult.Success(args, _) => (args.toList, List())
+        case PropertyCheckResult.Failure(_, _, names, args, _) => (args.toList, List())
+        case _ => (List(), List())
+      }
+    (args, labels)
+  }
+
+  protected[enablers] def decorateArgToStringValue(arg: PropertyArgument, prettifier: Prettifier): String =
+    decorateToStringValue(prettifier, arg.value)
+
+  protected[enablers] def prettyArgs(args: List[PropertyArgument], prettifier: Prettifier) = {
+    val strs = for((a, i) <- args.zipWithIndex) yield {
+      val argString =
+        a.label match {
+          case None => ""
+          case Some(label) => s"$label = "
+        }
+      "    " + argString +
+        decorateArgToStringValue(a, prettifier) + (if (i < args.length - 1) "," else "")
+    }
+    strs.mkString("\n")
+  }
+
+  protected[enablers] def getArgsWithSpecifiedNames(argNames: Option[List[String]], checkArgs: List[PropertyArgument]) = {
+    if (argNames.isDefined) {
+      val zipped = argNames.get zip checkArgs
+      zipped map { case (argName, arg) => arg.copy(label = Some(argName)) }
+    }
+    else
+      checkArgs
+  }
+
+  protected[enablers] def getLabelDisplay(labels: Set[String]): String =
+    if (labels.size > 0)
+      "\n  " + (if (labels.size == 1) Resources.propCheckLabel else Resources.propCheckLabels) + "\n" + labels.map("    " + _).mkString("\n")
+    else
+      ""
+
+  protected[enablers] def failureStr(failure: PropertyCheckResult.Failure, outerEx: StackDepthException, prettifier: Prettifier, argNames: Option[List[String]], labels: List[String]): String = {
+    val PropertyCheckResult.Failure(succeeded, ex, names, argsPassed, initSeed) = failure
+
+    FailureMessages.propertyException(prettifier, UnquotedString(outerEx.getClass.getSimpleName)) +
+      ( outerEx.failedCodeFileNameAndLineNumberString match { case Some(s) => " (" + s + ")"; case None => "" }) + EOL +
+      "  " + FailureMessages.propertyFailed(prettifier, succeeded) + EOL + (
+        ex match {
+          case Some(ex: Throwable) if ex.getMessage != null =>
+            "  " + FailureMessages.thrownExceptionsMessage(prettifier, UnquotedString(ex.getMessage)) + EOL
+          case _ => ""
+        }
+      ) + (
+        ex match {
+          case Some(sd: StackDepth) if sd.failedCodeFileNameAndLineNumberString.isDefined =>
+            "  " + FailureMessages.thrownExceptionsLocation(prettifier, UnquotedString(sd.failedCodeFileNameAndLineNumberString.get)) + EOL
+          case _ => ""
+        }
+      ) +
+      "  " + FailureMessages.occurredOnValues + EOL +
+      prettyArgs(getArgsWithSpecifiedNames(argNames, argsPassed), prettifier) + EOL +
+      "  )" +
+      getLabelDisplay(labels.toSet) + EOL +
+      "  " + FailureMessages.initSeed(prettifier, initSeed)
+  }
+
   // SKIP-DOTTY-START
   implicit def assertingNatureOfExpectation(implicit prettifier: Prettifier): PropCheckerAsserting[Expectation] { type Result = Expectation } = {
   // SKIP-DOTTY-END
@@ -156,7 +237,7 @@ abstract class ExpectationPropCheckerAsserting {
       }
     }
   }
-  //DOTTY-ONLY given given_assertingNatureOfExpectation(using prettifier: Prettifier): PropCheckerAsserting[Expectation] { type Result = Expectation } = assertingNatureOfExpectation(using prettifier)
+  //DOTTY-ONLY given given_assertingNatureOfExpectation(using prettifier: Prettifier): PropCheckerAsserting[Expectation] = assertingNatureOfExpectation(using prettifier)
 }
 
 object PropCheckerAsserting extends ExpectationPropCheckerAsserting {
@@ -247,7 +328,7 @@ object PropCheckerAsserting extends ExpectationPropCheckerAsserting {
 
       val initRnd = Randomizer.default // This can be set by a cmd line param.
       val initSeed = initRnd.seed
-      val (initialSizes, afterSizesRnd) = PropCheckerAsserting.calcSizes(minSize, maxSize, initRnd)
+      val (initialSizes, afterSizesRnd) = calcSizes(minSize, maxSize, initRnd)
       // ensuringValid will always succeed because /ing a PosInt by a positive number will always yield a positive or zero
       val (initEdges, afterEdgesRnd) = genA.initEdges(PosZInt.ensuringValid(config.minSuccessful / 5), afterSizesRnd)
       loop(0, 0, initEdges, afterEdgesRnd, initialSizes, initSeed) // We may need to be able to pass in a oh, pass in a key? Or grab it from the outside via cmd ln parm?
@@ -345,7 +426,7 @@ object PropCheckerAsserting extends ExpectationPropCheckerAsserting {
 
       val initRnd = Randomizer.default // This can be set by a cmd line param.
       val initSeed = initRnd.seed
-      val (initialSizes, afterSizesRnd) = PropCheckerAsserting.calcSizes(minSize, maxSize, initRnd)
+      val (initialSizes, afterSizesRnd) = calcSizes(minSize, maxSize, initRnd)
       val maxEdges = PosZInt.ensuringValid(config.minSuccessful / 5) // Because PosInt / positive Int is always going to be positive
       val (initAEdges, afterAEdgesRnd) = genA.initEdges(maxEdges, afterSizesRnd)
       val (initBEdges, afterBEdgesRnd) = genB.initEdges(maxEdges, afterAEdgesRnd)
@@ -450,7 +531,7 @@ object PropCheckerAsserting extends ExpectationPropCheckerAsserting {
 
       val initRnd = Randomizer.default // This can be set by a cmd line param.
       val initSeed = initRnd.seed
-      val (initialSizes, afterSizesRnd) = PropCheckerAsserting.calcSizes(minSize, maxSize, initRnd)
+      val (initialSizes, afterSizesRnd) = calcSizes(minSize, maxSize, initRnd)
       val maxEdges = PosZInt.ensuringValid(config.minSuccessful / 5) // Because PosInt / positive Int is always going to be positive
       val (initAEdges, afterAEdgesRnd) = genA.initEdges(maxEdges, afterSizesRnd)
       val (initBEdges, afterBEdgesRnd) = genB.initEdges(maxEdges, afterAEdgesRnd)
@@ -564,7 +645,7 @@ object PropCheckerAsserting extends ExpectationPropCheckerAsserting {
 
       val initRnd = Randomizer.default // This can be set by a cmd line param.
       val initSeed = initRnd.seed
-      val (initialSizes, afterSizesRnd) = PropCheckerAsserting.calcSizes(minSize, maxSize, initRnd)
+      val (initialSizes, afterSizesRnd) = calcSizes(minSize, maxSize, initRnd)
       val maxEdges = PosZInt.ensuringValid(config.minSuccessful / 5) // Because PosInt / positive Int is always going to be positive
       val (initAEdges, afterAEdgesRnd) = genA.initEdges(maxEdges, afterSizesRnd)
       val (initBEdges, afterBEdgesRnd) = genB.initEdges(maxEdges, afterAEdgesRnd)
@@ -684,7 +765,7 @@ object PropCheckerAsserting extends ExpectationPropCheckerAsserting {
 
       val initRnd = Randomizer.default // This can be set by a cmd line param.
       val initSeed = initRnd.seed
-      val (initialSizes, afterSizesRnd) = PropCheckerAsserting.calcSizes(minSize, maxSize, initRnd)
+      val (initialSizes, afterSizesRnd) = calcSizes(minSize, maxSize, initRnd)
       val maxEdges = PosZInt.ensuringValid(config.minSuccessful / 5) // Because PosInt / positive Int is always going to be positive
       val (initAEdges, afterAEdgesRnd) = genA.initEdges(maxEdges, afterSizesRnd)
       val (initBEdges, afterBEdgesRnd) = genB.initEdges(maxEdges, afterAEdgesRnd)
@@ -813,7 +894,7 @@ object PropCheckerAsserting extends ExpectationPropCheckerAsserting {
 
       val initRnd = Randomizer.default // This can be set by a cmd line param.
       val initSeed = initRnd.seed
-      val (initialSizes, afterSizesRnd) = PropCheckerAsserting.calcSizes(minSize, maxSize, initRnd)
+      val (initialSizes, afterSizesRnd) = calcSizes(minSize, maxSize, initRnd)
       val maxEdges = PosZInt.ensuringValid(config.minSuccessful / 5) // Because PosInt / positive Int is always going to be positive
       val (initAEdges, afterAEdgesRnd) = genA.initEdges(maxEdges, afterSizesRnd)
       val (initBEdges, afterBEdgesRnd) = genB.initEdges(maxEdges, afterAEdgesRnd)
@@ -1091,7 +1172,7 @@ object PropCheckerAsserting extends ExpectationPropCheckerAsserting {
 
       val initRnd = Randomizer.default // This can be set by a cmd line param.
       val initSeed = initRnd.seed
-      val (initialSizes, afterSizesRnd) = PropCheckerAsserting.calcSizes(minSize, maxSize, initRnd)
+      val (initialSizes, afterSizesRnd) = calcSizes(minSize, maxSize, initRnd)
       // ensuringValid will always succeed because /ing a PosInt by a positive number will always yield a positive or zero
       val (initEdges, afterEdgesRnd) = genA.initEdges(PosZInt.ensuringValid(config.minSuccessful / 5), afterSizesRnd)
 
@@ -1245,7 +1326,7 @@ object PropCheckerAsserting extends ExpectationPropCheckerAsserting {
 
       val initRnd = Randomizer.default // This can be set by a cmd line param.
       val initSeed = initRnd.seed
-      val (initialSizes, afterSizesRnd) = PropCheckerAsserting.calcSizes(minSize, maxSize, initRnd)
+      val (initialSizes, afterSizesRnd) = calcSizes(minSize, maxSize, initRnd)
       val maxEdges = PosZInt.ensuringValid(config.minSuccessful / 5) // Because PosInt / positive Int is always going to be positive
       val (initAEdges, afterAEdgesRnd) = genA.initEdges(maxEdges, afterSizesRnd)
       val (initBEdges, afterBEdgesRnd) = genB.initEdges(maxEdges, afterAEdgesRnd)
@@ -1406,7 +1487,7 @@ object PropCheckerAsserting extends ExpectationPropCheckerAsserting {
 
       val initRnd = Randomizer.default // This can be set by a cmd line param.
       val initSeed = initRnd.seed
-      val (initialSizes, afterSizesRnd) = PropCheckerAsserting.calcSizes(minSize, maxSize, initRnd)
+      val (initialSizes, afterSizesRnd) = calcSizes(minSize, maxSize, initRnd)
       val maxEdges = PosZInt.ensuringValid(config.minSuccessful / 5) // Because PosInt / positive Int is always going to be positive
       val (initAEdges, afterAEdgesRnd) = genA.initEdges(maxEdges, afterSizesRnd)
       val (initBEdges, afterBEdgesRnd) = genB.initEdges(maxEdges, afterAEdgesRnd)
@@ -1575,7 +1656,7 @@ object PropCheckerAsserting extends ExpectationPropCheckerAsserting {
 
       val initRnd = Randomizer.default // This can be set by a cmd line param.
       val initSeed = initRnd.seed
-      val (initialSizes, afterSizesRnd) = PropCheckerAsserting.calcSizes(minSize, maxSize, initRnd)
+      val (initialSizes, afterSizesRnd) = calcSizes(minSize, maxSize, initRnd)
       val maxEdges = PosZInt.ensuringValid(config.minSuccessful / 5) // Because PosInt / positive Int is always going to be positive
       val (initAEdges, afterAEdgesRnd) = genA.initEdges(maxEdges, afterSizesRnd)
       val (initBEdges, afterBEdgesRnd) = genB.initEdges(maxEdges, afterAEdgesRnd)
@@ -1752,7 +1833,7 @@ object PropCheckerAsserting extends ExpectationPropCheckerAsserting {
 
       val initRnd = Randomizer.default // This can be set by a cmd line param.
       val initSeed = initRnd.seed
-      val (initialSizes, afterSizesRnd) = PropCheckerAsserting.calcSizes(minSize, maxSize, initRnd)
+      val (initialSizes, afterSizesRnd) = calcSizes(minSize, maxSize, initRnd)
       val maxEdges = PosZInt.ensuringValid(config.minSuccessful / 5) // Because PosInt / positive Int is always going to be positive
       val (initAEdges, afterAEdgesRnd) = genA.initEdges(maxEdges, afterSizesRnd)
       val (initBEdges, afterBEdgesRnd) = genB.initEdges(maxEdges, afterAEdgesRnd)
@@ -1938,7 +2019,7 @@ object PropCheckerAsserting extends ExpectationPropCheckerAsserting {
 
       val initRnd = Randomizer.default // This can be set by a cmd line param.
       val initSeed = initRnd.seed
-      val (initialSizes, afterSizesRnd) = PropCheckerAsserting.calcSizes(minSize, maxSize, initRnd)
+      val (initialSizes, afterSizesRnd) = calcSizes(minSize, maxSize, initRnd)
       val maxEdges = PosZInt.ensuringValid(config.minSuccessful / 5) // Because PosInt / positive Int is always going to be positive
       val (initAEdges, afterAEdgesRnd) = genA.initEdges(maxEdges, afterSizesRnd)
       val (initBEdges, afterBEdgesRnd) = genB.initEdges(maxEdges, afterAEdgesRnd)
@@ -2219,7 +2300,7 @@ object PropCheckerAsserting extends ExpectationPropCheckerAsserting {
       }
     }
   }
-  //DOTTY-ONLY given given_assertingNatureOfAssertion: PropCheckerAsserting[Assertion] { type Result = Assertion } = assertingNatureOfAssertion
+  //DOTTY-ONLY given given_assertingNatureOfAssertion: PropCheckerAsserting[Assertion] = assertingNatureOfAssertion
 
   // SKIP-DOTTY-START
   implicit def assertingNatureOfFutureAssertion(implicit exeCtx: scala.concurrent.ExecutionContext): PropCheckerAsserting[Future[Assertion]] { type Result = Future[Assertion] } = {
@@ -2244,104 +2325,5 @@ object PropCheckerAsserting extends ExpectationPropCheckerAsserting {
       }
     }
   }
-  //DOTTY-ONLY given given_assertingNatureOfFutureAssertion(using exeCtx: scala.concurrent.ExecutionContext): PropCheckerAsserting[Future[Assertion]] { type Result = Future[Assertion] } = assertingNatureOfFutureAssertion(using exeCtx)
-
-  private[enablers] def argsAndLabels(result: PropertyCheckResult): (List[PropertyArgument], List[String]) = {
-
-    val (args: List[PropertyArgument], labels: List[String]) =
-      result match {
-        case PropertyCheckResult.Success(args, _) => (args.toList, List())
-        case PropertyCheckResult.Failure(_, _, names, args, _) => (args.toList, List())
-        case _ => (List(), List())
-      }
-
-    (args, labels)
-  }
-
-  private[enablers] def decorateArgToStringValue(arg: PropertyArgument, prettifier: Prettifier): String =
-    decorateToStringValue(prettifier, arg.value)
-
-  private[enablers] def prettyArgs(args: List[PropertyArgument], prettifier: Prettifier) = {
-    val strs = for((a, i) <- args.zipWithIndex) yield {
-
-      val argString =
-        a.label match {
-          case None => ""
-          case Some(label) => s"$label = "
-        }
-
-      "    " + argString +
-        decorateArgToStringValue(a, prettifier) + (if (i < args.length - 1) "," else "") /*+
-        (if (a.shrinks > 0) " // " + a.shrinks + (if (a.shrinks == 1) " shrink" else " shrinks") else "")*/
-    }
-    strs.mkString("\n")
-  }
-
-  private[enablers] def getArgsWithSpecifiedNames(argNames: Option[List[String]], checkArgs: List[PropertyArgument]) = {
-    if (argNames.isDefined) {
-      // length of scalaCheckArgs should equal length of argNames
-      val zipped = argNames.get zip checkArgs
-      zipped map { case (argName, arg) => arg.copy(label = Some(argName)) }
-    }
-    else
-      checkArgs
-  }
-
-  private[enablers] def getLabelDisplay(labels: Set[String]): String =
-    if (labels.size > 0)
-      "\n  " + (if (labels.size == 1) Resources.propCheckLabel else Resources.propCheckLabels) + "\n" + labels.map("    " + _).mkString("\n")
-    else
-      ""
-
-  /**
-    * This computes the string to display when a property check fails. It's showing quite a bit, so there's a lot
-    * to it.
-    *
-    * @param failure the actual property check failure, which contains lots of stuff we need to show
-    * @param outerEx the outer exception, generally pointing to the forAll itself
-    * @param prettifier the Prettifier that we will use to improve the error displays
-    * @param argNames the names on the property check arguments, if any
-    * @param labels
-    * @return the detailed error message to show to the user
-    */
-  private[enablers] def failureStr(failure: PropertyCheckResult.Failure, outerEx: StackDepthException, prettifier: Prettifier, argNames: Option[List[String]], labels: List[String]): String = {
-    // ex is the *inner* Exception, where we actually threw. If defined, this is typically the line
-    // that the user really cares about:
-    val PropertyCheckResult.Failure(succeeded, ex, names, argsPassed, initSeed) = failure
-
-    FailureMessages.propertyException(prettifier, UnquotedString(outerEx.getClass.getSimpleName)) +
-      ( outerEx.failedCodeFileNameAndLineNumberString match { case Some(s) => " (" + s + ")"; case None => "" }) + EOL +
-      "  " + FailureMessages.propertyFailed(prettifier, succeeded) + EOL + (
-        ex match {
-          case Some(ex: Throwable) if ex.getMessage != null =>
-            "  " + FailureMessages.thrownExceptionsMessage(prettifier, UnquotedString(ex.getMessage)) + EOL
-          case _ => ""
-        }
-      ) + (
-        ex match {
-          case Some(sd: StackDepth) if sd.failedCodeFileNameAndLineNumberString.isDefined =>
-            "  " + FailureMessages.thrownExceptionsLocation(prettifier, UnquotedString(sd.failedCodeFileNameAndLineNumberString.get)) + EOL
-          case _ => ""
-        }
-      ) +
-      "  " + FailureMessages.occurredOnValues + EOL +
-      prettyArgs(getArgsWithSpecifiedNames(argNames, argsPassed), prettifier) + EOL +
-      "  )" +
-      getLabelDisplay(labels.toSet) + EOL +
-      "  " + FailureMessages.initSeed(prettifier, initSeed)
-  }
-
-  def calcSizes(minSize: PosZInt, maxSize: PosZInt, initRndm: Randomizer): (List[PosZInt], Randomizer) = {
-    @tailrec
-    def sizesLoop(sizes: List[PosZInt], count: Int, rndm: Randomizer): (List[PosZInt], Randomizer) = {
-      sizes match {
-        case Nil => sizesLoop(List(minSize), 1, rndm)
-        case szs if count < 10 =>
-          val (nextSize, nextRndm) = rndm.choosePosZInt(minSize, maxSize)
-          sizesLoop(nextSize :: sizes, count + 1, nextRndm)
-        case _ => (sizes.sorted, rndm)
-      }
-    }
-    sizesLoop(Nil, 0, initRndm)
-  }
+  //DOTTY-ONLY given given_assertingNatureOfFutureAssertion(using exeCtx: scala.concurrent.ExecutionContext): PropCheckerAsserting[Future[Assertion]] = assertingNatureOfFutureAssertion(using exeCtx)
 }

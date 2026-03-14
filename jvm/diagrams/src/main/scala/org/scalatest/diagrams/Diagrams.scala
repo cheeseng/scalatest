@@ -324,7 +324,10 @@ object Diagrams extends Diagrams {
 
     // this is taken from expecty
     private[this] def filterAndSortByAnchor(anchorValues: List[AnchorValue]): Traversable[AnchorValue] = {
+      // SKIP-DOTTY-START
       var map = TreeMap[Int, AnchorValue]()(Ordering.by(-_))
+      // SKIP-DOTTY-END
+      //DOTTY-ONLY var map = TreeMap[Int, AnchorValue]()(using Ordering[Int].reverse)
       // values stemming from compiler generated code often have the same anchor as regular values
       // and get recorded before them; let's filter them out
       for (value <- anchorValues) if (!map.contains(value.anchor)) map += (value.anchor -> value)
@@ -346,7 +349,10 @@ object Diagrams extends Diagrams {
     }
 
     private[this] def filterAndSortByAnchorOld(anchorValues: List[AnchorValue]): Traversable[AnchorValue] = {
+      // SKIP-DOTTY-START
       var map = TreeMap[Int, AnchorValue]()(Ordering.by(-_))
+      // SKIP-DOTTY-END
+      //DOTTY-ONLY var map = TreeMap[Int, AnchorValue]()(using Ordering[Int].reverse)
       // values stemming from compiler generated code often have the same anchor as regular values
       // and get recorded before them; let's filter them out
       for (value <- anchorValues) if (!map.contains(value.anchor)) map += (value.anchor -> value)
