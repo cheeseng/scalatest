@@ -1,0 +1,94 @@
+OPAQUE TYPES IMPLEMENTATION CONTEXT
+=====================================
+
+Current Branch: feature-opaquetypes-pos-type
+PR: https://github.com/scalatest/scalatest/pull/2409
+Date: 2026-03-14
+
+PROJECT OVERVIEW
+----------------
+Working on implementing opaque types for ScalaTest's scalactic library, specifically PosZInt and related types.
+The PR implements PosZInt that passes all existing unit tests.
+
+TODAY'S WORK (2026-03-14)
+-------------------------
+1. Analyzed PosInts.scala vs PosLongs.scala to identify inconsistencies
+2. Found that PosZInt has `abs` extension method but PosZLong was missing it
+3. Added test for `abs` method in PosZLongSpec.scala
+4. Implemented `abs` method on PosZLong in PosLongs.scala
+5. All 41 tests in PosZLongSpec pass
+
+CHANGES MADE
+------------
+File: dotty/scalactic-test/src/test/scala/org/scalactic/opaquetypes/PosZLongSpec.scala
+- Added test: "should offer an 'abs' method that returns the same value"
+
+File: dotty/scalactic/src/main/scala/org/scalactic/opaquetypes/PosLongs.scala
+- Added extension method: def abs: PosZLong = x
+
+COMMIT: 322924eef "Added abs to PosZLong."
+
+DISCUSSION POINTS
+-----------------
+1. Widening conversions: User expressed that PosLong should NOT be widened to Double due to precision loss concerns
+   - PosZInt has conversions to Long, Double, PosZLong, PosZDouble
+   - PosZLong only has conversion to Long (unwrap)
+   - Decision: Keep PosZLong without Double widening conversions
+
+2. Inconsistency found: PosZInt has `def abs: PosZInt = x` but PosZLong was missing it
+   - Now resolved: Both PosZInt and PosZLong have `abs` method
+
+CURRENT STATE
+-------------
+- PosZInt: Fully implemented with all factory methods, validation, extension methods, conversions
+- PosInt: Fully implemented
+- PosZLong: Fully implemented (abs method just added)
+- PosLong: Fully implemented
+- NegInts.scala: Minimal implementation (only ensuringValid methods) - NEEDS FULL IMPLEMENTATION
+
+PATTERN ESTABLISHED
+-------------------
+For opaque numeric types (like PosZInt, PosZLong), the implementation includes:
+1. Factory methods: apply (compile-time), from, ensuringValid, tryingValid, passOrElse, goodOrElse, rightOrElse, fromOrElse
+2. Validation: isValid
+3. Constants: MaxValue, MinValue
+4. Extension methods: value, abs, max, min, string conversions (toBinaryString, toHexString, toOctalString), ranges (to, until), transformations (ensuringValid)
+5. Conversions: to underlying type (unwrap), from integer literals
+6. Ordering instance
+
+NEXT STEPS
+----------
+Recommended: Fully implement NegInts.scala following the same pattern as PosInts.scala
+- NegZInt (zero or negative): validate <= 0
+- NegInt (strictly negative, subtype of NegZInt): validate < 0
+
+This would bring NegInts to parity with PosInts and complete the opaque type implementation pattern.
+
+FILES OF INTEREST
+-----------------
+Implementation files:
+- dotty/scalactic/src/main/scala/org/scalactic/opaquetypes/PosInts.scala (667 lines, fully implemented)
+- dotty/scalactic/src/main/scala/org/scalactic/opaquetypes/PosLongs.scala (700 lines, fully implemented)
+- dotty/scalactic/src/main/scala/org/scalactic/opaquetypes/NegInts.scala (40 lines, minimal - needs work)
+
+Test files:
+- dotty/scalactic-test/src/test/scala/org/scalactic/opaquetypes/PosZIntSpec.scala
+- dotty/scalactic-test/src/test/scala/org/scalactic/opaquetypes/PosIntSpec.scala
+- dotty/scalactic-test/src/test/scala/org/scalactic/opaquetypes/PosZLongSpec.scala
+- dotty/scalactic-test/src/test/scala/org/scalactic/opaquetypes/PosLongSpec.scala
+
+Resources:
+- jvm/scalactic-macro/src/main/resources/org/scalactic/ScalacticBundle.properties
+  (Contains error messages like invalidPosZInt, invalidPosInt, invalidNegZInt, invalidNegInt, etc.)
+
+BUILD INFO
+----------
+- Scala version: 3.3.6
+- Build system: sbt 1.11.7
+- Test projects: scalactic-test (jvm), scalacticTestDotty (dotty)
+
+To run tests:
+  sbt "project scalactic-test" "testOnly *PosZLongSpec*"
+  sbt "project scalactic-test" "testOnly *PosZIntSpec*"
+
+Note: Resources.scala files are generated during build from ScalacticBundle.properties

@@ -3,28 +3,32 @@ import Keys._
 import java.io.PrintWriter
 import scala.io.Source
 
+import org.scalajs.sbtplugin.ScalaJSPlugin.autoImport.scalaJSVersion
 import scalanative.sbtplugin.ScalaNativePlugin
+
+import org.portablescala.sbtplatformdeps.PlatformDepsPlugin.autoImport._
 
 trait BuildCommons {
 
-  lazy val scalaVersionsSettings: Seq[Setting[_]] = Seq(
-    crossScalaVersions := Seq("2.13.10", "2.12.17", "2.11.12", "2.10.7"),
+  val runFlickerTests = Option(System.getenv("SCALATEST_RUN_FLICKER_TESTS")).getOrElse("FALSE").toUpperCase == "TRUE"
+
+  def scalatestJSLibraryDependencies = Def.setting {
+    Seq(
+      ("org.scala-js" %% "scalajs-test-interface" % scalaJSVersion).cross(CrossVersion.for3Use2_13), 
+      "org.scala-js" %%% "scala-js-macrotask-executor" % "1.1.1"
+    )
+  }
+
+  def scalaVersionsSettings: Seq[Setting[_]] = Seq(
+    crossScalaVersions := Seq("2.13.17", "2.12.20", "2.11.12"), 
     scalaVersion := crossScalaVersions.value.head,
   )
 
-  val runFlickerTests = Option(System.getenv("SCALATEST_RUN_FLICKER_TESTS")).getOrElse("FALSE").toUpperCase == "TRUE"
+  val sjsPrefix = "_sjs1_"  
 
-  val scalaJSVersion = Option(System.getenv("SCALAJS_VERSION")).getOrElse("1.8.0")
-  def scalatestJSLibraryDependencies =
-    Seq(
-      "org.scala-js" %% "scalajs-test-interface" % scalaJSVersion
-    )
+  val releaseVersion = "3.2.20"
 
-  val sjsPrefix = if (scalaJSVersion.startsWith("1.")) "_sjs1_" else "_sjs0.6_"  
-
-  val releaseVersion = "3.2.19"
-
-  val previousReleaseVersion = "3.2.18"
+  val previousReleaseVersion = "3.2.19"
 
   val plusJUnitVersion = "3.2.10.0"
   val plusTestNGVersion = "3.2.10.0"

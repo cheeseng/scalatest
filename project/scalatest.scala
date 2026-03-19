@@ -17,8 +17,6 @@ import com.typesafe.tools.mima.plugin.MimaKeys.{mimaPreviousArtifacts, mimaCurre
 import com.typesafe.tools.mima.core._
 import com.typesafe.tools.mima.core.ProblemFilters._
 
-import xerial.sbt.Sonatype.autoImport.sonatypePublishToBundle
-
 object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with JsBuild {
 
   // To run gentests
@@ -67,9 +65,10 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
     javaHome := getJavaHome(scalaBinaryVersion.value),
     version := releaseVersion,
     resolvers += "Sonatype Public" at "https://oss.sonatype.org/content/groups/public",
-    publishTo := sonatypePublishToBundle.value, 
+    ThisBuild / version := releaseVersion, 
+    publishTo := localStaging.value, 
     publishMavenStyle := true,
-    publishArtifact in Test := false,
+    Test / publishArtifact := false,
     pomIncludeRepository := { _ => false },
     pomExtra := (
       <url>http://www.scalatest.org</url>
@@ -104,8 +103,7 @@ object ScalatestBuild extends BuildCommons with DottyBuild with NativeBuild with
             <email>cheeseng@amaseng.com</email>
           </developer>
         </developers>
-      ),
-    credentials += getNexusCredentials,
+      )
   )
 
   def sharedSettings: Seq[Setting[_]] = 

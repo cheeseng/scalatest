@@ -112,7 +112,7 @@ trait JsBuild { this: BuildCommons =>
       name := "scalatest-app",
       organization := "org.scalatest",
       moduleName := "scalatest-app",
-      libraryDependencies ++= scalatestJSLibraryDependencies,
+      libraryDependencies ++= scalatestJSLibraryDependencies.value,
       // include the scalactic classes and resources in the jar
       mappings in (Compile, packageBin) ++= mappings.in(scalacticJS, Compile, packageBin).value,
       // include the scalactic sources in the source jar
@@ -271,7 +271,7 @@ trait JsBuild { this: BuildCommons =>
     .settings(sharedTestSettingsJS: _*)
     .settings(
       projectTitle := "ScalaTest Test",
-      scalaJSLinkerConfig ~= { _.withOptimizer(false).withSemantics(_.withStrictFloats(true)) },
+      scalaJSLinkerConfig ~= { _.withOptimizer(false) },
       sourceGenerators in Test += {
         Def.task {
           GenScalaTestJS.genTest((sourceManaged in Test).value, version.value, scalaVersion.value)
@@ -420,7 +420,7 @@ trait JsBuild { this: BuildCommons =>
                                       |import org.scalactic._
                                       |import Matchers._""".stripMargin,
       scalacOptions ++= Seq("-P:scalajs:mapSourceURI:" + rootProject.base.toURI + "->https://raw.githubusercontent.com/scalatest/scalatest/v" + version.value + "/"),
-      libraryDependencies ++= scalatestJSLibraryDependencies,
+      libraryDependencies ++= scalatestJSLibraryDependencies.value,
       //jsDependencies += RuntimeDOM % "test",
       Compile / sourceGenerators += {
         Def.task {

@@ -1,18 +1,18 @@
-addSbtPlugin("org.xerial.sbt" % "sbt-sonatype" % "3.9.4")
+addSbtPlugin("com.github.sbt" % "sbt-pgp" % "2.3.1")
+addSbtPlugin("com.github.sbt" % "sbt-ci-release" % "1.11.0")
 
-addSbtPlugin("com.jsuereth" % "sbt-pgp" % "2.0.1")
 
 addSbtPlugin("com.typesafe.sbt" % "sbt-osgi" % "0.9.6")
 
-val scalaJSVersion = Option(System.getenv("SCALAJS_VERSION")).getOrElse("1.8.0")
+val scalaJSVersion = Option(System.getenv("SCALAJS_VERSION")).getOrElse("1.20.1")
 
 addSbtPlugin("org.scala-js" % "sbt-scalajs" % scalaJSVersion)
 
-addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "0.6.1")
+addSbtPlugin("org.portable-scala" % "sbt-scalajs-crossproject" % "1.3.2")
 
-addSbtPlugin("org.portable-scala" % "sbt-scala-native-crossproject" % "0.6.1")
+addSbtPlugin("org.portable-scala" % "sbt-scala-native-crossproject" % "1.3.2")
 
-val scalaNativeVersion = Option(System.getenv("SCALANATIVE_VERSION")).getOrElse("0.5.1")
+val scalaNativeVersion = Option(System.getenv("SCALANATIVE_VERSION")).getOrElse("0.5.10")
 
 addSbtPlugin("org.scala-native" % "sbt-scala-native" % scalaNativeVersion)
 
