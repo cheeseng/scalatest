@@ -206,125 +206,125 @@ class PosIntSpec extends funspec.AnyFunSpec with matchers.should.Matchers with G
 
     it("should offer a unary ~ method that is consistent with Int") {
       forAll { (pint: PosInt) =>
-        (~pint) shouldEqual (~(pint.toInt))
+        (~pint) shouldEqual (~(pint.value))
       }
     }
 
     it("should offer a unary + method that is consistent with Int") {
       forAll { (p: PosInt) =>
-        (+p).toInt shouldEqual (+(p.toInt))
+        (+p).value shouldEqual (+(p.value))
       }
     }
 
     it("should offer a unary - method that returns NegInt") {
       forAll { (p: PosInt) =>
-        (-p) shouldEqual (NegInt.ensuringValid(-(p.toInt)))
+        (-p) shouldEqual (NegInt.ensuringValid(-(p.value)))
       }
     }
 
     it("should offer << methods that are consistent with Int") {
       forAll { (pint: PosInt, shift: Int) =>
-        pint << shift shouldEqual pint.toInt << shift
+        pint << shift shouldEqual pint.value << shift
       }
       forAll { (pint: PosInt, shift: Long) =>
-        pint << shift shouldEqual pint.toInt << shift
+        pint << shift shouldEqual pint.value << shift
       }
     }
 
     it("should offer >>> methods that are consistent with Int") {
       forAll { (pint: PosInt, shift: Int) =>
-        pint >>> shift shouldEqual pint.toInt >>> shift
+        pint >>> shift shouldEqual pint.value >>> shift
       }
       forAll { (pint: PosInt, shift: Long) =>
-        pint >>> shift shouldEqual pint.toInt >>> shift
+        pint >>> shift shouldEqual pint.value >>> shift
       }
     }
 
     it("should offer >> methods that are consistent with Int") {
       forAll { (pint: PosInt, shift: Int) =>
-        pint >> shift shouldEqual pint.toInt >> shift
+        pint >> shift shouldEqual pint.value >> shift
       }
       forAll { (pint: PosInt, shift: Long) =>
-        pint >> shift shouldEqual pint.toInt >> shift
+        pint >> shift shouldEqual pint.value >> shift
       }
     }
 
     it("should offer a '|' method that is consistent with Int") {
       forAll { (pint: PosInt, byte: Byte) =>
-        (pint | byte) shouldEqual (pint.toInt | byte)
+        (pint | byte) shouldEqual (pint.value | byte)
       }
       forAll { (pint: PosInt, short: Short) =>
-        (pint | short) shouldEqual (pint.toInt | short)
+        (pint | short) shouldEqual (pint.value | short)
       }
       forAll { (pint: PosInt, char: Char) =>
-        (pint | char) shouldEqual (pint.toInt | char)
+        (pint | char) shouldEqual (pint.value | char)
       }
       forAll { (pint: PosInt, int: Int) =>
-        (pint | int) shouldEqual (pint.toInt | int)
+        (pint | int) shouldEqual (pint.value | int)
       }
       forAll { (pint: PosInt, long: Long) =>
-        (pint | long) shouldEqual (pint.toInt | long)
+        (pint | long) shouldEqual (pint.value | long)
       }
     }
 
     it("should offer an '&' method that is consistent with Int") {
       forAll { (pint: PosInt, byte: Byte) =>
-        (pint & byte) shouldEqual (pint.toInt & byte)
+        (pint & byte) shouldEqual (pint.value & byte)
       }
       forAll { (pint: PosInt, short: Short) =>
-        (pint & short) shouldEqual (pint.toInt & short)
+        (pint & short) shouldEqual (pint.value & short)
       }
       forAll { (pint: PosInt, char: Char) =>
-        (pint & char) shouldEqual (pint.toInt & char)
+        (pint & char) shouldEqual (pint.value & char)
       }
       forAll { (pint: PosInt, int: Int) =>
-        (pint & int) shouldEqual (pint.toInt & int)
+        (pint & int) shouldEqual (pint.value & int)
       }
       forAll { (pint: PosInt, long: Long) =>
-        (pint & long) shouldEqual (pint.toInt & long)
+        (pint & long) shouldEqual (pint.value & long)
       }
     }
 
     it("should offer an '^' method that is consistent with Int") {
       forAll { (pint: PosInt, byte: Byte) =>
-        (pint ^ byte) shouldEqual (pint.toInt ^ byte)
+        (pint ^ byte) shouldEqual (pint.value ^ byte)
       }
       forAll { (pint: PosInt, char: Char) =>
-        (pint ^ char) shouldEqual (pint.toInt ^ char)
+        (pint ^ char) shouldEqual (pint.value ^ char)
       }
       forAll { (pint: PosInt, short: Short) =>
-        (pint ^ short) shouldEqual (pint.toInt ^ short)
+        (pint ^ short) shouldEqual (pint.value ^ short)
       }
       forAll { (pint: PosInt, int: Int) =>
-        (pint ^ int) shouldEqual (pint.toInt ^ int)
+        (pint ^ int) shouldEqual (pint.value ^ int)
       }
       forAll { (pint: PosInt, long: Long) =>
-        (pint ^ long) shouldEqual (pint.toInt ^ long)
+        (pint ^ long) shouldEqual (pint.value ^ long)
       }
     }
 
     it("should offer 'min' and 'max' methods that are consistent with Int") {
       forAll { (pint1: PosInt, pint2: PosInt) =>
-        pint1.max(pint2).toInt shouldEqual pint1.toInt.max(pint2.toInt)
-        pint1.min(pint2).toInt shouldEqual pint1.toInt.min(pint2.toInt)
+        pint1.max(pint2).value shouldEqual pint1.value.max(pint2.value)
+        pint1.min(pint2).value shouldEqual pint1.value.min(pint2.value)
       }
     }
 
     it("should offer a 'toBinaryString' method that is consistent with Int") {
       forAll { (pint: PosInt) =>
-        pint.toBinaryString shouldEqual pint.toInt.toBinaryString
+        pint.toBinaryString shouldEqual pint.value.toBinaryString
       }
     }
 
     it("should offer a 'toHexString' method that is consistent with Int") {
       forAll { (pint: PosInt) =>
-        pint.toHexString shouldEqual pint.toInt.toHexString
+        pint.toHexString shouldEqual pint.value.toHexString
       }
     }
 
     it("should offer a 'toOctalString' method that is consistent with Int") {
       forAll { (pint: PosInt) =>
-        pint.toOctalString shouldEqual pint.toInt.toOctalString
+        pint.toOctalString shouldEqual pint.value.toOctalString
       }
     }
 
@@ -340,10 +340,10 @@ class PosIntSpec extends funspec.AnyFunSpec with matchers.should.Matchers with G
           range
         }
 
-        Try(ensuringValid(pint.to(end))) shouldEqual Try(ensuringValid(pint.toInt.to(end)))
-        Try(ensuringValid(pint.to(end, step))) shouldEqual Try(ensuringValid(pint.toInt.to(end, step)))
-        Try(ensuringValid(pint.until(end))) shouldEqual Try(ensuringValid(pint.toInt.until(end)))
-        Try(ensuringValid(pint.until(end, step))) shouldEqual Try(ensuringValid(pint.toInt.until(end, step)))
+        Try(ensuringValid(pint.to(end))) shouldEqual Try(ensuringValid(pint.value.to(end)))
+        Try(ensuringValid(pint.to(end, step))) shouldEqual Try(ensuringValid(pint.value.to(end, step)))
+        Try(ensuringValid(pint.until(end))) shouldEqual Try(ensuringValid(pint.value.until(end)))
+        Try(ensuringValid(pint.until(end, step))) shouldEqual Try(ensuringValid(pint.value.until(end, step)))
       }
     }
 

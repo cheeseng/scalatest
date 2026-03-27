@@ -19,9 +19,6 @@ import org.scalatest.*
 import org.scalactic.Equality
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest.prop.PropertyChecks
-// SKIP-SCALATESTJS,NATIVE-START
-import scala.collection.immutable.NumericRange
-// SKIP-SCALATESTJS,NATIVE-END
 import scala.collection.mutable.WrappedArray
 import OptionValues.*
 import scala.util.{Failure, Success, Try}

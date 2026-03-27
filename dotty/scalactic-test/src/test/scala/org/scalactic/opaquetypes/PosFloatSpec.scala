@@ -19,9 +19,6 @@ import org.scalatest.*
 import OptionValues.*
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest.prop.PropertyChecks
-// SKIP-SCALATESTJS,NATIVE-START
-import scala.collection.immutable.NumericRange
-// SKIP-SCALATESTJS,NATIVE-END
 import scala.util.{Failure, Success, Try}
 import org.scalactic.{Good, Bad}
 import org.scalactic.{Pass, Fail}
@@ -317,9 +314,7 @@ specifying floats so long as it is in the valid range for floats.
 
     it("should offer 'round', 'ceil', and 'floor' methods that are consistent with Float") {
       forAll { (pfloat: PosFloat) =>
-        // SKIP-SCALATESTJS,NATIVE-START
-        pfloat.round.toFloat shouldEqual pfloat.toFloat.round
-        // SKIP-SCALATESTJS,NATIVE-END
+        pfloat.round shouldEqual pfloat.toFloat.round
         pfloat.ceil.toFloat shouldEqual pfloat.toFloat.ceil
         pfloat.floor.toFloat shouldEqual pfloat.toFloat.floor
       }

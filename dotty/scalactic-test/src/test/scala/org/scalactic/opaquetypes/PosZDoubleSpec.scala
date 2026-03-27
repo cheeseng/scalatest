@@ -17,12 +17,8 @@ package org.scalactic.opaquetypes
 
 import org.scalatest.*
 import org.scalatest.prop.PropertyChecks
-// SKIP-SCALATESTJS,NATIVE-START
-import scala.collection.immutable.NumericRange
-// SKIP-SCALATESTJS,NATIVE-END
 import OptionValues.*
 import scala.collection.mutable.WrappedArray
-//import org.scalactic.StrictCheckedEquality
 import Double.NaN
 import org.scalactic.Equality
 import org.scalactic.{Pass, Fail}

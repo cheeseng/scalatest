@@ -18,12 +18,8 @@ package org.scalactic.opaquetypes
 import org.scalatest.*
 import org.scalatest.prop.PropertyChecks
 import org.scalactic.TypeCheckedTripleEquals
-// SKIP-SCALATESTJS,NATIVE-START
-import scala.collection.immutable.NumericRange
-// SKIP-SCALATESTJS,NATIVE-END
 import OptionValues.*
 import scala.collection.mutable.WrappedArray
-//import org.scalactic.StrictCheckedEquality
 import org.scalactic.Equality
 import org.scalactic.{Pass, Fail}
 import org.scalactic.{Good, Bad}
@@ -294,9 +290,7 @@ class PosZFiniteFloatSpec extends funspec.AnyFunSpec with matchers.should.Matche
 
     it("should offer 'round', 'ceil', and 'floor' methods that are consistent with Float") {
       forAll { (pzfloat: PosZFiniteFloat) =>
-        // SKIP-SCALATESTJS,NATIVE-START
-        pzfloat.round.toFloat shouldEqual pzfloat.toFloat.round
-        // SKIP-SCALATESTJS,NATIVE-END
+        pzfloat.round shouldEqual pzfloat.toFloat.round
         pzfloat.ceil.toFloat shouldEqual pzfloat.toFloat.ceil
         pzfloat.floor.toFloat shouldEqual pzfloat.toFloat.floor
       }

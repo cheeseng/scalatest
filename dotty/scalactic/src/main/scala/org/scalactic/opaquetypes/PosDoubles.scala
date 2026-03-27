@@ -22,6 +22,7 @@ import org.scalactic.{Validation, Pass, Fail}
 import org.scalactic.{Or, Good, Bad}
 
 import PosLongs.PosZLong
+import PosInts.PosZInt
 import NonZeroDoubles.NonZeroDouble
 
 object PosDoubles {
@@ -411,12 +412,23 @@ object PosDoubles {
       /** Return true if this PosZDouble is positive infinity. */
       def isPosInfinity: Boolean = p == Double.PositiveInfinity
       /**
-        * Returns the <code>PosZFloat</code> sum of this value and `x`.
+        * Returns the <code>PosZDouble</code> sum of this value and `x`.
         *
         * <p>
         * This method will always succeed (not throw an exception) because
-        * adding a non-negative Float to another non-negative Float
-        * will always result in another non-negative Float
+        * adding a non-negative Int to another non-negative Double
+        * will always result in another non-negative Double
+        * value (though the result may be infinity).
+        * </p>
+        */
+      def plus(x: PosZInt): PosZDouble = PosZDouble.ensuringValid(p + x.value)
+      /**
+        * Returns the <code>PosZDouble</code> sum of this value and `x`.
+        *
+        * <p>
+        * This method will always succeed (not throw an exception) because
+        * adding a non-negative Double to another non-negative Double
+        * will always result in another non-negative Double
         * value (though the result may be infinity).
         * </p>
         */

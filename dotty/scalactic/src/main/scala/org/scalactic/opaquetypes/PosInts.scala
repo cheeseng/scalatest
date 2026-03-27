@@ -22,6 +22,7 @@ import org.scalactic.{Validation, Pass, Fail}
 import org.scalactic.{Or, Good, Bad}
 import PosLongs.PosZLong
 import PosDoubles.PosZDouble
+import NegInts.{NegInt, NegZInt}
 
 object PosInts {
 
@@ -32,30 +33,6 @@ object PosInts {
    */
   opaque type PosZInt = Int
 
-  /** Lower-priority given conversions for PosZInt.
-    *
-    * These conversions are provided at low priority to avoid 
-    * conflict resolution in the presence of other numeric conversions.
-    */
-  trait PosZIntConversionsLowPriority {
-    /** Convert a [[PosZInt]] to a plain Long with the same numeric value. */
-    given Conversion[PosZInt, Long] with {
-      def apply(pos: PosZInt): Long = pos.toLong
-    }
-    /** Convert a [[PosZInt]] to a Double preserving its numeric value. */
-    given Conversion[PosZInt, Double] with {
-      def apply(pos: PosZInt): Double = pos.toDouble
-    }
-    /** Convert a [[PosZInt]] to a [[PosZLong]] with the same numeric value. */
-    given Conversion[PosZInt, PosZLong] with {
-      def apply(pos: PosZInt): PosZLong = PosZLong.ensuringValid(pos.toLong)
-    }
-    /** Convert a [[PosZInt]] to a [[PosZDouble]] with the same numeric value. */
-    given Conversion[PosZInt, PosZDouble] with {
-      def apply(pos: PosZInt): PosZDouble = PosZDouble.ensuringValid(pos.toDouble)
-    }
-  }
-
   /** Companion object for the [[PosZInt]] opaque type.
     *
     * Provides factory and validation methods, given conversions, extension
@@ -64,7 +41,7 @@ object PosInts {
     * integer literals; use [[ensuringValid]], [[from]], or other helpers for
     * runtime values.
     */
-  object PosZInt extends PosZIntConversionsLowPriority {
+  object PosZInt {
     
     /** Compile-time factory for creating a [[PosZInt]] from an integer literal.
       *
@@ -315,6 +292,18 @@ object PosInts {
       /** Return the unsigned octal string representation of the underlying Int. */
       def toOctalString: String = java.lang.Integer.toOctalString(x)
 
+      /** Convert to Long preserving its numeric value. */
+      def toLong: Long = x.toLong
+
+      /** Convert to Double preserving its numeric value. */
+      def toDouble: Double = x.toDouble
+
+      /** Convert to PosZLong preserving its numeric value. */
+      def toPosZLong: PosZLong = x.toLong
+
+      /** Convert to PosZDouble preserving its numeric value. */
+      def toPosZDouble: PosZDouble = x.toDouble
+
       /**
         * Create an inclusive <code>Range</code> from this <code>PosZInt</code> value
         * to the specified <code>end</code> with step value 1.
@@ -369,11 +358,82 @@ object PosInts {
           throw new AssertionError(Resources.invalidPosZInt)
         else res
       }
-    }
-    
-    /** Convert a [[PosZInt]] to a plain Int (unwrap). */
-    given Conversion[PosZInt, Int] with {
-      def apply(x: PosZInt): Int = x
+
+      /** Bitwise negation of the underlying Int. */
+      def unary_~ : Int = ~value
+
+      /** Unary plus operator (no-op). */
+      def unary_+ : PosZInt = value
+
+      /** Unary minus operator, resulting in a [[NegZInt]]. */
+      def unary_- : NegZInt = NegZInt.ensuringValid(-value)
+
+      /** Returns this value bit-shifted left by the specified number of bits, filling in the new right bits with zeroes. */
+      def <<(n: Int): Int = value << n
+
+      /** Returns this value bit-shifted left by the specified number of bits, filling in the new right bits with zeroes. */
+      def <<(n: Long): Long = value << n
+
+      /** Returns this value bit-shifted right by the specified number of bits, filling the new left bits with zeroes. */
+      def >>>(n: Int): Int = value >>> n
+
+      /** Returns this value bit-shifted right by the specified number of bits, filling the new left bits with zeroes. */
+      def >>>(n: Long): Long = value >>> n
+
+      /**Returns this value bit-shifted right by the specified number of bits, filling in the left bits with the same 
+       * value as the left-most bit of this. The effect of this is to retain the sign of the value.
+       */
+      def >>(n: Int): PosZInt = value >> n
+
+      /**Returns this value bit-shifted right by the specified number of bits, filling in the left bits with the same 
+       * value as the left-most bit of this. The effect of this is to retain the sign of the value.
+       */
+      def >>(n: Long): PosZInt = value >> n
+
+      /** Returns the bitwise OR of this value and y. */
+      def |(y: Byte): Int = value | y
+
+      /** Returns the bitwise OR of this value and y. */
+      def |(y: Short): Int = value | y
+
+      /** Returns the bitwise OR of this value and y. */
+      def |(y: Char): Int = value | y
+      
+      /** Returns the bitwise OR of this value and y. */
+      def |(y: Int): Int = value | y
+
+      /** Returns the bitwise OR of this value and y. */
+      def |(y: Long): Long = value | y
+
+      /** Returns the bitwise AND of this value and y. */
+      def &(y: Byte): Int = value & y
+
+      /** Returns the bitwise AND of this value and y. */
+      def &(y: Short): Int = value & y
+
+      /** Returns the bitwise AND of this value and y. */
+      def &(y: Char): Int = value & y
+
+      /** Returns the bitwise AND of this value and y. */
+      def &(y: Int): Int = value & y
+
+      /** Returns the bitwise AND of this value and y. */
+      def &(y: Long): Long = value & y
+
+      /** Returns the bitwise XOR of this value and y. */
+      def ^(y: Byte): Int = value ^ y
+
+      /** Returns the bitwise XOR of this value and y. */
+      def ^(y: Short): Int = value ^ y
+
+      /** Returns the bitwise XOR of this value and y. */
+      def ^(y: Char): Int = value ^ y
+
+      /** Returns the bitwise XOR of this value and y. */
+      def ^(y: Int): Int = value ^ y
+
+      /** Returns the bitwise XOR of this value and y. */
+      def ^(y: Long): Long = value ^ y
     }
   
     /** Convert a compile-time Int literal or runtime Int to a [[PosZInt]].
@@ -637,11 +697,11 @@ object PosInts {
     /**
       * The smallest value representable as a positive integer <code>Int</code>, which is <code>PosInt(1)</code>.
       */
-    val MinValue: PosInt = 1  
+    val MinValue: PosInt = 1
 
-    /** Convert a [[PosInt]] to a plain Int (unwrap). */
-    given Conversion[PosInt, Int] with {
-      def apply(x: PosInt): Int = x
+    extension (x: PosInt) {
+      /** Unary minus operator, resulting in a [[NegInt]]. */
+      def unary_- : NegInt = NegInt.ensuringValid(-x)
     }
   
     /** Convert a compile-time Int literal or runtime Int to a [[PosInt]].

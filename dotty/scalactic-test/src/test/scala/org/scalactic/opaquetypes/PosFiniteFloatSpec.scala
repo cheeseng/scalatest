@@ -19,9 +19,6 @@ import org.scalatest.*
 import OptionValues.*
 import org.scalactic.TypeCheckedTripleEquals
 import org.scalatest.prop.PropertyChecks
-// SKIP-SCALATESTJS,NATIVE-START
-import scala.collection.immutable.NumericRange
-// SKIP-SCALATESTJS,NATIVE-END
 import scala.util.{Failure, Success, Try}
 import org.scalactic.{Good, Bad}
 import org.scalactic.{Pass, Fail}
