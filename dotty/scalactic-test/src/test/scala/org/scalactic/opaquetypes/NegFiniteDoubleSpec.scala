@@ -41,18 +41,18 @@ class NegFiniteDoubleSpec extends AnyFunSpec with Matchers {
     it("should offer a passOrElse factory method") {
       import org.scalactic.{Pass, Fail}
       assert(NegFiniteDouble.passOrElse(-50.0)(_ => "fail") == Pass)
-      assert(NegFiniteDouble.passOrElse(0.0)(i => s"$i did not taste good") == Fail("0.0 did not taste good"))
+      assert(NegFiniteDouble.passOrElse(0.0)(i => f"$i%.1f did not taste good") == Fail("0.0 did not taste good"))
     }
 
     it("should offer a goodOrElse factory method") {
       import org.scalactic.{Good, Bad}
       assert(NegFiniteDouble.goodOrElse(-50.3)(_ => "fail").get.value == -50.3)
-      assert(NegFiniteDouble.goodOrElse(0.0)(i => s"$i did not taste good") == Bad("0.0 did not taste good"))
+      assert(NegFiniteDouble.goodOrElse(0.0)(i => f"$i%.1f did not taste good") == Bad("0.0 did not taste good"))
     }
 
     it("should offer a rightOrElse factory method") {
       assert(NegFiniteDouble.rightOrElse(-50.3)(_ => "fail").toOption.get.value == -50.3)
-      assert(NegFiniteDouble.rightOrElse(0.0)(i => s"$i did not taste good") == Left("0.0 did not taste good"))
+      assert(NegFiniteDouble.rightOrElse(0.0)(i => f"$i%.1f did not taste good") == Left("0.0 did not taste good"))
     }
 
     it("should offer an isValid predicate method") {
