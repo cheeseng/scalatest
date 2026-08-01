@@ -426,11 +426,20 @@ class ListShouldContainNoneOfSpec extends AnyFunSpec {
         }
       }
       it("should use an explicitly provided Equality") {
+        // SKIP-DOTTY-START
         (all (toLists) should not contain noneOf ("HAPPY", "BIRTHDAY", "TO", "YOU")) (decided by upperCaseEquality)
+        // SKIP-DOTTY-END
+        //DOTTY-ONLY (all (toLists) should not contain noneOf ("HAPPY", "BIRTHDAY", "TO", "YOU")) (using upperCaseEquality)
         intercept[TestFailedException] {
+          // SKIP-DOTTY-START
           (all (toLists) should not contain noneOf ("happy", "birthday", "to", "you")) (decided by upperCaseEquality)
+          // SKIP-DOTTY-END
+          //DOTTY-ONLY (all (toLists) should not contain noneOf ("happy", "birthday", "to", "you")) (using upperCaseEquality)
         }
+        // SKIP-DOTTY-START
         (all (toLists) should not contain noneOf (" HAPPY ", " BIRTHDAY ", " TO ", " YOU ")) (after being lowerCased and trimmed)
+        // SKIP-DOTTY-END
+        //DOTTY-ONLY (all (toLists) should not contain noneOf (" HAPPY ", " BIRTHDAY ", " TO ", " YOU ")) (using after being lowerCased and trimmed)
         intercept[TestFailedException] {
           all (toLists) should not contain noneOf (" HAPPY ", " BIRTHDAY ", " TO ", " YOU ")
         }

@@ -433,13 +433,22 @@ class EveryShouldContainAllOfSpec extends AnyFunSpec {
         }
       }
       it("should use an explicitly provided Equality") {
+        // SKIP-DOTTY-START
         (all (toLists) should not contain allOf ("NICE", "MEET", "YOU")) (decided by upperCaseStringEquality)
+        // SKIP-DOTTY-END
+        //DOTTY-ONLY (all (toLists) should not contain allOf ("NICE", "MEET", "YOU")) (using upperCaseStringEquality)
         intercept[TestFailedException] {
+          // SKIP-DOTTY-START
           (all (toLists) should not contain allOf ("YOU", "TO")) (decided by upperCaseStringEquality)
+          // SKIP-DOTTY-END
+          //DOTTY-ONLY (all (toLists) should not contain allOf ("YOU", "TO")) (using upperCaseStringEquality)
         }
         all (toLists) should not contain allOf (" YOU ", " TO ")
         intercept[TestFailedException] {
+          // SKIP-DOTTY-START
           (all (toLists) should not contain allOf (" YOU ", " TO ")) (after being lowerCased and trimmed)
+          // SKIP-DOTTY-END
+          //DOTTY-ONLY (all (toLists) should not contain allOf (" YOU ", " TO ")) (using after being lowerCased and trimmed)
         }
       }
       it("should throw NotAllowedException with correct stack depth and message when RHS contain duplicated value") {

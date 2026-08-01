@@ -405,13 +405,22 @@ scala> all (some1s) should (contain (oneOf (1, 3, 4)))
         }
       }
       it("should use an explicitly provided Equality") {
+        // SKIP-DOTTY-START
         (all (toSomes) should not contain oneOf ("happy", "birthday", "to", "you")) (decided by upperCaseEquality)
+        // SKIP-DOTTY-END
+        //DOTTY-ONLY (all (toSomes) should not contain oneOf ("happy", "birthday", "to", "you")) (using decided by upperCaseEquality)
         intercept[TestFailedException] {
+          // SKIP-DOTTY-START
           (all (toSomes) should not contain oneOf ("HAPPY", "BIRTHDAY", "TO", "YOU")) (decided by upperCaseEquality)
+          // SKIP-DOTTY-END
+          //DOTTY-ONLY (all (toSomes) should not contain oneOf ("HAPPY", "BIRTHDAY", "TO", "YOU")) (using decided by upperCaseEquality)
         }
         all (toSomes) should not contain oneOf (" happy ", " birthday ", " to ", " you ")
         intercept[TestFailedException] {
+          // SKIP-DOTTY-START
           (all (toSomes) should not contain oneOf (" happy ", " birthday ", " to ", " you ")) (after being lowerCased and trimmed)
+          // SKIP-DOTTY-END
+          //DOTTY-ONLY (all (toSomes) should not contain oneOf (" happy ", " birthday ", " to ", " you ")) (using after being lowerCased and trimmed)
         }
       }
       it("should throw NotAllowedException with correct stack depth and message when RHS contain duplicated value") {

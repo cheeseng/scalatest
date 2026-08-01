@@ -465,13 +465,22 @@ class EveryShouldContainOneOfSpec extends AnyFunSpec {
         }
       }
       it("should use an explicitly provided Equality") {
+        // SKIP-DOTTY-START
         (all (toLists) should not contain oneOf ("happy", "birthday", "to", "you")) (decided by upperCaseEquality)
+        // SKIP-DOTTY-END
+        //DOTTY-ONLY (all (toLists) should not contain oneOf ("happy", "birthday", "to", "you")) (using upperCaseEquality)
         intercept[TestFailedException] {
+          // SKIP-DOTTY-START
           (all (toLists) should not contain oneOf ("HAPPY", "BIRTHDAY", "TO", "YOU")) (decided by upperCaseEquality)
+          // SKIP-DOTTY-END
+          //DOTTY-ONLY (all (toLists) should not contain oneOf ("HAPPY", "BIRTHDAY", "TO", "YOU")) (using upperCaseEquality)
         }
         all (toLists) should not contain oneOf (" HAPPY ", " BIRTHDAY ", " TO ", " YOU ")
         intercept[TestFailedException] {
+          // SKIP-DOTTY-START
           (all (toLists) should not contain oneOf (" HAPPY ", " BIRTHDAY ", " TO ", " YOU ")) (after being lowerCased and trimmed)
+          // SKIP-DOTTY-END
+          //DOTTY-ONLY (all (toLists) should not contain oneOf (" HAPPY ", " BIRTHDAY ", " TO ", " YOU ")) (using after being lowerCased and trimmed)
         }
       }
       it("should throw NotAllowedException with correct stack depth and message when RHS contain duplicated value") {

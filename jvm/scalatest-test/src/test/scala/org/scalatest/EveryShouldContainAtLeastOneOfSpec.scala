@@ -463,13 +463,22 @@ class EveryShouldContainAtLeastOneOfSpec extends AnyFunSpec {
         }
       }
       it("should use an explicitly provided Equality") {
+        // SKIP-DOTTY-START
         (all (toLists) should not contain atLeastOneOf ("to", "you")) (decided by upperCaseStringEquality)
+        // SKIP-DOTTY-END
+        //DOTTY-ONLY (all (toLists) should not contain atLeastOneOf ("to", "you")) (using upperCaseStringEquality)
         intercept[TestFailedException] {
+          // SKIP-DOTTY-START
           (all (toLists) should not contain atLeastOneOf ("TO", "YOU")) (decided by upperCaseStringEquality)
+          // SKIP-DOTTY-END
+          //DOTTY-ONLY (all (toLists) should not contain atLeastOneOf ("TO", "YOU")) (using upperCaseStringEquality)
         }
         all (toLists) should not contain atLeastOneOf (" TO ", " YOU ")
         intercept[TestFailedException] {
+          // SKIP-DOTTY-START
           (all (toLists) should not contain atLeastOneOf (" TO ", " YOU ")) (after being lowerCased and trimmed)
+          // SKIP-DOTTY-END
+          //DOTTY-ONLY (all (toLists) should not contain atLeastOneOf (" TO ", " YOU ")) (using after being lowerCased and trimmed)
         }
       }
       it("should throw NotAllowedException with correct stack depth and message when RHS contain duplicated value") {

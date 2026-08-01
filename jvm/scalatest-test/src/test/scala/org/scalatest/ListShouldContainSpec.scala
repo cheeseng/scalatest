@@ -708,10 +708,16 @@ class ListShouldContainSpec extends AnyFunSpec {
         all (hiLists) should not contain "HI"
         all (hiLists) should not contain "HI "
         intercept[TestFailedException] {
+          // SKIP-DOTTY-START
           (all (hiLists) should not contain "HI") (decided by defaultEquality afterBeing lowerCased)
+          // SKIP-DOTTY-END
+          //DOTTY-ONLY (all (hiLists) should not contain "HI") (using decided by defaultEquality afterBeing lowerCased)
         }
         intercept[TestFailedException] {
+          // SKIP-DOTTY-START
           (all (hiLists) should not contain "HI ") (after being trimmed and lowerCased)
+          // SKIP-DOTTY-END
+          //DOTTY-ONLY (all (hiLists) should not contain "HI ") (using after being trimmed and lowerCased)
         }
       }
       it("should do nothing when used with null and LHS did not contain null value") {

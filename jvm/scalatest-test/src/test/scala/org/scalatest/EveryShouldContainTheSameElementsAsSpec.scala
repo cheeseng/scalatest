@@ -370,13 +370,22 @@ class EveryShouldContainTheSameElementsAsSpec extends AnyFunSpec {
         }
       }
       it("should use an explicitly provided Equality") {
+        // SKIP-DOTTY-START
         (all (toLists) should not contain theSameElementsAs (Set("NICE", "TO", "MEET", "YOU"))) (decided by upperCaseStringEquality)
+        // SKIP-DOTTY-END
+        //DOTTY-ONLY (all (toLists) should not contain theSameElementsAs (Set("NICE", "TO", "MEET", "YOU"))) (using upperCaseStringEquality)
         intercept[TestFailedException] {
+          // SKIP-DOTTY-START
           (all (toLists) should not contain theSameElementsAs (Set("YOU", "TO"))) (decided by upperCaseStringEquality)
+          // SKIP-DOTTY-END
+          //DOTTY-ONLY (all (toLists) should not contain theSameElementsAs (Set("YOU", "TO"))) (using upperCaseStringEquality)
         }
         all (toLists) should not contain theSameElementsAs (Set(" YOU ", " TO "))
         intercept[TestFailedException] {
+          // SKIP-DOTTY-START
           (all (toLists) should not contain theSameElementsAs (Set(" YOU ", " TO "))) (after being lowerCased and trimmed)
+          // SKIP-DOTTY-END
+          //DOTTY-ONLY (all (toLists) should not contain theSameElementsAs (Set(" YOU ", " TO "))) (using after being lowerCased and trimmed)
         }
       }
     }

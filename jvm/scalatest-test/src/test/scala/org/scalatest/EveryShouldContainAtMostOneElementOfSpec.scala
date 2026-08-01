@@ -397,11 +397,20 @@ class EveryShouldContainAtMostOneElementOfSpec extends AnyFunSpec {
       }
 
       it("should use an explicitly provided Equality") {
+        // SKIP-DOTTY-START
         (all (toLists) should not contain atMostOneElementOf (Seq("HAPPY", "BIRTHDAY", "TO", "YOU"))) (decided by upperCaseStringEquality)
+        // SKIP-DOTTY-END
+        //DOTTY-ONLY (all (toLists) should not contain atMostOneElementOf (Seq("HAPPY", "BIRTHDAY", "TO", "YOU"))) (using upperCaseStringEquality)
         intercept[TestFailedException] {
+          // SKIP-DOTTY-START
           (all (toLists) should not contain atMostOneElementOf (Seq("FEE", "FIE", "FOE", "FUM"))) (decided by upperCaseStringEquality)
+          // SKIP-DOTTY-END
+          //DOTTY-ONLY (all (toLists) should not contain atMostOneElementOf (Seq("FEE", "FIE", "FOE", "FUM"))) (using upperCaseStringEquality)
         }
+        // SKIP-DOTTY-START
         (all (toLists) should not contain atMostOneElementOf (Seq(" HAPPY ", " BIRTHDAY ", " TO ", " YOU "))) (after being lowerCased and trimmed)
+        // SKIP-DOTTY-END
+        //DOTTY-ONLY (all (toLists) should not contain atMostOneElementOf (Seq(" HAPPY ", " BIRTHDAY ", " TO ", " YOU "))) (using after being lowerCased and trimmed)
         intercept[TestFailedException] {
           all (toLists) should not contain atMostOneElementOf (Seq(" HAPPY ", " BIRTHDAY ", " TO ", " YOU "))
         }

@@ -370,13 +370,22 @@ class EveryShouldContainTheSameElementsInOrderAsSpec extends AnyFunSpec {
         }
       }
       it("should use an explicitly provided Equality") {
+        // SKIP-DOTTY-START
         (all (toLists) should not contain theSameElementsInOrderAs (ListBuffer("YOU", "TO"))) (decided by upperCaseStringEquality)
+        // SKIP-DOTTY-END
+        //DOTTY-ONLY (all (toLists) should not contain theSameElementsInOrderAs (ListBuffer("YOU", "TO"))) (using upperCaseStringEquality)
         intercept[TestFailedException] {
+          // SKIP-DOTTY-START
           (all (toLists) should not contain theSameElementsInOrderAs (ListBuffer("TO", "YOU"))) (decided by upperCaseStringEquality)
+          // SKIP-DOTTY-END
+          //DOTTY-ONLY (all (toLists) should not contain theSameElementsInOrderAs (ListBuffer("TO", "YOU"))) (using upperCaseStringEquality)
         }
         all (toLists) should not contain theSameElementsInOrderAs (ListBuffer(" TO ", " YOU "))
         intercept[TestFailedException] {
+          // SKIP-DOTTY-START
           (all (toLists) should not contain theSameElementsInOrderAs (ListBuffer(" TO ", " YOU "))) (after being lowerCased and trimmed)
+          // SKIP-DOTTY-END
+          //DOTTY-ONLY (all (toLists) should not contain theSameElementsInOrderAs (ListBuffer(" TO ", " YOU "))) (using after being lowerCased and trimmed)
         }
       }
     }

@@ -146,13 +146,19 @@ class ShouldBeDefinedExplicitSpec extends AnyFunSpec {
     describe("when work with 'all(xs) should not be defined'") {
       
       it("should do nothing when all(xs) is not defined") {
+        // SKIP-DOTTY-START
         (all(List(nothing)) should not be defined) (definition)
+        // SKIP-DOTTY-END
+        //DOTTY-ONLY (all(List(nothing)) should not be defined) (using definition)
       }
       
       it("should throw TestFailedException with correct stack depth when all(xs) is defined") {
         val left1 = List(something)
         val caught1 = intercept[TestFailedException] {
+          // SKIP-DOTTY-START
           (all(left1) should not be defined) (definition)
+          // SKIP-DOTTY-END
+          //DOTTY-ONLY (all(left1) should not be defined) (using definition)
         }
         assert(caught1.message === Some(allError(left1, wasDefined(something), thisLineNumber - 2)))
         assert(caught1.failedCodeFileName === Some(fileName))

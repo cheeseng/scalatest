@@ -393,13 +393,22 @@ class EveryShouldContainAllElementsOfSpec extends AnyFunSpec {
         }
       }
       it("should use an explicitly provided Equality") {
+        // SKIP-DOTTY-START
         (all (toLists) should not contain allElementsOf (Seq("NICE", "MEET", "YOU"))) (decided by upperCaseStringEquality)
+        // SKIP-DOTTY-END
+        //DOTTY-ONLY (all (toLists) should not contain allElementsOf (Seq("NICE", "MEET", "YOU"))) (using upperCaseStringEquality)
         intercept[TestFailedException] {
+          // SKIP-DOTTY-START
           (all (toLists) should not contain allElementsOf (Seq("YOU", "TO"))) (decided by upperCaseStringEquality)
+          // SKIP-DOTTY-END
+          //DOTTY-ONLY (all (toLists) should not contain allElementsOf (Seq("YOU", "TO"))) (using upperCaseStringEquality)
         }
         all (toLists) should not contain allElementsOf (Seq(" YOU ", " TO "))
         intercept[TestFailedException] {
+          // SKIP-DOTTY-START
           (all (toLists) should not contain allElementsOf (Seq(" YOU ", " TO "))) (after being lowerCased and trimmed)
+          // SKIP-DOTTY-END
+          //DOTTY-ONLY (all (toLists) should not contain allElementsOf (Seq(" YOU ", " TO "))) (using after being lowerCased and trimmed)
         }
       }
       it("should allow RHS to contain duplicated value") {

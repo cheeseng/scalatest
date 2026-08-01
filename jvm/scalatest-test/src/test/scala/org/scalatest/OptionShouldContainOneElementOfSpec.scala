@@ -375,13 +375,22 @@ class OptionShouldContainOneElementOfSpec extends AnyFunSpec {
         }
       }
       it("should use an explicitly provided Equality") {
+        // SKIP-DOTTY-START
         (all (toSomes) should not contain oneElementOf (Seq("happy", "birthday", "to", "you"))) (decided by upperCaseEquality)
+        // SKIP-DOTTY-END
+        //DOTTY-ONLY (all (toSomes) should not contain oneElementOf (Seq("happy", "birthday", "to", "you"))) (using decided by upperCaseEquality)
         intercept[TestFailedException] {
+          // SKIP-DOTTY-START
           (all (toSomes) should not contain oneElementOf (Seq("HAPPY", "BIRTHDAY", "TO", "YOU"))) (decided by upperCaseEquality)
+          // SKIP-DOTTY-END
+          //DOTTY-ONLY (all (toSomes) should not contain oneElementOf (Seq("HAPPY", "BIRTHDAY", "TO", "YOU"))) (using decided by upperCaseEquality)
         }
         all (toSomes) should not contain oneElementOf (Seq(" happy ", " birthday ", " to ", " you "))
         intercept[TestFailedException] {
+          // SKIP-DOTTY-START
           (all (toSomes) should not contain oneElementOf (Seq(" happy ", " birthday ", " to ", " you "))) (after being lowerCased and trimmed)
+          // SKIP-DOTTY-END
+          //DOTTY-ONLY (all (toSomes) should not contain oneElementOf (Seq(" happy ", " birthday ", " to ", " you "))) (using after being lowerCased and trimmed)
         }
       }
       it("should allow RHS to contain duplicated value") {
